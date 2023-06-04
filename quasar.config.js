@@ -89,13 +89,13 @@ module.exports = configure(function (ctx) {
         type: 'http'
       },
       port: 3000,
-      proxy: {
-        '/api': {
-          target: 'http://localhost:8080',
-          ws: true,
-          changeOrigin: true
-        }
-      },
+      // proxy: {
+      //   '/api': {
+      //     target: 'http://localhost:8080',
+      //     ws: true,
+      //     changeOrigin: true
+      //   }
+      // },
       open: true, // opens browser window automatically,
       headers: {
         'Referrer-Policy': 'no-referrer-when-downgrade'
