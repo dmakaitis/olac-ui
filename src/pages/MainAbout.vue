@@ -1,22 +1,32 @@
 <template>
   <q-page>
     <div class="container q-gutter-y-lg">
-      <ArticleWithImages slug="omaha-lithuanian-american-community"/>
-      <ArticleWithImages slug="ausra"/>
-      <ArticleWithImages slug="women-s-club"/>
-      <ArticleWithImages slug="omaha-sister-cities-association-osca"/>
-      <ArticleWithImages slug="rambynas"/>
-      <ArticleWithImages slug="scouts"/>
+      <ArticleWithImages v-for="slug in slugs" :key="slug" :slug="slug"/>
     </div>
   </q-page>
 </template>
 
 <script>
+import {ref} from "vue";
+import {useSanityFetcher} from "vue-sanity";
 import ArticleWithImages from "components/ArticleWithImages.vue";
 
 export default {
   name: "MainAbout",
-  components: {ArticleWithImages}
+  components: {ArticleWithImages},
+  setup() {
+    return {
+      slugs: ref([])
+    }
+  },
+  mounted() {
+    useSanityFetcher('*[_id == "3989c665-b8cb-4f90-959b-285f5a6e0a4a"]{title, "slugs": articles[]->slug.current}').fetch()
+      .then(result => {
+        console.log(`Retrieved: ${JSON.stringify(result)}`)
+        console.log(`Title: ${result[0].title}`)
+        this.slugs = result[0].slugs
+      })
+  }
 }
 </script>
 

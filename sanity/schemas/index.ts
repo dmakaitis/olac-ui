@@ -1,2 +1,4 @@
 import article from './article.js'
-export const schemaTypes = [article]
+import collection from "./collection";
+
+export const schemaTypes = [article, collection]
