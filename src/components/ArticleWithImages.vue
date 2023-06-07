@@ -1,17 +1,20 @@
 <template>
   <q-card>
-    <q-card-section>
+    <q-card-section v-if="loading">
+      <div class="text-center"><q-spinner size="lg"/></div>
+    </q-card-section>
+    <q-card-section v-if="!loading">
       <div v-if="title" class="text-h4">{{ title }}</div>
       <div v-if="subtitle" class="text-h5">{{ subtitle }}</div>
     </q-card-section>
-    <q-card-section>
+    <q-card-section v-if="!loading">
       <div v-if="leftImagesArray.length" class="float-left">
         <q-img v-for="image in leftImagesArray" :key="image" :src="image" class="shadow-24"/>
       </div>
       <div v-if="rightImagesArray.length" class="float-right">
         <q-img v-for="image in rightImagesArray" :key="image" :src="image" class="shadow-24"/>
       </div>
-      <slot></slot>
+      <SanityBlocks :blocks="copy"/>
       <div style="clear: both;"></div>
     </q-card-section>
   </q-card>
@@ -19,41 +22,40 @@
 
 <script>
 import {ref} from "vue";
+import {useSanityFetcher} from "vue-sanity";
+import {SanityBlocks} from "sanity-blocks-vue-component";
 
 export default {
   name: "ArticleWithImages",
+  components: {SanityBlocks},
   props: {
-    title: String,
-    subtitle: String,
-    leftImages: Array,
-    rightImages: Array
+    slug: String,
   },
   setup(props) {
     return {
+      loading: ref(true),
+      title: ref(''),
+      subtitle: ref(''),
       leftImagesArray: ref([]),
-      rightImagesArray: ref([])
+      rightImagesArray: ref([]),
+      copy: ref([]),
     }
   },
   mounted() {
-    if (this.leftImages instanceof Array) {
-      this.leftImagesArray = this.leftImages
-    } else {
-      if (this.leftImages) {
-        this.leftImagesArray = [this.leftImages]
-      } else {
-        this.leftImagesArray = []
-      }
-    }
+    useSanityFetcher(() => `*[slug.current == '${this.slug}'][0]{title, subtitle, imagesOnLeft, copy, "imageUrls": images[].asset->url}`).fetch()
+      .then(result => {
+        this.loading = false
 
-    if (this.rightImages instanceof Array) {
-      this.rightImagesArray = this.rightImages
-    } else {
-      if (this.rightImages) {
-        this.rightImagesArray = [this.rightImages]
-      } else {
-        this.rightImagesArray = []
-      }
-    }
+        this.title = result.title
+        this.subtitle = result.subtitle
+        this.copy = result.copy
+
+        if (result.imagesOnLeft) {
+          this.leftImagesArray = result.imageUrls
+        } else {
+          this.rightImagesArray = result.imageUrls
+        }
+      })
   }
 }
 </script>
