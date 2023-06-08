@@ -9,17 +9,22 @@
       <q-toolbar>
         <q-toolbar-title>
           <q-tabs align="center" no-caps>
-            <q-route-tab to="/main/about" replace label="Home"/>
-            <q-btn-dropdown class="q-btn--no-uppercase" auto-close stretch flat label="About...">
-              <q-list>
-                <q-item v-for="article in aboutArticles" :key="article.slug" clickable @click="$router.push(`/main/article/${article.slug}`)">
-                  <q-item-section>{{ article.title }}</q-item-section>
-                </q-item>
-              </q-list>
-            </q-btn-dropdown>
-<!--            <q-route-tab to="/main/tickets" target="_top" label="OLAC 70th Anniversary Event"/>-->
-            <q-route-tab v-if="isLoggedIn" to="/main/reservations" replace label="Reservations"/>
-            <q-route-tab v-if="isAdmin" to="/admin/ticket-types" replace label="Admin"/>
+            <span v-for="item in tabItems" :key="item">
+              <q-route-tab v-if="item._type == 'routetarget'" :to="item.target" replace :label="item.label"/>
+              <q-route-tab v-if="item._type == 'reference'" :to="`/main/article/${item.target}`" replace :label="item.label"/>
+              <q-btn-dropdown v-if="item._type == 'tabmenu'" class="q-btn--no-uppercase" auto-close stretch flat :label="item.label">
+                <q-list>
+                  <span v-for="subitem in item.items" :key="subitem">
+                    <q-item v-if="subitem._type == 'routetarget'" clickable @click="$router.push(`${subitem.target}`)">
+                      <q-item-section>{{ subitem.label }}</q-item-section>
+                    </q-item>
+                    <q-item v-if="subitem._type == 'reference'" clickable @click="$router.push(`/main/article/${subitem.target}`)">
+                      <q-item-section>{{ subitem.label }}</q-item-section>
+                    </q-item>
+                  </span>
+                </q-list>
+              </q-btn-dropdown>
+            </span>
           </q-tabs>
         </q-toolbar-title>
 
@@ -51,7 +56,6 @@ export default {
   name: 'AdminLayout',
   methods: {
     showLogin() {
-      console.log(`Should show login button: ${this.showLoginButton && !this.isLoggedIn}`)
       return this.showLoginButton && !this.isLoggedIn
     }
   },
@@ -63,7 +67,7 @@ export default {
       isAdmin: ref(false),
       isLoggedIn: ref(false),
       showLoginButton: ref(false),
-      aboutArticles: ref([])
+      tabItems: ref([])
     }
   },
   mounted() {
@@ -71,9 +75,9 @@ export default {
     this.isLoggedIn = this.store.getters['auth/isLoggedIn']
     this.showLoginButton = this.store.getters['config/showLogin']
 
-    useSanityFetcher('*[_id == "3989c665-b8cb-4f90-959b-285f5a6e0a4a"]{title, articles[]->{title, "slug": slug.current, "imageUrl": images[0].asset->url}}').fetch()
+    useSanityFetcher('*[slug.current == \'main-menu\'][0]{items[]{_type, "label": coalesce(label, name, @->title), "target": coalesce(target, @->slug.current), items[]{_type, "label": coalesce(label, name, @->title), "target": coalesce(target, @->slug.current)}}}').fetch()
       .then(result => {
-        this.aboutArticles = result[0].articles
+        this.tabItems = result.items
       })
   }
 }
