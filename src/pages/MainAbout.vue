@@ -1,10 +1,10 @@
 <template>
   <q-page>
     <div class="container q-pa-md row items-start q-gutter-md justify-center">
-      <q-card class="my-card" v-for="article in articles" :key="article.slug">
+      <q-card class="my-card shadow-24" v-for="article in articles" :key="article.slug">
         <div v-ripple @click="onClickArticle(article.slug)" class="cursor-pointer relative-position">
-          <q-img :src="article.imageUrl">
-            <div class="absolute-bottom text-subtitle1 text-center">
+          <q-img :src="`${article.imageUrl}?w=300&h=200&fit=min`">
+            <div class="absolute-top text-h5 text-center">
               {{ article.title }}
             </div>
           </q-img>
@@ -29,8 +29,7 @@ export default {
     return {
       articles: ref([])
     }
-  }
-  ,
+  },
   mounted() {
     useSanityFetcher('*[_id == "3989c665-b8cb-4f90-959b-285f5a6e0a4a"]{title, articles[]->{title, "slug": slug.current, "imageUrl": images[0].asset->url}}').fetch()
       .then(result => {
@@ -52,6 +51,11 @@ export default {
 .my-card {
   width: 100%;
   max-width: 300px;
+}
+
+.my-card:hover {
+  position: relative;
+  top: -5px;
 }
 
 hr {

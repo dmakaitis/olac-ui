@@ -1,7 +1,9 @@
 <template>
   <q-card>
     <q-card-section v-if="loading">
-      <div class="text-center"><q-spinner size="lg"/></div>
+      <div class="text-center">
+        <q-spinner size="lg"/>
+      </div>
     </q-card-section>
     <q-card-section v-if="!loading">
       <div v-if="title" class="text-h4">{{ title }}</div>
@@ -9,10 +11,12 @@
     </q-card-section>
     <q-card-section v-if="!loading">
       <div v-if="leftImagesArray.length" class="float-left">
-        <q-img v-for="image in leftImagesArray" :key="image" :src="image" class="shadow-24"/>
+        <img v-for="image in leftImagesArray" :key="image" :src="`${image.url}?w=300`" :alt="image.caption"
+             class="shadow-24"/>
       </div>
       <div v-if="rightImagesArray.length" class="float-right">
-        <q-img v-for="image in rightImagesArray" :key="image" :src="image" class="shadow-24"/>
+        <img v-for="image in rightImagesArray" :key="image" :src="`${image.url}?w=300`" :alt="image.caption"
+             class="shadow-24"/>
       </div>
       <SanityBlocks :blocks="copy"/>
       <div style="clear: both;"></div>
@@ -31,6 +35,30 @@ export default {
   props: {
     slug: String,
   },
+  methods: {
+    onNewSlug() {
+      this.loadedSlug = ''
+      this.loading = true
+
+      useSanityFetcher(() => `*[slug.current == '${this.slug}'][0]{title, subtitle, imagesOnLeft, copy, images[]{caption, "url": asset->url}}`).fetch()
+        .then(result => {
+          this.loading = false
+          this.loadedSlug = this.slug
+
+          this.title = result.title
+          this.subtitle = result.subtitle
+          this.copy = result.copy
+
+          if (result.imagesOnLeft) {
+            this.leftImagesArray = result.images
+            this.rightImagesArray = []
+          } else {
+            this.leftImagesArray = []
+            this.rightImagesArray = result.images
+          }
+        })
+    }
+  },
   setup(props) {
     return {
       loading: ref(true),
@@ -39,23 +67,16 @@ export default {
       leftImagesArray: ref([]),
       rightImagesArray: ref([]),
       copy: ref([]),
+      loadedSlug: ref('')
     }
   },
   mounted() {
-    useSanityFetcher(() => `*[slug.current == '${this.slug}'][0]{title, subtitle, imagesOnLeft, copy, "imageUrls": images[].asset->url}`).fetch()
-      .then(result => {
-        this.loading = false
-
-        this.title = result.title
-        this.subtitle = result.subtitle
-        this.copy = result.copy
-
-        if (result.imagesOnLeft) {
-          this.leftImagesArray = result.imageUrls
-        } else {
-          this.rightImagesArray = result.imageUrls
-        }
-      })
+    this.onNewSlug()
+  },
+  beforeUpdate() {
+    if (this.slug != this.loadedSlug) {
+      this.onNewSlug()
+    }
   }
 }
 </script>
