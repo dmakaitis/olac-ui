@@ -8,7 +8,7 @@ const devOnlyPlugins = [getStartedPlugin()]
 
 export default defineConfig({
   name: 'default',
-  title: 'bisque-rat',
+  title: 'OLAC',
 
   projectId: '1p3vrwxv',
   dataset: 'production',

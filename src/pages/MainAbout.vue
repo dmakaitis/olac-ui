@@ -1,7 +1,15 @@
 <template>
   <q-page>
-    <div class="container q-gutter-y-lg">
-      <ArticleWithImages v-for="slug in slugs" :key="slug" :slug="slug"/>
+    <div class="container q-pa-md row items-start q-gutter-md justify-center">
+      <q-card class="my-card" v-for="article in articles" :key="article.slug">
+        <div v-ripple @click="onClickArticle(article.slug)" class="cursor-pointer relative-position">
+          <q-img :src="article.imageUrl">
+            <div class="absolute-bottom text-subtitle1 text-center">
+              {{ article.title }}
+            </div>
+          </q-img>
+        </div>
+      </q-card>
     </div>
   </q-page>
 </template>
@@ -9,22 +17,27 @@
 <script>
 import {ref} from "vue";
 import {useSanityFetcher} from "vue-sanity";
-import ArticleWithImages from "components/ArticleWithImages.vue";
 
 export default {
   name: "MainAbout",
-  components: {ArticleWithImages},
-  setup() {
-    return {
-      slugs: ref([])
+  methods: {
+    onClickArticle(slug) {
+      this.$router.push(`/main/article/${slug}`)
     }
   },
+  setup() {
+    return {
+      articles: ref([])
+    }
+  }
+  ,
   mounted() {
-    useSanityFetcher('*[_id == "3989c665-b8cb-4f90-959b-285f5a6e0a4a"]{title, "slugs": articles[]->slug.current}').fetch()
+    useSanityFetcher('*[_id == "3989c665-b8cb-4f90-959b-285f5a6e0a4a"]{title, articles[]->{title, "slug": slug.current, "imageUrl": images[0].asset->url}}').fetch()
       .then(result => {
         console.log(`Retrieved: ${JSON.stringify(result)}`)
-        console.log(`Title: ${result[0].title}`)
-        this.slugs = result[0].slugs
+        // console.log(`Title: ${result[0].title}`)
+        // console.log(`Slugs: ${result[0].articles.map(a => a.slug)}`)
+        this.articles = result[0].articles
       })
   }
 }
@@ -34,6 +47,11 @@ export default {
 .container {
   max-width: 1000px;
   margin: auto;
+}
+
+.my-card {
+  width: 100%;
+  max-width: 300px;
 }
 
 hr {
