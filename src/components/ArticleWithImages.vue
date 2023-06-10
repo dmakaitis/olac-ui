@@ -26,7 +26,7 @@ import FloatingImages from "components/FloatingImages.vue";
 
 export default {
   name: "ArticleWithImages",
-  components: {SanityBlocks, ArticleList, ArticleImage},
+  components: {SanityBlocks},
   props: {
     slug: String,
   },

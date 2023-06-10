@@ -25,7 +25,7 @@ const routes = [
   {
     name: 'Home',
     path: '/',
-    redirect: {path: '/main/about'}
+    redirect: {path: '/main/article/home'}
   },
   {
     name: 'Main',
