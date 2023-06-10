@@ -1,9 +1,10 @@
-export default {
+import {defineType, defineField, defineArrayMember} from 'sanity'
+
+export const collection = defineType({
   name: 'collection',
   type: 'object',
-  title: 'Article Collection',
   fields: [
-    {
+    defineField({
       name: 'articles',
       type: 'array',
       title: 'Articles',
@@ -11,7 +12,7 @@ export default {
         type: 'reference',
         to: [{type: 'article'}]
       }]
-    }
+    })
   ],
   preview: {
     select: {
@@ -30,4 +31,4 @@ export default {
       }
     }
   }
-}
+})
