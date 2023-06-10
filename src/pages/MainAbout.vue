@@ -31,7 +31,16 @@ export default {
     }
   },
   mounted() {
-    useSanityFetcher('*[_id == "3989c665-b8cb-4f90-959b-285f5a6e0a4a"]{title, articles[]->{title, "slug": slug.current, "imageUrl": images[0].asset->url}}').fetch()
+    useSanityFetcher(`
+*[_id == "3989c665-b8cb-4f90-959b-285f5a6e0a4a"]{
+  title,
+  articles[]->{
+    title,
+    "slug": slug.current,
+    "imageUrl": images[0].asset->url
+  }
+}
+    `).fetch()
       .then(result => {
         this.articles = result[0].articles
       })

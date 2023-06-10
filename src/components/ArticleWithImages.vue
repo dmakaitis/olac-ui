@@ -5,20 +5,12 @@
         <q-spinner size="lg"/>
       </div>
     </q-card-section>
-    <q-card-section v-if="!loading">
+    <q-card-section v-if="!loading && showTitle">
       <div v-if="title" class="text-h4">{{ title }}</div>
       <div v-if="subtitle" class="text-h5">{{ subtitle }}</div>
     </q-card-section>
     <q-card-section v-if="!loading">
-      <div v-if="leftImagesArray.length" class="float-left">
-        <img v-for="image in leftImagesArray" :key="image" :src="`${image.url}?w=300`" :alt="image.caption"
-             class="shadow-24"/>
-      </div>
-      <div v-if="rightImagesArray.length" class="float-right">
-        <img v-for="image in rightImagesArray" :key="image" :src="`${image.url}?w=300`" :alt="image.caption"
-             class="shadow-24"/>
-      </div>
-      <SanityBlocks :blocks="copy"/>
+      <SanityBlocks :blocks="copy" :serializers="serializers"/>
       <div style="clear: both;"></div>
     </q-card-section>
   </q-card>
@@ -28,10 +20,13 @@
 import {ref} from "vue";
 import {useSanityFetcher} from "vue-sanity";
 import {SanityBlocks} from "sanity-blocks-vue-component";
+import ArticleList from "components/ArticleList.vue";
+import ArticleImage from "components/ArticleImage.vue";
+import FloatingImages from "components/FloatingImages.vue";
 
 export default {
   name: "ArticleWithImages",
-  components: {SanityBlocks},
+  components: {SanityBlocks, ArticleList, ArticleImage},
   props: {
     slug: String,
   },
@@ -40,34 +35,64 @@ export default {
       this.loadedSlug = ''
       this.loading = true
 
-      useSanityFetcher(() => `*[slug.current == '${this.slug}'][0]{title, subtitle, imagesOnLeft, copy, images[]{caption, "url": asset->url}}`).fetch()
+      useSanityFetcher(() => `
+*[_type == 'article' && slug.current == '${this.slug}'][0]{
+  title,
+  subtitle,
+  showtitle,
+  "copy": copy[]{
+    _type == 'collection' => {
+      "articleData": articles[]{
+        "title": @->title,
+        "slug": @->slug.current,
+        "imageUrl": @->image.asset->url
+      },
+      ...
+    },
+    _type == 'image' => {
+      "altText": asset->altText,
+      "url": asset->url,
+      ...
+    },
+    _type == 'floatingimages' => {
+      "imageData": images[]{
+        "altText": asset->altText,
+        "url": asset->url
+      },
+      ...
+    },
+    !(_type in ['image', 'collection', 'floatingimages']) => @
+  }
+}
+      `).fetch()
         .then(result => {
           this.loading = false
           this.loadedSlug = this.slug
 
           this.title = result.title
           this.subtitle = result.subtitle
+          this.showTitle = result.showtitle
           this.copy = result.copy
-
-          if (result.imagesOnLeft) {
-            this.leftImagesArray = result.images
-            this.rightImagesArray = []
-          } else {
-            this.leftImagesArray = []
-            this.rightImagesArray = result.images
-          }
         })
     }
   },
   setup(props) {
+    const serializers = {
+      types: {
+        collection: ArticleList,
+        image: ArticleImage,
+        floatingimages: FloatingImages
+      }
+    }
+
     return {
       loading: ref(true),
+      loadedSlug: ref(''),
       title: ref(''),
       subtitle: ref(''),
-      leftImagesArray: ref([]),
-      rightImagesArray: ref([]),
+      showTitle: ref(false),
       copy: ref([]),
-      loadedSlug: ref('')
+      serializers
     }
   },
   mounted() {
@@ -82,31 +107,5 @@ export default {
 </script>
 
 <style scoped>
-.float-left {
-  float: left;
-  margin: 15px;
-  width: 30%;
-  min-width: 300px;
-}
 
-.float-right {
-  float: right;
-  margin: 15px;
-  width: 30%;
-  min-width: 300px;
-}
-
-@media (max-width: 600px) {
-  .float-left {
-    float: none;
-    width: 100%;
-    min-width: 100%;
-  }
-
-  .float-right {
-    float: none;
-    width: 100%;
-    min-width: 100%;
-  }
-}
 </style>

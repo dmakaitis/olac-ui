@@ -75,7 +75,21 @@ export default {
     this.isLoggedIn = this.store.getters['auth/isLoggedIn']
     this.showLoginButton = this.store.getters['config/showLogin']
 
-    useSanityFetcher('*[slug.current == \'main-menu\'][0]{items[]{_type, "label": coalesce(label, name, @->title), "target": coalesce(target, @->slug.current), items[]{_type, "label": coalesce(label, name, @->title), "target": coalesce(target, @->slug.current)}}}').fetch()
+    useSanityFetcher(`
+*[_type == 'tabbar' && slug.current == "main-menu"][0]
+{
+  items[]{
+    _type,
+    "label": coalesce(label, name, @->title),
+    "target": coalesce(target, @->slug.current),
+    items[]{
+      _type,
+      "label": coalesce(label, name, @->title),
+      "target": coalesce(target, @->slug.current)
+    }
+  }
+}
+    `).fetch()
       .then(result => {
         this.tabItems = result.items
       })

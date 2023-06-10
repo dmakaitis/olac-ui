@@ -10,6 +10,23 @@ export default {
       validation: (rule) => rule.required()
     },
     {
+      name: 'subtitle',
+      type: 'string',
+      title: 'Subtitle'
+    },
+    {
+      name: 'showtitle',
+      type: 'boolean',
+      title: 'Include title when viewing article',
+      initialValue: true
+    },
+    {
+      name: 'language',
+      type: 'string',
+      readOnly: true,
+      hidden: true
+    },
+    {
       name: 'slug',
       type: 'slug',
       title: 'Slug',
@@ -19,39 +36,23 @@ export default {
       validation: (rule) => rule.required()
     },
     {
-      name: 'subtitle',
-      type: 'string',
-      title: 'Subtitle'
-    },
-    {
-      name: 'imagesOnLeft',
-      type: 'boolean',
-      title: 'Images on Left Side',
-      initialValue: true
-    },
-    {
-      name: 'images',
-      type: 'array',
-      title: 'Images',
-      of: [{
-        type: 'image',
-        options: {
-          hotspot: true
-        },
-        fields: [
-          {
-            name: 'caption',
-            type: 'string',
-            title: 'Caption'
-          }
-        ]
-      }]
+      name: 'image',
+      type: 'image',
+      title: 'Image',
+      options: {
+        hotspot: true
+      }
     },
     {
       name: 'copy',
       type: 'array',
       title: 'Copy',
-      of: [{type: 'block'}]
+      of: [
+        {type: 'block'},
+        {type: 'image'},
+        {type: 'floatingimages'},
+        {type: 'collection'}
+      ]
     }
   ]
 }

@@ -1,13 +1,8 @@
 export default {
   name: 'collection',
-  type: 'document',
+  type: 'object',
   title: 'Article Collection',
   fields: [
-    {
-      name: 'title',
-      type: 'string',
-      title: 'Title'
-    },
     {
       name: 'articles',
       type: 'array',
@@ -17,5 +12,22 @@ export default {
         to: [{type: 'article'}]
       }]
     }
-  ]
+  ],
+  preview: {
+    select: {
+      title0: 'articles.0.title',
+      title1: 'articles.1.title',
+      title2: 'articles.2.title'
+    },
+    prepare: ({title0, title1, title2}) => {
+      const titles = [title0, title1].filter(Boolean)
+      const subtitle = titles.length > 0 ? titles.join(', ') : ''
+      const hasMore = Boolean(title2)
+
+      return {
+        title: `Articles:`,
+        subtitle: hasMore ? `${subtitle}...` : subtitle
+      }
+    }
+  }
 }
