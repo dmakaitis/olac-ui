@@ -1,43 +1,14 @@
-# Quasar App (quasar)
+# Welcome to your CDK TypeScript project
 
-A Quasar Project
+This is a blank project for CDK development with TypeScript.
 
-## Install the dependencies
+The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
-```bash
-yarn
-# or
-npm install
-```
+## Useful commands
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
-
-```bash
-quasar dev
-```
-
-### Lint the files
-
-```bash
-yarn lint
-# or
-npm run lint
-```
-
-### Format the files
-
-```bash
-yarn format
-# or
-npm run format
-```
-
-### Build the app for production
-
-```bash
-quasar build
-```
-
-### Customize the configuration
-
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js).
+* `npm run build`   compile typescript to js
+* `npm run watch`   watch for changes and compile
+* `npm run test`    perform the jest unit tests
+* `cdk deploy`      deploy this stack to your default AWS account/region
+* `cdk diff`        compare deployed stack with current state
+* `cdk synth`       emits the synthesized CloudFormation template
