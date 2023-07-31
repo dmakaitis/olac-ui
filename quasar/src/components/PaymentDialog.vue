@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import {ref} from 'vue';
+import {ref, toRefs} from 'vue';
 
 export default {
   name: "PaymentDialog",
@@ -53,7 +53,7 @@ export default {
         method: 'CHECK',
         status: 'SUCCESSFUL',
         notes: '',
-        payment: props.payment
+        payment: toRefs(props).payment
       }),
       methodOptions: ['ONLINE', 'CHECK', 'COMP'],
       statusOptions: ['PENDING', 'SUCCESSFUL', 'FAILED']

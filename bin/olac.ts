@@ -4,6 +4,7 @@ import * as cdk from 'aws-cdk-lib';
 import {Construct} from 'constructs'
 
 import {ConfigUtilityStack, ConfigUtilityStackProps} from "../lib/utility/config-utility-stack";
+import {SecurityUtilityStack, SecurityUtilityStackProps} from "../lib/utility/security-utility-stack";
 import {EventResourceStack} from "../lib/resource/event-resource-stack";
 import {AdministrationManagerStack} from "../lib/manager/administration-manager-stack";
 import {ReservationManagerStack} from "../lib/manager/reservation-manager-stack";
@@ -18,27 +19,39 @@ interface OlacWebsiteStaticProps {
 
 interface OlacConstructProps {
     websiteProps: OlacWebsiteStaticProps,
-    configProps: ConfigUtilityStackProps
+    configProps: ConfigUtilityStackProps,
+    securityProps: SecurityUtilityStackProps
 }
 
 class OlacConstruct extends Construct {
     constructor(scope: Construct, id: string, props: OlacConstructProps) {
         super(scope, id);
         const configStack = new ConfigUtilityStack(this, 'ConfigUtility', props.configProps);
+        const securityStack = new SecurityUtilityStack(this, 'SecurityUtility', props.securityProps);
 
         new EventResourceStack(this, 'EventResource', {});
 
         const adminStack = new AdministrationManagerStack(this, 'AdminManager', {
             getConfigFunction: configStack.getConfigLambda
         });
-        const reservationStack = new ReservationManagerStack(this, 'ReservationManager', {
-
-        });
+        const reservationStack = new ReservationManagerStack(this, 'ReservationManager', {});
 
         const apiStack = new ApiStack(this, 'Apis', {
+            echoFunction: adminStack.echoFunction,
             getClientConfigFunction: adminStack.getClientConfigFunction,
+            whoAmIFunction: securityStack.whoAmIFunction,
 
-            newReservationIdFunction: reservationStack.getNewReservationIdFunction
+            newReservationIdFunction: reservationStack.getNewReservationIdFunction,
+
+            grantGroupMap: {
+                admin: [
+                    securityStack.adminUserGroup
+                ],
+                eventCoordinator: [
+                    securityStack.adminUserGroup,
+                    securityStack.eventCoordinatorUserGroup
+                ]
+            }
         });
 
         new OlacWebsiteStack(this, 'Website', {
@@ -59,7 +72,17 @@ new OlacConstruct(app, 'Dev', {
     configProps: {
         payPalApiBase: 'https://api-m.paypal.com',
         payPalClientId: 'AWlSY8P90RHz_lXFE_37F9e_8RZ4w3Vng1mYF4-U6EWlVlRIBFbE21UTxMSE36ry0dJLI_VDwzDh5Mbm',
-        enableReservations: false
+        enableReservations: false,
+        cognito: {
+            domain: 'https://omahalithuanians.auth.us-east-2.amazoncognito.com',
+            clientId: '5nnetbctluvi4q512nlt51hkcl',
+            redirectUri: 'https://dev.omahalithuanians.org'
+        }
+    },
+    securityProps: {
+        environment: 'Dev',
+        userPoolId: 'us-east-2_LKok1DKIU',
+        clientId: '5nnetbctluvi4q512nlt51hkcl'
     }
 });
 

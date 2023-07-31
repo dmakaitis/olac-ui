@@ -23,6 +23,11 @@ export const handler: Handler = async (event, context) => {
                 "apiBase": config.olac.paypal["api-base"],
                 "clientId": config.olac.paypal.client
             },
+            "cognito": {
+                "domain": config.olac.cognito.domain,
+                "clientId": config.olac.cognito.clientId,
+                "redirectUri": config.olac.cognito.redirectUri
+            },
             "showLogin": showLogin,
             "enableReservations": config.olac["enable-reservations"]
         })

@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import {Duration, RemovalPolicy} from 'aws-cdk-lib';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
@@ -6,7 +7,6 @@ import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import {Construct} from 'constructs';
-import {RemovalPolicy} from 'aws-cdk-lib';
 
 export interface OlacWebsiteStackProps extends cdk.StackProps {
     domainNames: string[];
@@ -35,17 +35,50 @@ export class OlacWebsiteStack extends cdk.Stack {
         });
 
         const certificate = acm.Certificate.fromCertificateArn(this, "Certificate", props.certificateArn);
+        const s3origin = new origins.S3Origin(siteBucket);
+
+        const noCachePolicy = new cloudfront.CachePolicy(this, 'NoCachePolicy', {
+            maxTtl: Duration.seconds(1),
+            minTtl: Duration.seconds(0),
+            defaultTtl: Duration.seconds(0)
+        });
 
         new cloudfront.Distribution(this, 'SiteDistribution', {
             defaultBehavior: {
-                origin: new origins.S3Origin(siteBucket),
+                origin: s3origin,
                 viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS
             },
             additionalBehaviors: {
+                "/": {
+                    origin: s3origin,
+                    viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                    cachePolicy: noCachePolicy
+                },
+                "/index.html": {
+                    origin: s3origin,
+                    viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                    cachePolicy: noCachePolicy
+                },
                 "/api/*": {
                     origin: new origins.RestApiOrigin(props.restApi),
                     viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-                    cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED
+                    cachePolicy: new cloudfront.CachePolicy(this, 'AuthorizationCachePolicy', {
+                        headerBehavior: cloudfront.CacheHeaderBehavior.allowList('Authorization', 'Origin', 'Referer'),
+                        queryStringBehavior: cloudfront.CacheQueryStringBehavior.all(),
+                        cachePolicyName: 'ApiGwWithAuthorization',
+                        cookieBehavior: cloudfront.CacheCookieBehavior.all(),
+                        enableAcceptEncodingBrotli: true,
+                        enableAcceptEncodingGzip: true,
+                        maxTtl: Duration.seconds(1),
+                        minTtl: Duration.seconds(0),
+                        defaultTtl: Duration.seconds(0)
+                    }),
+                    originRequestPolicy: new cloudfront.OriginRequestPolicy(this, 'RestApiOriginRequestPolicy', {
+                        headerBehavior: cloudfront.OriginRequestHeaderBehavior.none(),
+                        queryStringBehavior: cloudfront.OriginRequestQueryStringBehavior.all(),
+                        cookieBehavior: cloudfront.OriginRequestCookieBehavior.none(),
+                        originRequestPolicyName: 'ApiGwWithAuthorization'
+                    })
                 }
             },
             priceClass: cloudfront.PriceClass.PRICE_CLASS_100,

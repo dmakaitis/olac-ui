@@ -1,1 +1,13 @@
-{"payPal":{"apiBase":"https://api-m.paypal.com","clientId":"AWlSY8P90RHz_lXFE_37F9e_8RZ4w3Vng1mYF4-U6EWlVlRIBFbE21UTxMSE36ry0dJLI_VDwzDh5Mbm"},"showLogin":false,"enableReservations":false}
+{
+  "payPal": {
+    "apiBase": "https://api-m.paypal.com",
+    "clientId": "AWlSY8P90RHz_lXFE_37F9e_8RZ4w3Vng1mYF4-U6EWlVlRIBFbE21UTxMSE36ry0dJLI_VDwzDh5Mbm"
+  },
+  "cognito": {
+    "domain": "https://omahalithuanians.auth.us-east-2.amazoncognito.com",
+    "clientId": "5nnetbctluvi4q512nlt51hkcl",
+    "redirectUri": "http://localhost:3000"
+  },
+  "showLogin": false,
+  "enableReservations": false
+}

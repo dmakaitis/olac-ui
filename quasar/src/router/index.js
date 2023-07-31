@@ -1,7 +1,7 @@
 import {route} from 'quasar/wrappers'
 import {createMemoryHistory, createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
 import routes from './routes'
-
+import {api} from 'boot/axios'
 /*
  * If not building with SSR mode, you can
  * directly export the Router instantiation;
@@ -27,14 +27,41 @@ export default route(function ({store /*, ssrContext */}) {
   })
 
   Router.beforeEach((to, from, next) => {
-    if (to.matched.some(record => record.meta.requiresAuth)) {
-      if (!store.getters['auth/isLoggedIn']) {
-        next({name: 'Login'})
+    var tokens = parseTokens(to);
+    console.log(`OIDS Tokens: ${JSON.stringify(tokens)}`);
+
+    if (tokens.access_token) {
+      console.log('Storing access token...');
+      store.commit('auth/storeAuthentication', {
+        jwtToken: tokens.access_token,
+        username: 'authenticated',
+        grants: []
+      });
+
+      // Now, call the who-am-i method in order to get the endpoints
+      // (we needed to store the JWT token first so it will be included in the request)
+
+      api.get("/api/auth/who-am-i")
+        .then(response => {
+          console.log(`Who am I repsonse: ${JSON.stringify(response.data)}`)
+          store.commit('auth/storeAuthentication', {
+            jwtToken: tokens.access_token,
+            username: response.data.username,
+            grants: response.data.grants
+          });
+        });
+
+      next({name: 'Home'});
+    } else {
+      if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (!store.getters['auth/isLoggedIn']) {
+          next({name: 'Login'})
+        } else {
+          next()
+        }
       } else {
         next()
       }
-    } else {
-      next()
     }
   })
 
@@ -47,3 +74,19 @@ export default route(function ({store /*, ssrContext */}) {
 
   return Router
 })
+
+function parseTokens(to) {
+  var tokens = {};
+
+  var path = to.fullPath.slice(1);
+
+  var pathParts = path.split("&");
+  pathParts.forEach(part => {
+    var pieces = part.split("=");
+    if (pieces.length == 2) {
+      tokens[pieces[0]] = pieces[1];
+    }
+  })
+
+  return tokens;
+}

@@ -9,7 +9,6 @@
           <div class="row">
             <q-card square bordered class="q-pa-lg shadow-1">
               <q-card-section>
-                <GoogleSignin @auth="onAuth"/>
               </q-card-section>
             </q-card>
           </div>
@@ -21,11 +20,9 @@
 
 <script>
 import {useStore} from 'vuex'
-import GoogleSignin from "components/GoogleSignin.vue";
 
 export default {
   name: "LoginUser",
-  components: {GoogleSignin},
   methods: {
     onAuth(authentication) {
       console.log(`Received authentication: ${JSON.stringify(authentication)}`)
@@ -41,6 +38,14 @@ export default {
   },
   setup() {
     const store = useStore()
+
+    const props = store.getters["config/cognito"]
+
+    const cognitoDomain = props.domain
+    const clientId = props.clientId
+    const redirectUri = props.redirectUri
+
+    window.location.href = `${cognitoDomain}/login?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}`
 
     return {
       store

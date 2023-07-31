@@ -1,5 +1,5 @@
 <script setup>
-const props = defineProps(['left', 'imageData'])
+const props = defineProps(['left', 'imageData', 'images'])
 </script>
 
 <template>

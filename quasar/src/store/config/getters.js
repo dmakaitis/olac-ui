@@ -7,3 +7,8 @@ export function enableReservations(state) {
   console.log(`Enable reservations: ${state.config.enableReservations}`)
   return state.config.enableReservations
 }
+
+export function cognito(state) {
+  console.log(`Cognito settings: ${JSON.stringify(state.config.cognito)}`)
+  return state.config.cognito
+}

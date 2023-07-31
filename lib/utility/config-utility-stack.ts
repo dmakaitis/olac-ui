@@ -5,7 +5,12 @@ import {Construct} from 'constructs';
 export interface ConfigUtilityStackProps extends cdk.StackProps {
     payPalApiBase: string,
     payPalClientId: string,
-    enableReservations: boolean
+    enableReservations: boolean,
+    cognito: {
+        domain: string,
+        clientId: string,
+        redirectUri: string
+    }
 }
 
 export class ConfigUtilityStack extends cdk.Stack {
@@ -23,7 +28,10 @@ export class ConfigUtilityStack extends cdk.Stack {
             environment: {
                 PAYPAL_API_BASE: props.payPalApiBase,
                 PAYPAL_CLIENT_ID: props.payPalClientId,
-                ENABLE_RESERVATIONS: JSON.stringify(props.enableReservations)
+                ENABLE_RESERVATIONS: JSON.stringify(props.enableReservations),
+                COGNITO_DOMAIN: props.cognito.domain,
+                COGNITO_CLIENT_ID: props.cognito.clientId,
+                COGNITO_REDIRECT_URI: props.cognito.redirectUri
             },
         });
     }

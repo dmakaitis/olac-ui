@@ -18,7 +18,10 @@ export default boot(({app, store}) => {
     const token = store.state.auth.jwtToken;
 
     if (token) {
-      config.headers.Authorization = `Bearer ${store.state.auth.jwtToken}`;
+      console.log(`Axios: Adding access token: ${token}`);
+      config.headers.Authorization = `${store.state.auth.jwtToken}`;
+    } else {
+      console.log('Axios: No access token');
     }
 
     return config;
