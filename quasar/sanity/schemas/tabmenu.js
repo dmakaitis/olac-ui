@@ -11,6 +11,19 @@ export default {
       validation: (rule) => rule.required()
     },
     {
+      name: 'requiredRole',
+      title: 'Required user role to view',
+      type: 'string',
+      initialValue: '',
+      options: {
+        list: [
+          {title: 'All Users', value: ''},
+          {title: 'Event Coordinators', value: 'EVENT_COORDINATOR'},
+          {title: 'Administrators', value: 'ADMIN'}
+        ]
+      }
+    },
+    {
       name: 'items',
       type: 'array',
       title: 'Items',

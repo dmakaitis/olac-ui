@@ -8,6 +8,6 @@
     "clientId": "5nnetbctluvi4q512nlt51hkcl",
     "redirectUri": "http://localhost:3000"
   },
-  "showLogin": false,
+  "showLogin": true,
   "enableReservations": false
 }

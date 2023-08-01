@@ -59,7 +59,7 @@ const routes = [
   {
     name: 'Admin',
     path: '/admin',
-    component: AdminLayout,
+    component: MainLayout,
     meta: {
       requiresAuth: true
     },

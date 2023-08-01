@@ -2,6 +2,7 @@ import {defineType, defineField, defineArrayMember} from 'sanity'
 
 export const floatingimages = defineType({
   name: 'floatingimages',
+  title: 'Floating Image (left or right)',
   type: 'object',
   fields: [
     defineField({

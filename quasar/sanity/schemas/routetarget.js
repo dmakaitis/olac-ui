@@ -11,6 +11,19 @@ export const routetarget = defineType({
       validation: (rule) => rule.required()
     }),
     defineField({
+      name: 'requiredRole',
+      title: 'Required user role to view',
+      type: 'string',
+      initialValue: '',
+      options: {
+        list: [
+          {title: 'All Users', value: ''},
+          {title: 'Event Coordinators', value: 'EVENT_COORDINATOR'},
+          {title: 'Administrators', value: 'ADMIN'}
+        ]
+      }
+    }),
+    defineField({
       name: 'target',
       title: 'Target',
       type: 'string',

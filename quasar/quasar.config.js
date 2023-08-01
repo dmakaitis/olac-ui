@@ -89,6 +89,13 @@ module.exports = configure(function (ctx) {
         type: 'http'
       },
       port: 3000,
+      proxy: {
+        '/api': {
+          target: 'https://dev.omahalithuanians.org',
+          // ws: true,
+          changeOrigin: true
+        }
+      },
       // proxy: {
       //   '/api': {
       //     target: 'http://localhost:8080',

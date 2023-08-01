@@ -2,6 +2,7 @@ import {defineType, defineField, defineArrayMember} from 'sanity'
 
 export const collection = defineType({
   name: 'collection',
+  title: 'Collection of Articles',
   type: 'object',
   fields: [
     defineField({
