@@ -9,14 +9,7 @@
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleDrawer"/>
 
-        <q-toolbar-title>
-          <q-tabs align="center" no-caps>
-            <q-route-tab to="/main/about" replace label="About Us"/>
-            <q-route-tab to="/main/tickets" target="_top" label="OLAC 70th Anniversary Event"/>
-            <q-route-tab v-if="isLoggedIn" to="/main/reservations" replace label="Reservations"/>
-            <q-route-tab v-if="isAdmin" to="/admin/ticket-types" replace label="Admin"/>
-          </q-tabs>
-        </q-toolbar-title>
+        <MenuBar slug="main-menu"/>
 
         <q-btn v-if="isLoggedIn" align="right" dense flat round icon="logout" to="/logout"/>
       </q-toolbar>
@@ -48,25 +41,29 @@
 <script>
 import {ref} from 'vue';
 import {useStore} from 'vuex';
+import MenuBar from "components/MenuBar.vue";
 
 export default {
   name: 'AdminLayout',
+  components: {MenuBar},
+  computed: {
+    isLoggedIn() {
+      return this.store.getters['auth/isLoggedIn'];
+    }
+  },
   methods: {
     toggleDrawer() {
       this.drawerOpen = !this.drawerOpen
     }
   },
   setup() {
+    const store = useStore()
+
     return {
-      drawerOpen: ref(true),
-      isAdmin: ref(false),
-      isLoggedIn: ref(false)
+      store,
+      drawerOpen: ref(true)
     }
   },
-  mounted() {
-    this.isAdmin = useStore().getters['auth/isAdmin']
-    this.isLoggedIn = useStore().getters['auth/isLoggedIn']
-  }
 }
 </script>
 
