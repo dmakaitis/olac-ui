@@ -29,7 +29,7 @@ class OlacConstruct extends Construct {
         const configStack = new ConfigUtilityStack(this, 'ConfigUtility', props.configProps);
         const securityStack = new SecurityUtilityStack(this, 'SecurityUtility', props.securityProps);
 
-        new EventResourceStack(this, 'EventResource', {});
+        const eventStack = new EventResourceStack(this, 'EventResource', {});
 
         const adminStack = new AdministrationManagerStack(this, 'AdminManager', {
             getConfigFunction: configStack.getConfigLambda
@@ -42,6 +42,9 @@ class OlacConstruct extends Construct {
             whoAmIFunction: securityStack.whoAmIFunction,
 
             newReservationIdFunction: reservationStack.getNewReservationIdFunction,
+
+            eventListFunction: eventStack.listFunction,
+            eventSaveFunction: eventStack.saveFunction,
 
             grantGroupMap: {
                 admin: [

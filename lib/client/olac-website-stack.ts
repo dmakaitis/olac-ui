@@ -7,6 +7,8 @@ import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import {Construct} from 'constructs';
+import {ALL_METHODS} from "aws-cdk-lib/aws-apigateway/lib/util";
+import {AllowedMethods} from "aws-cdk-lib/aws-cloudfront";
 
 export interface OlacWebsiteStackProps extends cdk.StackProps {
     domainNames: string[];
@@ -62,6 +64,7 @@ export class OlacWebsiteStack extends cdk.Stack {
                 "/api/*": {
                     origin: new origins.RestApiOrigin(props.restApi),
                     viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                    allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
                     cachePolicy: new cloudfront.CachePolicy(this, 'AuthorizationCachePolicy', {
                         headerBehavior: cloudfront.CacheHeaderBehavior.allowList('Authorization', 'Origin', 'Referer'),
                         queryStringBehavior: cloudfront.CacheQueryStringBehavior.all(),

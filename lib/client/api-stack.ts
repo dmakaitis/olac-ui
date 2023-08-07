@@ -12,10 +12,18 @@ interface ApiStackProps extends cdk.StackProps {
     newReservationIdFunction: Function,
     whoAmIFunction: Function,
 
+    eventListFunction: Function,
+    eventSaveFunction: Function,
+
     grantGroupMap: {
         admin: Array<cognito.CfnUserPoolGroup>,
         eventCoordinator: Array<cognito.CfnUserPoolGroup>
     }
+}
+
+interface Authorizers {
+    eventCoordinator: MethodOptions,
+    admin: MethodOptions
 }
 
 export class ApiStack extends cdk.Stack {
@@ -32,49 +40,48 @@ export class ApiStack extends cdk.Stack {
 
         const api = this.restApi.root.addResource("api");
 
-        this.apiVersion1(props, api);
-        this.apiVersion2(props, api);
+        const authorizers: Authorizers = {
+            eventCoordinator: {
+                authorizationType: apigateway.AuthorizationType.CUSTOM,
+                authorizer: new apigateway.RequestAuthorizer(this, 'EventCoordinatorAuthorizer', {
+                    handler: new lambda.Function(this, 'EventCoordinatorAuthorizerFunction', {
+                        description: 'API Gateway Event Coordinator Authorizer',
+                        runtime: lambda.Runtime.NODEJS_16_X,
+                        code: lambda.Code.fromAsset('./lambda/utility/security'),
+                        handler: 'authorize.handler',
+                        environment: {
+                            REQUIRED_GROUPS: props.grantGroupMap.eventCoordinator.map(g => g.groupName).join(" ")
+                        }
+                    }),
+                    identitySources: [
+                        apigateway.IdentitySource.header('Authorization')
+                    ]
+                })
+            },
+            admin: {
+                authorizationType: apigateway.AuthorizationType.CUSTOM,
+                authorizer: new apigateway.RequestAuthorizer(this, 'AdminAuthorizer', {
+                    handler: new lambda.Function(this, 'AdminAuthorizerFunction', {
+                        description: 'API Gateway Admin Authorizer',
+                        runtime: lambda.Runtime.NODEJS_16_X,
+                        code: lambda.Code.fromAsset('./lambda/utility/security'),
+                        handler: 'authorize.handler',
+                        environment: {
+                            REQUIRED_GROUPS: props.grantGroupMap.admin.map(g => g.groupName).join(" ")
+                        }
+                    }),
+                    identitySources: [
+                        apigateway.IdentitySource.header('Authorization')
+                    ]
+                })
+            }
+        }
+
+        this.apiVersion1(props, api, authorizers);
+        this.apiVersion2(props, api, authorizers);
     }
 
-    apiVersion1(props: ApiStackProps, api: apigateway.Resource) {
-        const eventCoordinatorAuthorizerFunction = new lambda.Function(this, 'EventCoordinatorAuthorizerFunction', {
-            description: 'API Gateway Event Coordinator Authorizer',
-            runtime: lambda.Runtime.NODEJS_16_X,
-            code: lambda.Code.fromAsset('./lambda/utility/security'),
-            handler: 'authorize.handler',
-            environment: {
-                REQUIRED_GROUPS: props.grantGroupMap.eventCoordinator.map(g => g.groupName).join(" ")
-            }
-        });
-        const adminAuthorizerFunction = new lambda.Function(this, 'AdminAuthorizerFunction', {
-            description: 'API Gateway Admin Authorizer',
-            runtime: lambda.Runtime.NODEJS_16_X,
-            code: lambda.Code.fromAsset('./lambda/utility/security'),
-            handler: 'authorize.handler',
-            environment: {
-                REQUIRED_GROUPS: props.grantGroupMap.admin.map(g => g.groupName).join(" ")
-            }
-        });
-
-        const requireEventCoordinator: MethodOptions = {
-            authorizationType: apigateway.AuthorizationType.CUSTOM,
-            authorizer: new apigateway.RequestAuthorizer(this, 'EventCoordinatorAuthorizer', {
-                handler: eventCoordinatorAuthorizerFunction,
-                identitySources: [
-                    apigateway.IdentitySource.header('Authorization')
-                ]
-            })
-        };
-        const requireAdmin: MethodOptions = {
-            authorizationType: apigateway.AuthorizationType.CUSTOM,
-            authorizer: new apigateway.RequestAuthorizer(this, 'AdminAuthorizer', {
-                handler: adminAuthorizerFunction,
-                identitySources: [
-                    apigateway.IdentitySource.header('Authorization')
-                ]
-            })
-        };
-
+    apiVersion1(props: ApiStackProps, api: apigateway.Resource, authorizers: Authorizers) {
         const echoIntegration = new apigateway.LambdaIntegration(props.echoFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         });
@@ -101,36 +108,36 @@ export class ApiStack extends cdk.Stack {
         const event = api.addResource("event");
         const eventReservations = event.addResource("reservations");
         // GET
-        eventReservations.addMethod("GET", echoIntegration, requireEventCoordinator);
+        eventReservations.addMethod("GET", echoIntegration, authorizers.eventCoordinator);
         const eventReservationsId = event.addResource("{reservationId}");
         // PUT
-        eventReservationsId.addMethod("PUT", echoIntegration, requireEventCoordinator);
+        eventReservationsId.addMethod("PUT", echoIntegration, authorizers.eventCoordinator);
         const eventReservationsCsv = event.addResource("reservations.csv");
         // GET
-        eventReservationsCsv.addMethod("GET", echoIntegration, requireEventCoordinator);
+        eventReservationsCsv.addMethod("GET", echoIntegration, authorizers.eventCoordinator);
 
         const admin = api.addResource("admin");
         const adminTicketTypes = admin.addResource("ticket-types");
         // POST
         // DELETE
-        adminTicketTypes.addMethod("POST", echoIntegration, requireAdmin);
-        adminTicketTypes.addMethod("DELETE", echoIntegration, requireAdmin);
+//        adminTicketTypes.addMethod("POST", echoIntegration, authorizers.admin);
+        adminTicketTypes.addMethod("DELETE", echoIntegration, authorizers.admin);
         const adminReservations = admin.addResource("reservations");
         const adminReservationsID = adminReservations.addResource("{reservationId}");
         // DELETE
-        adminReservationsID.addMethod("DELETE", echoIntegration, requireAdmin);
+        adminReservationsID.addMethod("DELETE", echoIntegration, authorizers.admin);
         const adminReservationsIDAudit = adminReservationsID.addResource("audit");
         // GET
-        adminReservationsIDAudit.addMethod("GET", echoIntegration, requireAdmin);
+        adminReservationsIDAudit.addMethod("GET", echoIntegration, authorizers.admin);
         // *** Will probably not implement the admin accounts endpoints if using Cognity:
         const adminAccounts = admin.addResource("accounts");
         // GET
         // POST
-        adminAccounts.addMethod("GET", echoIntegration, requireAdmin);
-        adminAccounts.addMethod("POST", echoIntegration, requireAdmin);
+        adminAccounts.addMethod("GET", echoIntegration, authorizers.admin);
+        adminAccounts.addMethod("POST", echoIntegration, authorizers.admin);
         const adminAccountsUsername = adminAccounts.addResource("{username}");
         // PUT
-        adminAccountsUsername.addMethod("PUT", echoIntegration, requireAdmin);
+        adminAccountsUsername.addMethod("PUT", echoIntegration, authorizers.admin);
 
         const auth = api.addResource("auth");
         const whoAmI = auth.addResource("who-am-i");
@@ -145,10 +152,18 @@ export class ApiStack extends cdk.Stack {
         // google.addMethod("POST", echoIntegration);
     }
 
-    apiVersion2(props: ApiStackProps, api: apigateway.Resource) {
+    apiVersion2(props: ApiStackProps, api: apigateway.Resource, authorizers: Authorizers) {
         // const echoIntegration = new apigateway.LambdaIntegration(props.echoFunction, {
         //     requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         // });
+
+        const events = api.addResource("events");
+        events.addMethod("GET", new apigateway.LambdaIntegration(props.eventListFunction, {
+            requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+        })/*, authorizers.admin */);
+        events.addMethod("POST", new apigateway.LambdaIntegration(props.eventSaveFunction, {
+            requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+        })/*, authorizers.admin */);
     }
 }
 
