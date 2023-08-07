@@ -7,25 +7,12 @@
       </div>
 
       <q-toolbar>
-        <q-btn dense flat round icon="menu" @click="toggleDrawer"/>
-
         <MenuBar slug="main-menu"/>
 
         <q-btn v-if="isLoggedIn" align="right" dense flat round icon="logout" to="/logout"/>
       </q-toolbar>
 
     </q-header>
-
-    <q-drawer show-if-above v-model="drawerOpen" side="left" bordered>
-      <q-list>
-        <q-item clickable v-ripple to="/admin/ticket-types">
-          <q-item-section>Ticket Types</q-item-section>
-        </q-item>
-        <q-item clickable v-ripple to="/admin/users">
-          <q-item-section>Users</q-item-section>
-        </q-item>
-      </q-list>
-    </q-drawer>
 
     <q-footer class="bg-primary text-center">
       &copy; {{ new Date().getFullYear() }} Omaha Lithuanian-American Community

@@ -10,6 +10,7 @@ import AdminUsers from "pages/AdminUsers.vue";
 
 import LoginUser from "pages/LoginUser.vue";
 import LogoutUser from "pages/LogoutUser.vue";
+import AdminEvents from "pages/AdminEvents.vue";
 
 const routes = [
   {
@@ -64,6 +65,11 @@ const routes = [
       requiresAuth: true
     },
     children: [
+      {
+        name: 'Events',
+        path: 'events',
+        component: AdminEvents
+      },
       {
         name: 'Ticket Types Administration',
         path: 'ticket-types',
