@@ -1,10 +1,12 @@
 import * as cdk from 'aws-cdk-lib';
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
-import {MethodOptions} from "aws-cdk-lib/aws-apigateway";
+import {LambdaIntegration, MethodOptions} from "aws-cdk-lib/aws-apigateway";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import {Function} from 'aws-cdk-lib/aws-lambda';
 import {Construct} from 'constructs';
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as logs from "aws-cdk-lib/aws-logs";
+import {Duration} from "aws-cdk-lib";
 
 interface ApiStackProps extends cdk.StackProps {
     echoFunction: Function,
@@ -14,6 +16,7 @@ interface ApiStackProps extends cdk.StackProps {
 
     eventListFunction: Function,
     eventSaveFunction: Function,
+    eventDeleteFunction: Function,
 
     grantGroupMap: {
         admin: Array<cognito.CfnUserPoolGroup>,
@@ -33,9 +36,18 @@ export class ApiStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props: ApiStackProps) {
         super(scope, id, props);
 
+        const prdLogGroup = new logs.LogGroup(this, "PrdLogs");
+
         this.restApi = new apigateway.RestApi(this, "OlacApi", {
             restApiName: "OLAC API",
-            description: "API for the OLAC website back end functions"
+            description: "API for the OLAC website back end functions",
+            cloudWatchRole: true,
+            deployOptions: {
+                accessLogDestination: new apigateway.LogGroupLogDestination(prdLogGroup),
+                accessLogFormat: apigateway.AccessLogFormat.jsonWithStandardFields(),
+                loggingLevel: apigateway.MethodLoggingLevel.ERROR,
+                dataTraceEnabled: false
+            }
         });
 
         const api = this.restApi.root.addResource("api");
@@ -55,7 +67,8 @@ export class ApiStack extends cdk.Stack {
                     }),
                     identitySources: [
                         apigateway.IdentitySource.header('Authorization')
-                    ]
+                    ],
+                    resultsCacheTtl: Duration.minutes(0)
                 })
             },
             admin: {
@@ -72,7 +85,8 @@ export class ApiStack extends cdk.Stack {
                     }),
                     identitySources: [
                         apigateway.IdentitySource.header('Authorization')
-                    ]
+                    ],
+                    resultsCacheTtl: Duration.minutes(0)
                 })
             }
         }
@@ -82,20 +96,20 @@ export class ApiStack extends cdk.Stack {
     }
 
     apiVersion1(props: ApiStackProps, api: apigateway.Resource, authorizers: Authorizers) {
-        const echoIntegration = new apigateway.LambdaIntegration(props.echoFunction, {
+        const echoIntegration = new LambdaIntegration(props.echoFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         });
 
         const publicApi = api.addResource("public");
         const publicClientConfig = publicApi.addResource("client-config");
-        publicClientConfig.addMethod("GET", new apigateway.LambdaIntegration(props.getClientConfigFunction, {
+        publicClientConfig.addMethod("GET", new LambdaIntegration(props.getClientConfigFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }));
         const publicTicketTypes = publicApi.addResource("ticket-types");
         // GET
         publicTicketTypes.addMethod("GET", echoIntegration);
         const publicNewReservationIdConfig = publicApi.addResource("new-reservation-id");
-        publicNewReservationIdConfig.addMethod("GET", new apigateway.LambdaIntegration(props.newReservationIdFunction, {
+        publicNewReservationIdConfig.addMethod("GET", new LambdaIntegration(props.newReservationIdFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }));
         const publicReservations = publicApi.addResource("reservations");
@@ -142,7 +156,7 @@ export class ApiStack extends cdk.Stack {
         const auth = api.addResource("auth");
         const whoAmI = auth.addResource("who-am-i");
         // GET
-        whoAmI.addMethod("GET", new apigateway.LambdaIntegration(props.whoAmIFunction, {
+        whoAmI.addMethod("GET", new LambdaIntegration(props.whoAmIFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }));
 
@@ -153,17 +167,21 @@ export class ApiStack extends cdk.Stack {
     }
 
     apiVersion2(props: ApiStackProps, api: apigateway.Resource, authorizers: Authorizers) {
-        // const echoIntegration = new apigateway.LambdaIntegration(props.echoFunction, {
-        //     requestTemplates: {"application/json": '{ "statusCode": "200" }'}
-        // });
-
         const events = api.addResource("events");
-        events.addMethod("GET", new apigateway.LambdaIntegration(props.eventListFunction, {
+        events.addMethod("GET", new LambdaIntegration(props.eventListFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
-        })/*, authorizers.admin */);
-        events.addMethod("POST", new apigateway.LambdaIntegration(props.eventSaveFunction, {
+        }), authorizers.admin);
+        events.addMethod("POST", new LambdaIntegration(props.eventSaveFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
-        })/*, authorizers.admin */);
+        }), authorizers.admin);
+
+        const eventsEventId = events.addResource("{eventId}");
+        eventsEventId.addMethod("PUT", new LambdaIntegration(props.eventSaveFunction, {
+            requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+        }), authorizers.admin);
+        eventsEventId.addMethod("DELETE", new LambdaIntegration(props.eventDeleteFunction, {
+            requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+        }), authorizers.admin);
     }
 }
 

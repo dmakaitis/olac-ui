@@ -8,22 +8,19 @@ const client = new DynamoDBClient({});
 const docClient = DynamoDBDocument.from(client);
 
 export const handler: Handler = async (event) => {
-    console.log(`Request: ${JSON.stringify(event)}`);
-
     const body: Event = JSON.parse(event.body);
-    console.log(`Request body: ${JSON.stringify(body)}`);
 
-    if (isValidEvent(body)) {
+    if (event.httpMethod === "PUT" || isValidEvent(body)) {
         const crypto = require("crypto");
 
         let newEvent = {
-            id: body.id || crypto.randomUUID(),
+            id: event.pathParameters?.eventId || body.id || crypto.randomUUID(),
             index: 'EVENT',
             name: body.name,
             eventDate: body.eventDate,
-            ticketSaleStartDate: body.ticketSaleStartDate,
-            ticketSaleEndDate: body.ticketSaleEndDate,
-            maxTickets: body.maxTickets,
+            ticketSaleStartDate: body.ticketSaleStartDate || null,
+            ticketSaleEndDate: body.ticketSaleEndDate || null,
+            maxTickets: body.maxTickets || null,
             ticketTypes: body.ticketTypes
                 .filter(t => t.name)
                 .filter(t => t.price > 0)
@@ -35,7 +32,6 @@ export const handler: Handler = async (event) => {
             Item: newEvent
         });
 
-        console.log(response);
 
         const getResponse = await docClient.get({
             TableName: process.env.TABLE_NAME,
@@ -54,12 +50,11 @@ export const handler: Handler = async (event) => {
 };
 
 function isUndefinedOrValidDate(eventDate: string | undefined) {
-    if (eventDate == undefined) {
+    if (!eventDate) {
         return true;
     }
 
-    // TODO: Add valid date string check here
-    return true;
+    return /^-?[\d]+\/[0-1]\d\/[0-3]\d$/.test(eventDate || '');
 }
 
 function isValidEvent(event: Event) {

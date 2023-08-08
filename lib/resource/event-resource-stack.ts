@@ -7,6 +7,7 @@ export class EventResourceStack extends cdk.Stack {
 
     readonly listFunction: cdk.aws_lambda.Function;
     readonly saveFunction: cdk.aws_lambda.Function;
+    readonly deleteFunction: cdk.aws_lambda.Function;
 
     constructor(scope: Construct, id: string, props: cdk.StackProps) {
         super(scope, id, props);
@@ -41,5 +42,16 @@ export class EventResourceStack extends cdk.Stack {
             },
         });
         table.grantReadWriteData(this.saveFunction);
+
+        this.deleteFunction = new lambda.Function(this, 'DeleteEvent', {
+            description: 'Deletes OLAC event information from the datastore',
+            runtime: lambda.Runtime.NODEJS_16_X,
+            code: lambda.Code.fromAsset('./lambda/resource/event'),
+            handler: 'delete.handler',
+            environment: {
+                TABLE_NAME: table.tableName
+            },
+        });
+        table.grantReadWriteData(this.deleteFunction);
     }
 }

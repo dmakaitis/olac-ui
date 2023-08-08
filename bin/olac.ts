@@ -45,6 +45,7 @@ class OlacConstruct extends Construct {
 
             eventListFunction: eventStack.listFunction,
             eventSaveFunction: eventStack.saveFunction,
+            eventDeleteFunction: eventStack.deleteFunction,
 
             grantGroupMap: {
                 admin: [

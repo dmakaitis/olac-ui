@@ -40,7 +40,14 @@ const columns = [
 ];
 
 function onNewEvent() {
-  alert("Clicked new event!");
+  detail.value = {
+    name: '',
+    eventDate: '',
+    ticketSaleStartDate: '',
+    ticketSaleEndDate: '',
+    ticketTypes: [],
+  };
+  showDetail.value = true;
 }
 
 function onRowClick(event, row) {
@@ -57,14 +64,21 @@ function onRowClick(event, row) {
 }
 
 function onDelete() {
-  alert("Clicked delete!");
+  api.delete(`/api/events/${selected.value[0].id}`)
+    .then(response => loadEventData())
+    .catch(error => alert(error))
 }
 
 function onSave() {
-  api.post("/api/events", detail.value)
-    .then(response => loadEventData())
-    .catch(error => alert(error))
-
+  if(detail.value.id) {
+    api.put(`/api/events/${detail.value.id}`, detail.value)
+      .then(response => loadEventData())
+      .catch(error => alert(error))
+  } else {
+    api.post(`/api/events`, detail.value)
+      .then(response => loadEventData())
+      .catch(error => alert(error))
+  }
   showDetail.value = false;
 }
 
@@ -79,18 +93,25 @@ function onAddTicketType() {
   });
 }
 
-function loadEventData() {
-  api.get('/api/events')
+function loadEventData(startKey) {
+  let url = '/api/events?pageSize=50';
+
+  if(!startKey) {
+    state.value = {
+      rows: []
+    };
+  } else {
+    url = `${url}&startKey=${startKey}`
+  }
+
+  api.get(url)
     .then(response => {
-      state.value = {
-        rows: response.data.items
+      state.value.rows = state.value.rows.concat(response.data.items);
+      if(response.data.nextStartKey) {
+        loadEventData(response.data.nextStartKey);
       }
     })
     .catch(error => alert(error))
-}
-
-function optDate(v) {
-  /^-?[\d]+\/[0-1]\d\/[0-3]\d$/.test(v)
 }
 
 onMounted(() => {
@@ -128,7 +149,7 @@ onMounted(() => {
                   </q-icon>
                 </template>
               </q-input>
-              <q-input outlined v-model="detail.name" label="Event Name"/>
+              <q-input outlined v-model="detail.name" label="Event Name" :rules="[v => !!v || 'The event must have a name']"/>
               <q-input filled v-model="detail.ticketSaleStartDate" label="First Day of Ticket Sales (opt)" mask="date"
                        :rules="[v => /(^$)|(^-?[\d]+\/[0-1]\d\/[0-3]\d$)/.test(v) || 'Must be blank or a valid date']">
                 <template v-slot:append>
