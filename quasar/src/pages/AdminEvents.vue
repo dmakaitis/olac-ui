@@ -1,6 +1,7 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import {api} from "boot/axios";
+import {copyToClipboard} from "quasar";
 
 const state = ref({
   rows: []
@@ -119,6 +120,19 @@ function loadEventData(startKey) {
     .catch(error => alert(error))
 }
 
+/**
+ * Called when the user clicks the copy event ID button.
+ */
+function onCopyEventId() {
+  copyToClipboard(detail.value.id)
+    .then(() => {
+      alert(`Copied event id to clipboard.`);
+    })
+    .catch(() => {
+      // ignore failure...
+    })
+}
+
 onMounted(() => {
   loadEventData();
 })
@@ -136,12 +150,17 @@ onMounted(() => {
     <q-card style="max-width: 1000px;">
       <div class="q-pa-md">
         <q-card-section>
-          <b>Event</b>
+          <h5>Event</h5>
         </q-card-section>
         <q-card-section horizontal>
           <q-card-section>
             <q-form @submit="onSave" @reset="onCancel" class="q-gutter-md">
-              <q-input filled v-model="detail.eventDate" label="Event Date" mask="date" :rules="['date']">
+              <q-input filled v-model="detail.id" lable="Event ID" readonly>
+                <template v-slot:append>
+                  <q-btn icon="content_copy" flat class="cursor-pointer" @click="onCopyEventId"/>
+                </template>
+              </q-input>
+              <q-input outlined v-model="detail.eventDate" label="Event Date" mask="date" :rules="['date']">
                 <template v-slot:append>
                   <q-icon name="event" class="cursor-pointer">
                     <q-popup-proxy cover transition-show="scale" transition-hide="scale">
@@ -155,8 +174,8 @@ onMounted(() => {
                 </template>
               </q-input>
               <q-input outlined v-model="detail.name" label="Event Name" :rules="[v => !!v || 'The event must have a name']"/>
-              <q-input filled v-model="detail.ticketSaleStartDate" label="First Day of Ticket Sales (opt)" mask="date"
-                       :rules="[v => /(^$)|(^-?[\d]+\/[0-1]\d\/[0-3]\d$)/.test(v) || 'Must be blank or a valid date']">
+              <q-input outlined v-model="detail.ticketSaleStartDate" label="First Day of Ticket Sales (opt)" mask="date"
+                       :rules="[v => /(^$)|(^-?[\d]+\/[0-1]\d\/[0-3]\d$)/.test(v || '') || 'Must be blank or a valid date']">
                 <template v-slot:append>
                   <q-icon name="event" class="cursor-pointer">
                     <q-popup-proxy cover transition-show="scale" transition-hide="scale">
@@ -169,8 +188,8 @@ onMounted(() => {
                   </q-icon>
                 </template>
               </q-input>
-              <q-input filled v-model="detail.ticketSaleEndDate" label="Last Day of Ticket Sales (opt)" mask="date"
-                       :rules="[v => /(^$)|(^-?[\d]+\/[0-1]\d\/[0-3]\d$)/.test(v) || 'Must be blank or a valid date']">
+              <q-input outlined v-model="detail.ticketSaleEndDate" label="Last Day of Ticket Sales (opt)" mask="date"
+                       :rules="[v => /(^$)|(^-?[\d]+\/[0-1]\d\/[0-3]\d$)/.test(v || '') || 'Must be blank or a valid date']">
                 <template v-slot:append>
                   <q-icon name="event" class="cursor-pointer">
                     <q-popup-proxy cover transition-show="scale" transition-hide="scale">

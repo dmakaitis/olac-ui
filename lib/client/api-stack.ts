@@ -19,6 +19,7 @@ interface ApiStackProps extends cdk.StackProps {
     eventDeleteFunction: Function,
 
     reservationListFunction: Function,
+    reservationListCsvFunction: Function,
     reservationSaveFunction: Function,
     reservationDeleteFunction: Function,
 
@@ -150,6 +151,13 @@ export class ApiStack extends cdk.Stack {
         }));
     }
 
+    /*****************************
+     * Define version 2 of the API (current).
+     *
+     * @param props
+     * @param api
+     * @param authorizers
+     */
     apiVersion2(props: ApiStackProps, api: apigateway.Resource, authorizers: Authorizers) {
         const events = api.addResource("events");
         events.addMethod("GET", new LambdaIntegration(props.eventListFunction, {
@@ -166,6 +174,11 @@ export class ApiStack extends cdk.Stack {
         eventsEventId.addMethod("DELETE", new LambdaIntegration(props.eventDeleteFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }), authorizers.admin);
+
+        const eventsEventIdReservationsCsv = eventsEventId.addResource("reservations.csv");
+        eventsEventIdReservationsCsv.addMethod("GET", new LambdaIntegration(props.reservationListCsvFunction, {
+            requestTemplates: {"text/csv": '{ "statusCode": "200" }'}
+        }), authorizers.eventCoordinator);
 
         const eventsEventIdReservations = eventsEventId.addResource("reservations");
         eventsEventIdReservations.addMethod("GET", new LambdaIntegration(props.reservationListFunction, {

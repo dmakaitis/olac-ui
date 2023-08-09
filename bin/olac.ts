@@ -48,6 +48,7 @@ class OlacConstruct extends Construct {
             eventDeleteFunction: eventStack.deleteEventFunction,
 
             reservationListFunction: eventStack.listReservationsFunction,
+            reservationListCsvFunction: eventStack.listReservationsCsvFunction,
             reservationSaveFunction: eventStack.saveReservationFunction,
             reservationDeleteFunction: eventStack.deleteReservationFunction,
 

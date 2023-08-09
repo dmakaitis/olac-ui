@@ -46,7 +46,7 @@
                                @row-click="onSelectPaymentRow">
                         <template v-slot:top-right>
                           <div class="text-right">
-                            Total due: {{ currency(reservationData.amountDue) }}<br/>
+                            Total due: {{ currency(getAmountDue()) }}<br/>
                             Total paid:
                             {{ currency(reservationData.payments.map(p => p.amount).reduce((a, b) => a + b, 0)) }}
                           </div>
@@ -168,6 +168,9 @@ export default {
     },
     isFullEdit() {
       return this.fullEdit || this.reservationData.id == ''
+    },
+    getAmountDue() {
+      return this.ticketTypes.reduce((a, b) => a + (b.count * b.costPerTicket), 0);
     }
   },
   props: {

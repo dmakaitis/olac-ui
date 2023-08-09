@@ -10,6 +10,7 @@ export class EventResourceStack extends cdk.Stack {
     deleteEventFunction: cdk.aws_lambda.Function;
 
     listReservationsFunction: cdk.aws_lambda.Function;
+    listReservationsCsvFunction: cdk.aws_lambda.Function;
     saveReservationFunction: cdk.aws_lambda.Function;
     deleteReservationFunction: cdk.aws_lambda.Function;
 
@@ -73,6 +74,10 @@ export class EventResourceStack extends cdk.Stack {
             sortKey: {name: 'reservationId', type: ddb.AttributeType.NUMBER}
         });
 
+        const counterTable = new ddb.Table(this, 'ReservationCounterTable', {
+            partitionKey: {name: 'id', type: ddb.AttributeType.STRING}
+        });
+
         this.listReservationsFunction = new lambda.Function(this, 'ListEventReservations', {
             description: 'Retrieves the list of OLAC event reservations from the datastore',
             runtime: lambda.Runtime.NODEJS_16_X,
@@ -84,16 +89,29 @@ export class EventResourceStack extends cdk.Stack {
         });
         table.grantReadData(this.listReservationsFunction);
 
+        this.listReservationsCsvFunction = new lambda.Function(this, 'ListEventReservationsCsv', {
+            description: 'Retrieves the list of OLAC event reservations from the datastore in CSV format',
+            runtime: lambda.Runtime.NODEJS_16_X,
+            code: lambda.Code.fromAsset('./lambda/resource/event'),
+            handler: 'get-event-reservations-csv.handler',
+            environment: {
+                TABLE_NAME: table.tableName
+            },
+        });
+        table.grantReadData(this.listReservationsCsvFunction);
+
         this.saveReservationFunction = new lambda.Function(this, 'SaveEventReservation', {
             description: 'Saves OLAC event reservation information to the datastore',
             runtime: lambda.Runtime.NODEJS_16_X,
             code: lambda.Code.fromAsset('./lambda/resource/event'),
             handler: 'save-reservation.handler',
             environment: {
-                TABLE_NAME: table.tableName
+                TABLE_NAME: table.tableName,
+                COUNTER_TABLE_NAME: counterTable.tableName
             },
         });
         table.grantReadWriteData(this.saveReservationFunction);
+        counterTable.grantReadWriteData(this.saveReservationFunction);
 
         this.deleteReservationFunction = new lambda.Function(this, 'DeleteReservation', {
             description: 'Deletes an OLAC event reservation from the datastore',
