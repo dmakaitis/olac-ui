@@ -1,67 +1,24 @@
-<template>
-  <q-page padding class="bg-white q-gutter-md">
-    <q-table ref="table" title="Reservations" :rows="state.rows" :columns="columns" row-key="reservationId"
-             @row-click="onRowClick"
-             :selection="isAdmin() ? 'single' : 'none'" v-model:selected="selected" v-model:pagination="pagination"
-             :loading="loading" :filter="filter" @request="onTableRefresh">
-      <template v-slot:top-left>
-        <span class="q-table__title">{{ this.table.title }}</span><br/>
-        <q-input borderless dense debounce="300" placeholder="Search" v-model="filter">
-          <template v-slot:prepend>
-            <q-icon name="search"/>
-          </template>
-        </q-input>
-      </template>
-      <template v-slot:top-right>
-        <div class="text-right">
-          <q-btn color="primary" icon-right="archive" label="Export to CSV" no-caps @click="onExportTable"/>
-          <br/>
-          (export using current search and sort settings)
-        </div>
-      </template>
-      <template v-slot:bottom-row>
-        <q-tr>
-          <q-td></q-td>
-          <q-td></q-td>
-          <q-td></q-td>
-          <q-td></q-td>
-          <q-td></q-td>
-          <q-td></q-td>
-          <q-td></q-td>
-          <q-td class="text-weight-bold text-right">Total:</q-td>
-          <q-td class="text-weight-bold text-center">{{ state.stats.ticketsReserved }}</q-td>
-          <q-td class="text-weight-bold text-right">{{ currency(state.stats.amountDue) }}</q-td>
-          <q-td class="text-weight-bold text-right">{{ currency(state.stats.amountPaid) }}</q-td>
-          <q-td v-for="col in columns" :key="col" props="col">{{ col.name }}</q-td>
-        </q-tr>
-      </template>
-    </q-table>
-    <q-btn label="New Reservation" @click="onNewReservation"/>
-    <q-btn v-if="isAdmin()" label="Delete Selected Reservation" @click="onDelete"/>
-  </q-page>
-
-  <ReservationDialog :reservation="detail.row" :ticket-types="state.ticketTypes"
-                     v-model="showDetail" @save="onSaveReservation" @cancel="onCancel" @edit-payment="onEditPayment"/>
-  <PaymentDialog :payment="selectedPayment" v-model="showPaymentDialog" @save="onSavePayment"
-                 @cancel="onCancelPayment"/>
-  <ConfirmationDialog v-model="confirmDelete" @yes="onConfirmDelete">
-    Are you sure you want to delete reservation number <b>{{ selected[0].id }}</b> for <b>{{ selected[0].firstName }}
-    {{ selected[0].lastName }}</b>'?
-  </ConfirmationDialog>
-</template>
-
-<script>
-import {reactive, ref} from 'vue';
+<script setup>
+import {onMounted, ref} from "vue";
+import {api} from "boot/axios";
+import {date} from "quasar";
 import {currency} from "boot/helper";
-import {api} from 'boot/axios.js';
+import {useStore} from "vuex";
 import ReservationDialog from "components/ReservationDialog.vue";
 import PaymentDialog from "components/PaymentDialog.vue";
-import {useStore} from "vuex";
-import {date, exportFile, useQuasar} from 'quasar'
 import ConfirmationDialog from "components/ConfirmationDialog.vue";
 
-const columns = [
-  {name: 'id', label: 'Reservation Number', field: row => row.id, align: 'left', sortable: true},
+const store = useStore();
+const splitterSize = ref(400);
+const reservationTable = ref({});
+const filter = ref('');
+
+const eventColumns = [
+  {name: 'event', label: 'Event', field: row => row.name, align: 'left', sort: true},
+  {name: 'date', label: 'Date', field: row => row.date, align: 'left', sort: true}
+];
+const reservationColumns = [
+  {name: 'id', label: 'Reservation Number', field: row => row.reservationId, align: 'left', sortable: true},
   {
     name: 'reservationTimestamp',
     label: 'Date/Time Reserved',
@@ -82,7 +39,12 @@ const columns = [
     align: 'center',
     format: val => `${val.reduce((a, b) => a + b.count, 0)}`
   },
-  {name: 'amount-due', label: 'Amount Due', field: row => row.amountDue, format: val => `${currency(val)}`},
+  {
+    name: 'amount-due',
+    label: 'Amount Due',
+    field: row => row.ticketCounts,
+    format: val => `${currency(val.reduce((a, b) => a + (b.count * b.costPerTicket), 0))}`
+  },
   {
     name: 'amount-paid',
     label: 'Amount Paid',
@@ -91,187 +53,356 @@ const columns = [
   }
 ];
 
-export default {
-  name: 'AdminReservations',
-  components: {ReservationDialog, PaymentDialog, ConfirmationDialog},
-  methods: {
-    onRowClick(event, row, index) {
-      this.detail.row = row;
+const loadingEvents = ref(false);
+const events = ref([]);
 
-      this.state.ticketTypes.forEach(type => {
-        type.count = 0;
+function loadEvents(startKey) {
+  let url = '/api/events';
 
-        let count = this.detail.row.ticketCounts.find(c => c.ticketTypeCode === type.code)
-        if (count) {
-          type.count = count.count;
-        }
-      });
+  if (!startKey) {
+    events.value = [];
+    loadingEvents.value = true;
+  } else {
+    url = `${url}?startKey=${startKey}`
+  }
 
-      this.showDetail = true
-    },
-    onNewReservation() {
-      this.detail.row = {
-        id: '',
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        status: 'PENDING_PAYMENT',
-        payments: [],
-        ticketCounts: []
-      }
-
-      this.state.ticketTypes.forEach(type => {
-        type.count = 0
-      })
-
-      this.showDetail = true
-    },
-    onCancel() {
-      this.loadReservations(this.pagination);
-      this.showDetail = false;
-    },
-    onDelete() {
-      this.confirmDelete = true
-    },
-    onConfirmDelete() {
-      this.confirmDelete = false
-      api.delete(`/api/admin/reservations/${this.selected[0].reservationId}`)
-        .then(response => this.loadReservations(this.pagination))
-        .catch(error => alert(error))
-    },
-    loadReservations(pagination) {
-      this.loading = true
-
-      let {page, rowsPerPage, sortBy, descending} = pagination
-
-      api.get(`/api/event/reservations?page=${page - 1}&perPage=${rowsPerPage}&sortBy=${sortBy}&desc=${descending}&filter=${this.filter}`)
-        .then(response => {
-          this.state.rows = response.data.data
-          this.pagination.rowsNumber = response.data.totalItems
-          this.pagination.page = response.data.pageNumber + 1
-          this.pagination.rowsPerPage = response.data.itemsPerPage
-          this.pagination.sortBy = response.data.sortBy
-          this.pagination.descending = response.data.descending
-          this.state.stats = response.data.ext
-
-          this.loading = false
-        })
-        .catch(error => alert(error))
-    },
-    loadTicketTypeData() {
-      api.get('/api/public/ticket-types')
-        .then(response => {
-          this.state.ticketTypes = response.data;
-          this.state.ticketTypes.forEach(type => type.count = 0)
-        })
-        .catch(error => alert(error))
-    },
-    onSaveReservation(reservationData) {
-      reservationData.ticketCounts = this.state.ticketTypes
-        .filter(t => t.count > 0)
-        .map(t => {
-          return {
-            ticketTypeCode: t.code,
-            count: parseInt(t.count)
-          }
-        });
-      reservationData.amountDue = this.state.ticketTypes
-        .map(t => t.count * t.costPerTicket)
-        .reduce((t, n) => t + n);
-
-      if (reservationData.id == '') {
-        reservationData.id = null
-      }
-
-      api.put(`/api/event/reservations/${this.detail.row.reservationId}`, reservationData)
-        .then(response => this.loadReservations(this.pagination))
-        .catch(error => alert(error));
-
-      this.showDetail = false;
-    },
-    onEditPayment(data) {
-      this.selectedPayment = data
-      this.showPaymentDialog = true
-    },
-    onCancelPayment() {
-      this.showPaymentDialog = false;
-    },
-    onSavePayment(data) {
-      if (data.index >= 0) {
-        this.detail.row.payments[data.index].amount = data.amount;
-        this.detail.row.payments[data.index].status = data.status;
-        this.detail.row.payments[data.index].method = data.method;
-        this.detail.row.payments[data.index].notes = data.notes;
+  api.get(url)
+    .then(response => {
+      events.value = events.value.concat(response.data.items.map(e => {
+        return {id: e.id, name: e.name, date: e.eventDate, ticketTypes: e.ticketTypes}
+      }));
+      if (response.data.nextStartKey) {
+        loadEvents(response.data.nextStartKey);
       } else {
-        this.detail.row.payments.push({
-          amount: data.amount,
-          status: data.status,
-          method: data.method,
-          notes: data.notes
-        });
+        loadingEvents.value = false;
       }
-      this.showPaymentDialog = false;
-    },
-    isAdmin() {
-      return this.store.getters['auth/isAdmin']
-    },
-    onTableRefresh(props) {
-      this.loadReservations(props.pagination)
-    },
-    onExportTable() {
-      console.log("Exporting table...")
-
-      let {sortBy, descending} = this.pagination
-
-      api.get(`/api/event/reservations.csv?sortBy=${sortBy}&desc=${descending}&filter=${this.filter}`)
-        .then(response => {
-          const status = exportFile('reservations.csv', response.data, 'text/csv')
-
-          if (status !== true) {
-            useQuasar().notify({
-              message: "Browser denied file download",
-              color: "negative",
-              icon: "warning"
-            })
-          }
-        })
-    }
-  },
-  setup() {
-    const store = useStore()
-    const state = reactive({
-      rows: [],
-      ticketTypes: [],
-      stats: {}
     })
+    .catch(error => alert(error))
+}
 
-    return {
-      store,
-      columns,
-      state,
-      table: ref({}),
-      showDetail: ref(false),
-      detail: reactive({}),
-      selected: ref([]),
-      selectedPayment: ref({}),
-      showPaymentDialog: ref(false),
-      confirmDelete: ref(false),
-      loading: ref(false),
-      pagination: ref({
-        sortBy: 'reservationTimestamp',
-        descending: true,
-        page: 1,
-        rowsPerPage: 5,
-        rowsNumber: 0
-      }),
-      filter: ref(''),
-      currency
-    }
-  },
-  mounted() {
-    this.loadReservations(this.pagination);
-    this.loadTicketTypeData();
+const loadingReservations = ref(false);
+const reservations = ref([]);
+const totalTicketCount = ref(0);
+const totalAmountDue = ref(0);
+const totalPaid = ref(0);
+
+function loadReservations(startKey) {
+  let url = `/api/events/${selectedEventId.value}/reservations`;
+
+  if (!startKey) {
+    reservations.value = [];
+    totalTicketCount.value = 0;
+    totalAmountDue.value = 0;
+    totalPaid.value = 0;
+    loadingReservations.value = true;
+  } else {
+    url = `${url}?startKey=${startKey}`
+  }
+
+  api.get(url)
+    .then(response => {
+      totalTicketCount.value = response.data.items.reduce((a, b) => a + b.ticketCounts.reduce((c, d) => c + d.count, 0), totalTicketCount.value);
+      totalAmountDue.value = response.data.items.reduce((a, b) => a + b.ticketCounts.reduce((c, d) => c + (d.count * d.costPerTicket), 0), totalAmountDue.value);
+      totalPaid.value = response.data.items.reduce((a, b) => a + b.payments.reduce((c, d) => c + d.amount, 0), totalPaid.value);
+
+      reservations.value = reservations.value.concat(response.data.items.map(r => {
+        return {
+          id: r.id,
+          reservationId: r.reservationId,
+          reservationTimestamp: r.reservationTimestamp,
+          firstName: r.firstName,
+          lastName: r.lastName,
+          email: r.email,
+          phone: r.phone,
+          status: r.status,
+          ticketCounts: r.ticketCounts,
+          amountDue: 0,
+          payments: r.payments
+        }
+      }));
+      if (response.data.nextStartKey) {
+        loadReservations(response.data.nextStartKey);
+      } else {
+        loadingReservations.value = false;
+      }
+    })
+    .catch(error => alert(error))
+}
+
+const selectedEvents = ref([]);
+const selectedEventId = ref('');
+const ticketTypes = ref([]);
+
+function eventSelected(event) {
+  if (event.id !== selectedEventId.value) {
+    selectedEventId.value = event.id;
+    ticketTypes.value = event.ticketTypes.map(t => {
+      return {
+        description: t.name,
+        costPerTicket: t.price
+      };
+    })
+    loadReservations();
   }
 }
+
+function onClickEvent(event, row, index) {
+  selectedEvents.value = [row];
+  eventSelected(row);
+}
+
+function onSelectEvent(details) {
+  if (details.added) {
+    eventSelected(details.rows[0])
+  } else {
+    selectedEventId.value = '';
+    reservations.value = []
+    totalTicketCount.value = 0;
+    totalAmountDue.value = 0;
+    totalPaid.value = 0;
+  }
+}
+
+const selectedReservations = ref([]);
+const selectedReservation = ref({});
+
+function onExportTable() {
+  alert(`onExportTable`);
+}
+
+function onNewReservation() {
+  if (selectedEventId.value) {
+    selectedReservation.value = {
+      id: '',
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      status: 'PENDING_PAYMENT',
+      payments: [],
+      ticketCounts: []
+    };
+
+    ticketTypes.value.forEach(type => {
+      type.count = 0;
+    });
+
+    showDetail.value = true;
+  }
+}
+
+function onDeleteReservation() {
+  if (selectedReservations.value.length) {
+    confirmDelete.value = true;
+  }
+}
+
+const showDetail = ref(false);
+
+function onClickReservation(event, row, index) {
+  selectedReservation.value = row;
+
+  ticketTypes.value.forEach(type => {
+    type.count = 0;
+
+    let ticketCount = selectedReservation.value.ticketCounts.find(c => c.typeName === type.description);
+    if (ticketCount) {
+      type.count = ticketCount.count;
+    }
+  });
+
+  showDetail.value = true;
+}
+
+function onSaveReservation() {
+  alert(`onSaveReservation`);
+  showDetail.value = false;
+}
+
+function onCancel() {
+  showDetail.value = false;
+}
+
+const showPaymentDialog = ref(false);
+const selectedPayment = ref({});
+
+function onEditPayment(data) {
+  selectedPayment.value = data;
+  showPaymentDialog.value = true;
+}
+
+function onSavePayment() {
+  alert(`onSavePayment`);
+  showPaymentDialog.value = false;
+}
+
+function onCancelPayment() {
+  showPaymentDialog.value = false;
+}
+
+function isAdmin() {
+  return store.getters['auth/isAdmin'];
+}
+
+const confirmDelete = ref(false);
+
+function onConfirmDelete() {
+  confirmDelete.value = false;
+  api.delete(`/api/events/${selectedEventId.value}/reservations/${selectedReservations.value[0].id}`)
+    .then(response => loadReservations())
+    .catch(error => alert(error));
+}
+
+onMounted(() => {
+  loadEvents();
+});
 </script>
+
+<template>
+  <q-page padding class="q-gutter-md">
+    <q-splitter unit="px" :limits="[250, Infinity]" v-model="splitterSize" disable>
+
+      <template v-slot:before>
+        <q-table title="Events" :columns="eventColumns" :rows="events" row-key="id" selection="single"
+                 @row-click="onClickEvent" @selection="onSelectEvent" v-model:selected="selectedEvents"
+                 :loading="loadingEvents">
+        </q-table>
+      </template>
+      <template v-slot:after>
+        <q-table ref="reservationTable" title="Reservations" :columns="reservationColumns" :rows="reservations"
+                 row-key="id" @row-click="onClickReservation" :selection="isAdmin() ? 'single' : 'none'"
+                 v-model:selected="selectedReservations" :loading="loadingReservations" :filter="filter">
+          <!--        <q-table ref="table" title="Reservations" :rows="state.rows" :columns="columns" row-key="reservationId"-->
+          <!--                 @row-click="onRowClick"-->
+          <!--                 :selection="isAdmin() ? 'single' : 'none'" v-model:selected="selected" v-model:pagination="pagination"-->
+          <!--                 :loading="loading" :filter="filter" @request="onTableRefresh">-->
+          <template v-slot:top-left>
+            <span class="q-table__title">{{ reservationTable.title }}</span><br/>
+            <q-input borderless dense debounce="300" placeholder="Search" v-model="filter">
+              <template v-slot:prepend>
+                <q-icon name="search"/>
+              </template>
+            </q-input>
+          </template>
+          <template v-slot:top-right>
+            <div class="text-right">
+              <q-btn color="primary" icon-right="archive" label="Export to CSV" no-caps @click="onExportTable"/>
+              <br/>
+              (export using current search and sort settings)
+            </div>
+          </template>
+          <template v-slot:bottom-row>
+            <q-tr>
+              <q-td></q-td>
+              <q-td></q-td>
+              <q-td></q-td>
+              <q-td></q-td>
+              <q-td></q-td>
+              <q-td></q-td>
+              <q-td class="text-weight-bold text-right">Total:</q-td>
+              <q-td class="text-weight-bold text-center">{{ totalTicketCount }}</q-td>
+              <q-td class="text-weight-bold text-right">{{ currency(totalAmountDue) }}</q-td>
+              <q-td class="text-weight-bold text-right">{{ currency(totalPaid) }}</q-td>
+            </q-tr>
+          </template>
+        </q-table>
+        <q-btn label="New Reservation" @click="onNewReservation" :disable="!selectedEventId"/>
+        <q-btn v-if="isAdmin()" label="Delete Selected Reservation" @click="onDeleteReservation"
+               :disable="!selectedReservations.length"/>
+      </template>
+    </q-splitter>
+  </q-page>
+
+  <ReservationDialog :reservation="selectedReservation" :ticket-types="ticketTypes" v-model="showDetail"
+                     @save="onSaveReservation" @cancel="onCancel" @edit-payment="onEditPayment"/>
+  <PaymentDialog :payment="selectedPayment" v-model="showPaymentDialog" @save="onSavePayment"
+                 @cancel="onCancelPayment"/>
+  <ConfirmationDialog v-model="confirmDelete" @yes="onConfirmDelete">
+    Are you sure you want to delete reservation number <b>{{ selectedReservations[0].reservationId }}</b> for
+    <b>{{ selectedReservations[0].firstName }}
+      {{ selectedReservations[0].lastName }}</b>'?
+  </ConfirmationDialog>
+</template>
+
+<!--<script>-->
+<!--import {reactive, ref} from 'vue';-->
+<!--import {currency} from "boot/helper";-->
+<!--import {api} from 'boot/axios.js';-->
+<!--import ReservationDialog from "components/ReservationDialog.vue";-->
+<!--import PaymentDialog from "components/PaymentDialog.vue";-->
+<!--import {useStore} from "vuex";-->
+<!--import {date, exportFile, useQuasar} from 'quasar'-->
+<!--import ConfirmationDialog from "components/ConfirmationDialog.vue";-->
+
+
+
+
+<!--    onSaveReservation(reservationData) {-->
+<!--      reservationData.ticketCounts = this.state.ticketTypes-->
+<!--        .filter(t => t.count > 0)-->
+<!--        .map(t => {-->
+<!--          return {-->
+<!--            ticketTypeCode: t.code,-->
+<!--            count: parseInt(t.count)-->
+<!--          }-->
+<!--        });-->
+<!--      reservationData.amountDue = this.state.ticketTypes-->
+<!--        .map(t => t.count * t.costPerTicket)-->
+<!--        .reduce((t, n) => t + n);-->
+
+<!--      if (reservationData.id == '') {-->
+<!--        reservationData.id = null-->
+<!--      }-->
+
+<!--      // api.put(`/api/event/reservations/${this.detail.row.reservationId}`, reservationData)-->
+<!--      //   .then(response => this.loadReservations(this.pagination))-->
+<!--      //   .catch(error => alert(error));-->
+
+<!--      this.showDetail = false;-->
+<!--    },-->
+
+
+
+<!--    onSavePayment(data) {-->
+<!--      if (data.index >= 0) {-->
+<!--        this.detail.row.payments[data.index].amount = data.amount;-->
+<!--        this.detail.row.payments[data.index].status = data.status;-->
+<!--        this.detail.row.payments[data.index].method = data.method;-->
+<!--        this.detail.row.payments[data.index].notes = data.notes;-->
+<!--      } else {-->
+<!--        this.detail.row.payments.push({-->
+<!--          amount: data.amount,-->
+<!--          status: data.status,-->
+<!--          method: data.method,-->
+<!--          notes: data.notes-->
+<!--        });-->
+<!--      }-->
+<!--      this.showPaymentDialog = false;-->
+<!--    },-->
+
+
+
+<!--    onTableRefresh(props) {-->
+<!--      this.loadReservations(props.pagination)-->
+<!--    },-->
+
+
+<!--    onExportTable() {-->
+<!--      console.log("Exporting table...")-->
+
+<!--      let {sortBy, descending} = this.pagination-->
+
+<!--      // api.get(`/api/event/reservations.csv?sortBy=${sortBy}&desc=${descending}&filter=${this.filter}`)-->
+<!--      //   .then(response => {-->
+<!--      //     const status = exportFile('reservations.csv', response.data, 'text/csv')-->
+<!--      //-->
+<!--      //     if (status !== true) {-->
+<!--      //       useQuasar().notify({-->
+<!--      //         message: "Browser denied file download",-->
+<!--      //         color: "negative",-->
+<!--      //         icon: "warning"-->
+<!--      //       })-->
+<!--      //     }-->
+<!--      //   })-->
+<!--    }-->
+

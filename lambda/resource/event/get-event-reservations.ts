@@ -13,14 +13,11 @@ const docClient = DynamoDBDocument.from(client);
 export const handler: Handler = async (event) => {
     let queryCommandInput: QueryCommandInput = {
         TableName: process.env.TABLE_NAME,
-        IndexName: "GlobalSortByEventDateIndex",
+        IndexName: "GlobalEventIndex",
         ScanIndexForward: false,
-        KeyConditionExpression: "#index = :indexValue",
+        KeyConditionExpression: "eventId = :idValue",
         ExpressionAttributeValues: {
-            ":indexValue": "EVENT"
-        },
-        ExpressionAttributeNames: {
-            "#index": "index"
+            ":idValue": event.pathParameters.eventId
         }
     };
 

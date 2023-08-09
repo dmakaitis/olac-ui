@@ -4,9 +4,7 @@ import MainArticle from "pages/MainArticle.vue";
 import MainTickets from "pages/MainTickets.vue";
 
 import AdminLayout from "layouts/AdminLayout.vue";
-import AdminTicketTypes from "pages/AdminTicketTypes.vue";
 import AdminReservations from "pages/AdminReservations.vue";
-import AdminUsers from "pages/AdminUsers.vue";
 
 import LoginUser from "pages/LoginUser.vue";
 import LogoutUser from "pages/LogoutUser.vue";
@@ -46,14 +44,6 @@ const routes = [
         name: 'Event Information and Registration',
         path: 'tickets',
         component: MainTickets
-      },
-      {
-        name: 'Reservation Administration',
-        path: 'reservations',
-        component: AdminReservations,
-        meta: {
-          requiresAuth: true
-        }
       }
     ]
   },
@@ -71,14 +61,12 @@ const routes = [
         component: AdminEvents
       },
       {
-        name: 'Ticket Types Administration',
-        path: 'ticket-types',
-        component: AdminTicketTypes
-      },
-      {
-        name: 'User Administration',
-        path: 'users',
-        component: AdminUsers
+        name: 'Reservation Administration',
+        path: 'reservations',
+        component: AdminReservations,
+        meta: {
+          requiresAuth: true
+        }
       }
     ]
   }

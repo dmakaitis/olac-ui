@@ -93,15 +93,18 @@ function onAddTicketType() {
   });
 }
 
+const loadingEvents = ref(false);
+
 function loadEventData(startKey) {
-  let url = '/api/events?pageSize=50';
+  let url = '/api/events';
 
   if(!startKey) {
     state.value = {
       rows: []
     };
+    loadingEvents.value = true;
   } else {
-    url = `${url}&startKey=${startKey}`
+    url = `${url}?startKey=${startKey}`
   }
 
   api.get(url)
@@ -109,6 +112,8 @@ function loadEventData(startKey) {
       state.value.rows = state.value.rows.concat(response.data.items);
       if(response.data.nextStartKey) {
         loadEventData(response.data.nextStartKey);
+      } else {
+        loadingEvents.value = false;
       }
     })
     .catch(error => alert(error))
@@ -122,7 +127,7 @@ onMounted(() => {
 <template>
   <q-page padding class="bg-white q-gutter-md">
     <q-table title="Events" :rows="state.rows" :columns="columns" row-key="id" @row-click="onRowClick"
-             selection="single" v-model:selected="selected"/>
+             selection="single" v-model:selected="selected" :loading="loadingEvents"/>
     <q-btn label="New Event" @click="onNewEvent"/>
     <q-btn label="Delete Selected Event" @click="onDelete"/>
   </q-page>

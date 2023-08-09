@@ -1,5 +1,5 @@
 export interface Event {
-    id: string,
+    id?: string,
     name: string,
     eventDate?: string,
     ticketSaleStartDate?: string,

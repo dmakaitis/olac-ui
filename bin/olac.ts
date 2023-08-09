@@ -43,9 +43,13 @@ class OlacConstruct extends Construct {
 
             newReservationIdFunction: reservationStack.getNewReservationIdFunction,
 
-            eventListFunction: eventStack.listFunction,
-            eventSaveFunction: eventStack.saveFunction,
-            eventDeleteFunction: eventStack.deleteFunction,
+            eventListFunction: eventStack.listEventsFunction,
+            eventSaveFunction: eventStack.saveEventFunction,
+            eventDeleteFunction: eventStack.deleteEventFunction,
+
+            reservationListFunction: eventStack.listReservationsFunction,
+            reservationSaveFunction: eventStack.saveReservationFunction,
+            reservationDeleteFunction: eventStack.deleteReservationFunction,
 
             grantGroupMap: {
                 admin: [

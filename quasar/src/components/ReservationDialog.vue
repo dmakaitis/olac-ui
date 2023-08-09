@@ -5,7 +5,7 @@
         <div class="q-pa-md">
           <q-card-section horizontal>
             <q-card-section class="q-gutter-md">
-              <q-input readonly v-model="reservationData.id" label="Reservation Number"/>
+              <q-input readonly v-model="reservationData.reservationId" label="Reservation Number"/>
               <q-input :readonly="!isFullEdit()" v-model.trim="reservationData.firstName" label="First Name" lazy-rules
                        :rules="[val => !!val || 'First name is required']"/>
               <q-input :readonly="!isFullEdit()" v-model.trim="reservationData.lastName" label="Last Name" lazy-rules
@@ -135,13 +135,13 @@ export default {
       this.reservationData = this.reservation
       this.ticketTypeData = this.ticketTypes
 
-      if (this.fullEdit) {
-        api.get(`/api/admin/reservations/${this.reservationData.reservationId}/audit`)
-          .then(response => this.auditData = response.data)
-          .catch(error => alert(error))
-      } else {
+      // if (this.fullEdit) {
+      //   api.get(`/api/admin/reservations/${this.reservationData.reservationId}/audit`)
+      //     .then(response => this.auditData = response.data)
+      //     .catch(error => alert(error))
+      // } else {
         this.auditData = [];
-      }
+      // }
     },
     onSaveReservation() {
       this.$emit('save', this.reservationData)
