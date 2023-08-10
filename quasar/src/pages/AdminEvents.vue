@@ -35,7 +35,7 @@ const columns = [
     label: 'Available Tickets',
     align: 'left',
     field: row => row.maxTickets,
-    format: val => `${val}`,
+    format: val => `${val || 'Unlimited'}`,
     sortable: true
   },
 ];
@@ -202,7 +202,7 @@ onMounted(() => {
                   </q-icon>
                 </template>
               </q-input>
-              <q-input outlined v-model="detail.maxTickets" label="Number of Available Tickets"/>
+              <q-input outlined number v-model.number="detail.maxTickets" label="Number of Available Tickets"/>
               <div>
                 <q-btn label="Save" type="submit" color="primary"/>
                 <q-btn label="Cancel" type="reset" color="primary" flat class="q-ml-sm"/>
@@ -216,7 +216,7 @@ onMounted(() => {
             <q-card-section v-for="t in detail.ticketTypes" :key="t">
               <div class="q-gutter-md row items-start">
                 <q-input outlined v-model="t.name" label="Ticket Type Name"/>
-                <q-input outlined v-model="t.price" label="Price" prefix="$"/>
+                <q-input outlined number v-model.number="t.price" label="Price" prefix="$"/>
               </div>
             </q-card-section>
             <q-card-section>

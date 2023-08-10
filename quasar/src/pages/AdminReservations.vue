@@ -412,8 +412,8 @@ onMounted(() => {
           <template v-slot:top-right>
             <div class="text-right">
               <q-btn color="primary" icon-right="archive" label="Export to CSV" no-caps @click="onExportTable"/>
-              <br/>
-              (export using current search and sort settings)
+<!--              <br/>-->
+<!--              (export using current search and sort settings)-->
             </div>
           </template>
           <template v-slot:bottom-row>

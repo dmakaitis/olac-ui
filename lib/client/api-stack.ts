@@ -1,14 +1,18 @@
 import * as cdk from 'aws-cdk-lib';
 import {Duration} from 'aws-cdk-lib';
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
-import {JsonSchemaType, LambdaIntegration, MethodOptions} from "aws-cdk-lib/aws-apigateway";
+import {AwsIntegration, Cors, JsonSchemaType, LambdaIntegration, MethodOptions} from "aws-cdk-lib/aws-apigateway";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import {Function} from 'aws-cdk-lib/aws-lambda';
+import {Table} from 'aws-cdk-lib/aws-dynamodb';
 import {Construct} from 'constructs';
 import * as logs from "aws-cdk-lib/aws-logs";
+import {Effect, Policy, PolicyStatement, Role} from "aws-cdk-lib/aws-iam";
 
 interface ApiStackProps extends cdk.StackProps {
+    apiRoleARN: string,
+
     echoFunction: Function,
     getClientConfigFunction: Function,
     newReservationIdFunction: Function,
@@ -17,6 +21,8 @@ interface ApiStackProps extends cdk.StackProps {
     eventListFunction: Function,
     eventSaveFunction: Function,
     eventDeleteFunction: Function,
+
+    eventsTable: Table,
 
     reservationListFunction: Function,
     reservationListCsvFunction: Function,
@@ -56,6 +62,9 @@ export class ApiStack extends cdk.Stack {
                 accessLogFormat: apigateway.AccessLogFormat.jsonWithStandardFields(),
                 loggingLevel: apigateway.MethodLoggingLevel.ERROR,
                 dataTraceEnabled: false
+            },
+            defaultCorsPreflightOptions: {
+                allowOrigins: Cors.ALL_ORIGINS
             }
         });
 
@@ -123,8 +132,7 @@ export class ApiStack extends cdk.Stack {
         publicClientConfig.addMethod("GET", new LambdaIntegration(props.getClientConfigFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }));
-        const publicTicketTypes = publicApi.addResource("ticket-types");
-        publicTicketTypes.addMethod("GET", echoIntegration);
+
         const publicNewReservationIdConfig = publicApi.addResource("new-reservation-id");
         publicNewReservationIdConfig.addMethod("GET", new LambdaIntegration(props.newReservationIdFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
@@ -133,10 +141,6 @@ export class ApiStack extends cdk.Stack {
         publicReservations.addMethod("POST", echoIntegration);
         const publicReservationsAvailable = publicReservations.addResource("_available");
         publicReservationsAvailable.addMethod("GET", echoIntegration);
-
-        const event = api.addResource("event");
-        const eventReservationsCsv = event.addResource("reservations.csv");
-        eventReservationsCsv.addMethod("GET", echoIntegration, authorizers.eventCoordinator);
 
         const admin = api.addResource("admin");
         const adminReservations = admin.addResource("reservations");
@@ -159,6 +163,39 @@ export class ApiStack extends cdk.Stack {
      * @param authorizers
      */
     apiVersion2(props: ApiStackProps, api: apigateway.Resource, authorizers: Authorizers) {
+        const apiRole = Role.fromRoleArn(this, 'ApiRole', props.apiRoleARN);
+        apiRole.attachInlinePolicy(new Policy(this, 'ApiEventsPolicy', {
+            statements: [
+                new PolicyStatement({
+                    actions: ['dynamodb:GetItem'],
+                    effect: Effect.ALLOW,
+                    resources: [props.eventsTable.tableArn]
+                }),
+            ],
+        }));
+
+        const errorResponses = [
+            {
+                selectionPattern: '400',
+                statusCode: '400',
+                responseTemplates: {
+                    "application/json": `{
+                        "error": "Bad input!"
+                    }`,
+                },
+            },
+            {
+                selectionPattern: '5\\d{2}',
+                statusCode: '500',
+                responseTemplates: {
+                    'application/json': `{
+                        "error": "Internal Service Error!"
+                    }`,
+                },
+            },
+        ];
+
+
         const events = api.addResource("events");
         events.addMethod("GET", new LambdaIntegration(props.eventListFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
@@ -168,6 +205,51 @@ export class ApiStack extends cdk.Stack {
         }), authorizers.admin);
 
         const eventsEventId = events.addResource("{eventId}");
+        eventsEventId.addMethod("GET", new AwsIntegration({
+            service: "dynamodb",
+            action: "GetItem",
+            options: {
+                credentialsRole: apiRole,
+                requestTemplates: {
+                    "application/json": `{
+                        "TableName": "${props.eventsTable.tableName}",
+                        "Key": {
+                            "id": {
+                                "S": "$method.request.path.eventId"
+                            }
+                        }
+                    }`
+                },
+                integrationResponses: [
+                    {
+                        statusCode: '200',
+                        responseTemplates: {
+                            "application/json": `
+                                #set($inputRoot = $input.path('$'))
+                                {
+                                    "id": "$inputRoot.Item.id.S",
+                                    "name": "$inputRoot.Item.name.S",
+                                    "eventDate": "$inputRoot.Item.eventDate.S",
+                                    #if($inputRoot.Item.ticketSaleStartDate.S != "") "ticketSaleStartDate": "$inputRoot.Item.ticketSaleStartDate.S",#end
+                                    #if($inputRoot.Item.ticketSaleEndDate.S != "") "ticketSaleEndDate": "$inputRoot.Item.ticketSaleEndDate.S",#end
+                                    #if($inputRoot.Item.maxTickets.N != "") "maxTickets": $inputRoot.Item.maxTickets.N,#end
+                                    "ticketTypes": [
+                                        #foreach($ticketType in $inputRoot.Item.ticketTypes.L)
+                                            {
+                                                "name": "$ticketType.M.name.S",
+                                                "price": $ticketType.M.price.N
+                                            },
+                                        #end
+                                    ]
+                                }`
+                        }
+                    },
+                    ...errorResponses
+                ]
+            }
+        }), {
+            methodResponses: [{statusCode: '200'}, {statusCode: '400'}, {statusCode: '500'}]
+        });
         eventsEventId.addMethod("PUT", new LambdaIntegration(props.eventSaveFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }), authorizers.admin);

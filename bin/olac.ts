@@ -37,6 +37,8 @@ class OlacConstruct extends Construct {
         const reservationStack = new ReservationManagerStack(this, 'ReservationManager', {});
 
         const apiStack = new ApiStack(this, 'Apis', {
+            apiRoleARN: 'arn:aws:iam::543748744721:role/OlacDevApiRole',
+
             echoFunction: adminStack.echoFunction,
             getClientConfigFunction: adminStack.getClientConfigFunction,
             whoAmIFunction: securityStack.whoAmIFunction,
@@ -46,6 +48,8 @@ class OlacConstruct extends Construct {
             eventListFunction: eventStack.listEventsFunction,
             eventSaveFunction: eventStack.saveEventFunction,
             eventDeleteFunction: eventStack.deleteEventFunction,
+
+            eventsTable: eventStack.eventsTable,
 
             reservationListFunction: eventStack.listReservationsFunction,
             reservationListCsvFunction: eventStack.listReservationsCsvFunction,

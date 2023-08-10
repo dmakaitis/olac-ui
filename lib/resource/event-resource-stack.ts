@@ -14,6 +14,8 @@ export class EventResourceStack extends cdk.Stack {
     saveReservationFunction: cdk.aws_lambda.Function;
     deleteReservationFunction: cdk.aws_lambda.Function;
 
+    eventsTable: cdk.aws_dynamodb.Table;
+
     constructor(scope: Construct, id: string, props: cdk.StackProps) {
         super(scope, id, props);
         this.defineEventFunctions();
@@ -29,6 +31,7 @@ export class EventResourceStack extends cdk.Stack {
             partitionKey: {name: 'index', type: ddb.AttributeType.STRING},
             sortKey: {name: 'eventDate', type: ddb.AttributeType.STRING}
         });
+        this.eventsTable = table;
 
         this.listEventsFunction = new lambda.Function(this, 'ListEvents', {
             description: 'Retrieves the list of OLAC events from the datastore',

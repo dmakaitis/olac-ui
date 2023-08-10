@@ -5,7 +5,7 @@
         <div class="q-pa-md">
           <q-card-section horizontal>
             <q-card-section class="q-gutter-md">
-              <q-input readonly v-model="reservationData.reservationId" label="Reservation Number"/>
+              <q-input readonly number v-model.number="reservationData.reservationId" label="Reservation Number"/>
               <q-input :readonly="!isFullEdit()" v-model.trim="reservationData.firstName" label="First Name" lazy-rules
                        :rules="[val => !!val || 'First name is required']"/>
               <q-input :readonly="!isFullEdit()" v-model.trim="reservationData.lastName" label="Last Name" lazy-rules
@@ -27,7 +27,7 @@
                                row-key="code">
                         <template #body-cell-count="props">
                           <q-td :props="props">
-                            <q-input :readonly="!isFullEdit()" v-model.number="props.row.count" lazy-rules
+                            <q-input :readonly="!isFullEdit()" number v-model.number="props.row.count" lazy-rules
                                      :rules="[
                                        val => val !== null && val !== '' || 'Ticket count must be a number',
                                        val => val >= 0 || 'Must be zero or more'
