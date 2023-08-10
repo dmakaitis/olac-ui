@@ -29,6 +29,8 @@ interface ApiStackProps extends cdk.StackProps {
     reservationSaveFunction: Function,
     reservationDeleteFunction: Function,
 
+    areTicketsAvailableFunction: Function;
+
     grantGroupMap: {
         admin: Array<cognito.CfnUserPoolGroup>,
         eventCoordinator: Array<cognito.CfnUserPoolGroup>
@@ -127,32 +129,27 @@ export class ApiStack extends cdk.Stack {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         });
 
+        // TODO: Replace this with a generated document stored in S3:
         const publicApi = api.addResource("public");
         const publicClientConfig = publicApi.addResource("client-config");
         publicClientConfig.addMethod("GET", new LambdaIntegration(props.getClientConfigFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }));
 
-        const publicNewReservationIdConfig = publicApi.addResource("new-reservation-id");
-        publicNewReservationIdConfig.addMethod("GET", new LambdaIntegration(props.newReservationIdFunction, {
-            requestTemplates: {"application/json": '{ "statusCode": "200" }'}
-        }));
+
+
+        // TODO: Move this method into the new API somewhere...
         const publicReservations = publicApi.addResource("reservations");
         publicReservations.addMethod("POST", echoIntegration);
-        const publicReservationsAvailable = publicReservations.addResource("_available");
-        publicReservationsAvailable.addMethod("GET", echoIntegration);
 
+
+
+        // TODO: Add auditing and make available through the new API
         const admin = api.addResource("admin");
         const adminReservations = admin.addResource("reservations");
         const adminReservationsID = adminReservations.addResource("{reservationId}");
         const adminReservationsIDAudit = adminReservationsID.addResource("audit");
         adminReservationsIDAudit.addMethod("GET", echoIntegration, authorizers.admin);
-
-        const auth = api.addResource("auth");
-        const whoAmI = auth.addResource("who-am-i");
-        whoAmI.addMethod("GET", new LambdaIntegration(props.whoAmIFunction, {
-            requestTemplates: {"application/json": '{ "statusCode": "200" }'}
-        }));
     }
 
     /*****************************
@@ -257,6 +254,11 @@ export class ApiStack extends cdk.Stack {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }), authorizers.admin);
 
+        const eventsEventIdAvailable = eventsEventId.addResource("_available");
+        eventsEventIdAvailable.addMethod("GET", new LambdaIntegration(props.areTicketsAvailableFunction, {
+            requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+        }));
+
         const eventsEventIdReservationsCsv = eventsEventId.addResource("reservations.csv");
         eventsEventIdReservationsCsv.addMethod("GET", new LambdaIntegration(props.reservationListCsvFunction, {
             requestTemplates: {"text/csv": '{ "statusCode": "200" }'}
@@ -266,17 +268,32 @@ export class ApiStack extends cdk.Stack {
         eventsEventIdReservations.addMethod("GET", new LambdaIntegration(props.reservationListFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }), authorizers.eventCoordinator);
+        // TODO: Add sending of notifications:
         eventsEventIdReservations.addMethod("POST", new LambdaIntegration(props.reservationSaveFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }), authorizers.eventCoordinator);
 
+        const eventsEventIdReservationsNewId = eventsEventIdReservations.addResource("_new-id");
+        eventsEventIdReservationsNewId.addMethod("GET", new LambdaIntegration(props.newReservationIdFunction, {
+            requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+        }));
+
         const eventsEventIdReservationsReservationId = eventsEventIdReservations.addResource("{reservationId}");
+        // TODO: Add sending of notifications:
         eventsEventIdReservationsReservationId.addMethod("PUT", new LambdaIntegration(props.reservationSaveFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }), authorizers.eventCoordinator);
         eventsEventIdReservationsReservationId.addMethod("DELETE", new LambdaIntegration(props.reservationDeleteFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }), authorizers.eventCoordinator);
+
+
+
+        const auth = api.addResource("auth");
+        const whoAmI = auth.addResource("who-am-i");
+        whoAmI.addMethod("GET", new LambdaIntegration(props.whoAmIFunction, {
+            requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+        }));
     }
 
     /**
