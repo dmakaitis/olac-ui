@@ -41,7 +41,6 @@ class OlacConstruct extends Construct {
         const apiStack = new ApiStack(this, 'Apis', {
             apiRoleARN: 'arn:aws:iam::543748744721:role/OlacDevApiRole',
 
-            echoFunction: adminStack.echoFunction,
             getClientConfigFunction: adminStack.getClientConfigFunction,
             whoAmIFunction: securityStack.whoAmIFunction,
 
@@ -64,13 +63,8 @@ class OlacConstruct extends Construct {
             areTicketsAvailableFunction: eventStack.areTicketsAvailableFunction,
 
             grantGroupMap: {
-                admin: [
-                    securityStack.adminUserGroup
-                ],
-                eventCoordinator: [
-                    securityStack.adminUserGroup,
-                    securityStack.eventCoordinatorUserGroup
-                ]
+                admin: securityStack.adminUserGroup,
+                eventCoordinator: securityStack.eventCoordinatorUserGroup
             }
         });
 
@@ -81,7 +75,7 @@ class OlacConstruct extends Construct {
         });
 
         // new GarbageStack(this, 'Garbage', {
-        //     functionToDelete: eventStack.apiSaveReservationFunction
+        //     functionToDelete: adminStack.echoFunction
         // });
     }
 }

@@ -13,7 +13,6 @@ import {Effect, Policy, PolicyStatement, Role} from "aws-cdk-lib/aws-iam";
 interface ApiStackProps extends cdk.StackProps {
     apiRoleARN: string,
 
-    echoFunction: Function,
     getClientConfigFunction: Function,
     newReservationIdFunction: Function,
     whoAmIFunction: Function,
@@ -35,8 +34,8 @@ interface ApiStackProps extends cdk.StackProps {
     areTicketsAvailableFunction: Function;
 
     grantGroupMap: {
-        admin: Array<cognito.CfnUserPoolGroup>,
-        eventCoordinator: Array<cognito.CfnUserPoolGroup>
+        admin: cognito.CfnUserPoolGroup,
+        eventCoordinator: cognito.CfnUserPoolGroup
     }
 }
 
@@ -87,7 +86,9 @@ export class ApiStack extends cdk.Stack {
                         code: lambda.Code.fromAsset('./lambda/utility/security'),
                         handler: 'authorize.handler',
                         environment: {
-                            REQUIRED_GROUPS: props.grantGroupMap.eventCoordinator.map(g => g.groupName).join(" ")
+                            ADMIN_GROUP_NAME: `${props.grantGroupMap.admin.groupName}`,
+                            EVENT_COORDINATOR_GROUP_NAME:  `${props.grantGroupMap.eventCoordinator.groupName}`,
+                            REQUIRED_GROUPS: `${props.grantGroupMap.eventCoordinator.groupName} ${props.grantGroupMap.admin.groupName}`
                         }
                     }),
                     identitySources: [
@@ -105,7 +106,9 @@ export class ApiStack extends cdk.Stack {
                         code: lambda.Code.fromAsset('./lambda/utility/security'),
                         handler: 'authorize.handler',
                         environment: {
-                            REQUIRED_GROUPS: props.grantGroupMap.admin.map(g => g.groupName).join(" ")
+                            ADMIN_GROUP_NAME: `${props.grantGroupMap.admin.groupName}`,
+                            EVENT_COORDINATOR_GROUP_NAME:  `${props.grantGroupMap.eventCoordinator.groupName}`,
+                            REQUIRED_GROUPS: `${props.grantGroupMap.admin.groupName}`
                         }
                     }),
                     identitySources: [
@@ -128,24 +131,12 @@ export class ApiStack extends cdk.Stack {
      * @param authorizers
      */
     apiVersion1(props: ApiStackProps, api: apigateway.Resource, authorizers: Authorizers) {
-        const echoIntegration = new LambdaIntegration(props.echoFunction, {
-            requestTemplates: {"application/json": '{ "statusCode": "200" }'}
-        });
-
         // TODO: Replace this with a generated document stored in S3:
         const publicApi = api.addResource("public");
         const publicClientConfig = publicApi.addResource("client-config");
         publicClientConfig.addMethod("GET", new LambdaIntegration(props.getClientConfigFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }));
-
-
-        // TODO: Add auditing and make available through the new API
-        const admin = api.addResource("admin");
-        const adminReservations = admin.addResource("reservations");
-        const adminReservationsID = adminReservations.addResource("{reservationId}");
-        const adminReservationsIDAudit = adminReservationsID.addResource("audit");
-        adminReservationsIDAudit.addMethod("GET", echoIntegration, authorizers.admin);
     }
 
     /*****************************
@@ -283,7 +274,6 @@ export class ApiStack extends cdk.Stack {
         eventsEventIdReservations.addMethod("GET", new LambdaIntegration(props.reservationListFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }), authorizers.eventCoordinator);
-        // TODO: Add sending of notifications:
         eventsEventIdReservations.addMethod("POST", new LambdaIntegration(props.reservationSaveFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }), authorizers.eventCoordinator);
@@ -294,7 +284,6 @@ export class ApiStack extends cdk.Stack {
         }));
 
         const eventsEventIdReservationsReservationId = eventsEventIdReservations.addResource("{reservationId}");
-        // TODO: Add sending of notifications:
         eventsEventIdReservationsReservationId.addMethod("PUT", new LambdaIntegration(props.reservationSaveFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }), authorizers.eventCoordinator);
@@ -340,33 +329,16 @@ export class ApiStack extends cdk.Stack {
                                 }
                             `
                         }
-                        // responseTemplates: {
-                        //     "application/json": `
-                        //         #set($inputRoot = $input.path('$'))
-                        //         {
-                        //             "id": "$inputRoot.Item.id.S",
-                        //             "name": "$inputRoot.Item.name.S",
-                        //             "eventDate": "$inputRoot.Item.eventDate.S",
-                        //             #if($inputRoot.Item.ticketSaleStartDate.S != "") "ticketSaleStartDate": "$inputRoot.Item.ticketSaleStartDate.S",#end
-                        //             #if($inputRoot.Item.ticketSaleEndDate.S != "") "ticketSaleEndDate": "$inputRoot.Item.ticketSaleEndDate.S",#end
-                        //             #if($inputRoot.Item.maxTickets.N != "") "maxTickets": $inputRoot.Item.maxTickets.N,#end
-                        //             "ticketTypes": [
-                        //                 #foreach($ticketType in $inputRoot.Item.ticketTypes.L)
-                        //                     {
-                        //                         "name": "$ticketType.M.name.S",
-                        //                         "price": $ticketType.M.price.N
-                        //                     },
-                        //                 #end
-                        //             ]
-                        //         }`
-                        // }
                     },
                     ...errorResponses
                 ]
             }
         }), {
-            methodResponses: [{statusCode: '200'}, {statusCode: '400'}, {statusCode: '500'}]
+            methodResponses: [{statusCode: '200'}, {statusCode: '400'}, {statusCode: '500'}],
+            authorizationType: authorizers.admin.authorizationType,
+            authorizer: authorizers.admin.authorizer,
         });
+
         const auth = api.addResource("auth");
         const whoAmI = auth.addResource("who-am-i");
         whoAmI.addMethod("GET", new LambdaIntegration(props.whoAmIFunction, {

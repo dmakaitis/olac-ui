@@ -23,18 +23,18 @@ export const handler: Handler = async (event: APIGatewayRequestAuthorizerEvent):
     try {
         const payload = await verifier.verify(token || '');
 
-        if(requiredGroups.length == 0) {
+        if (requiredGroups.length == 0) {
             effect = 'Allow';
         } else {
             requiredGroups.forEach(g => {
-                if(payload["cognito:groups"]?.includes(g)) {
+                if (payload["cognito:groups"]?.includes(g)) {
                     effect = 'Allow';
                 }
             })
         }
         userInfo = {
             username: payload.username,
-            grants: [],
+            grants: getGrants(payload["cognito:groups"] || []),
             groups: payload["cognito:groups"] || []
         }
     } catch {
@@ -48,6 +48,19 @@ export const handler: Handler = async (event: APIGatewayRequestAuthorizerEvent):
     let policy = generatePolicy(userInfo, effect, event.methodArn);
 
     return policy;
+}
+
+function getGrants(groups: string[]): string[] {
+    const grants: string[] = [];
+
+    if (groups.includes(process.env.ADMIN_GROUP_NAME || '__NOTHING__')) {
+        grants.push("ROLE_ADMIN");
+        grants.push("ROLE_EVENT_COORDINATOR");
+    } else if (groups.includes(process.env.EVENT_COORDINATOR_GROUP_NAME || '__NOTHING__')) {
+        grants.push("ROLE_EVENT_COORDINATOR");
+    }
+
+    return [];
 }
 
 function generatePolicy(userInfo: UserInfo, effect: string, resource: string): AuthResponse {

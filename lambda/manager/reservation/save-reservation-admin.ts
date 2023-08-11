@@ -5,7 +5,8 @@ import crypto from "crypto";
 
 interface SaveReservationAdminRequest {
     reservation: Reservation,
-    username: string
+    username: string,
+    grants: string[]
 }
 
 export async function apiHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
@@ -16,7 +17,8 @@ export async function apiHandler(event: APIGatewayProxyEvent): Promise<APIGatewa
 
     const request: SaveReservationAdminRequest = {
         reservation: body,
-        username: event.requestContext.authorizer?.username || 'anonymous'
+        username: event.requestContext.authorizer?.username || 'anonymous',
+        grants: (event.requestContext.authorizer?.grants || '').split(" ")
     }
 
     request.reservation.id = event.pathParameters?.reservationId || body.id || crypto.randomUUID();
@@ -31,10 +33,10 @@ export async function apiHandler(event: APIGatewayProxyEvent): Promise<APIGatewa
 }
 
 async function handler(event: SaveReservationAdminRequest): Promise<Reservation> {
-    return await saveReservationAdmin(event.reservation, event.username);
+    return await saveReservationAdmin(event.reservation, event.username, event.grants);
 }
 
-async function saveReservationAdmin(reservation: Reservation, username: string): Promise<Reservation> {
+async function saveReservationAdmin(reservation: Reservation, username: string, grants: string[]): Promise<Reservation> {
     // TODO: Add validation of security access and limited functionality for event coordinators
     // if (securityUtility.isCurrentUserAdmin()) {
     //     return saveReservation(reservation, true);

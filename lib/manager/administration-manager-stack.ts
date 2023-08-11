@@ -8,18 +8,10 @@ export interface AdministrationManagerStackProps extends cdk.StackProps {
 
 export class AdministrationManagerStack extends cdk.Stack {
 
-    readonly echoFunction: lambda.Function;
     readonly getClientConfigFunction: lambda.Function;
 
     constructor(scope: Construct, id: string, props: AdministrationManagerStackProps) {
         super(scope, id, props);
-
-        this.echoFunction = new lambda.Function(this, 'Echo', {
-            description: 'Simply returns the input.',
-            runtime: lambda.Runtime.NODEJS_16_X,
-            code: lambda.Code.fromAsset('./lambda/manager/administration'),
-            handler: 'echo.handler',
-        });
 
         this.getClientConfigFunction = new lambda.Function(this, 'GetClientConfig', {
             description: 'Retrieve the client configuration for the UI',
@@ -30,7 +22,6 @@ export class AdministrationManagerStack extends cdk.Stack {
                 GET_CONFIG_FUNCTION: props.getConfigFunction.functionName
             },
         });
-
         props.getConfigFunction.grantInvoke(this.getClientConfigFunction);
     }
 }
