@@ -17,6 +17,7 @@ export class EventResourceStack extends cdk.Stack {
     areTicketsAvailableFunction: cdk.aws_lambda.Function;
 
     eventsTable: cdk.aws_dynamodb.Table;
+    auditTable: cdk.aws_dynamodb.Table;
 
     constructor(scope: Construct, id: string, props: cdk.StackProps) {
         super(scope, id, props);
@@ -79,6 +80,15 @@ export class EventResourceStack extends cdk.Stack {
             sortKey: {name: 'reservationId', type: ddb.AttributeType.NUMBER}
         });
 
+        this.auditTable = new ddb.Table(this, 'ReservationAuditTable', {
+            partitionKey: {name: 'id', type: ddb.AttributeType.STRING}
+        });
+        this.auditTable.addGlobalSecondaryIndex({
+            indexName: 'GlobalReservationIndex',
+            partitionKey: {name: 'reservationId', type: ddb.AttributeType.STRING},
+            sortKey: {name: 'timestamp', type: ddb.AttributeType.STRING}
+        });
+
         const counterTable = new ddb.Table(this, 'ReservationCounterTable', {
             partitionKey: {name: 'id', type: ddb.AttributeType.STRING}
         });
@@ -112,11 +122,13 @@ export class EventResourceStack extends cdk.Stack {
             handler: 'save-reservation.handler',
             environment: {
                 TABLE_NAME: table.tableName,
-                COUNTER_TABLE_NAME: counterTable.tableName
+                COUNTER_TABLE_NAME: counterTable.tableName,
+                AUDIT_TABLE_NAME: this.auditTable.tableName
             },
         });
         table.grantReadWriteData(this.saveReservationFunction);
         counterTable.grantReadWriteData(this.saveReservationFunction);
+        this.auditTable.grantWriteData(this.saveReservationFunction);
 
         this.deleteReservationFunction = new lambda.Function(this, 'DeleteReservation', {
             description: 'Deletes an OLAC event reservation from the datastore',
@@ -133,7 +145,7 @@ export class EventResourceStack extends cdk.Stack {
             description: 'Checks to see if the requested number of tickets are available for an event',
             runtime: lambda.Runtime.NODEJS_16_X,
             code: lambda.Code.fromAsset('./lambda/resource/event'),
-            handler: 'are-tickets-available.handler',
+            handler: 'are-tickets-available.apiHandler',
             environment: {
                 EVENT_TABLE_NAME: this.eventsTable.tableName,
                 RESERVATION_TABLE_NAME: table.tableName

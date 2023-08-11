@@ -412,8 +412,8 @@ onMounted(() => {
           <template v-slot:top-right>
             <div class="text-right">
               <q-btn color="primary" icon-right="archive" label="Export to CSV" no-caps @click="onExportTable"/>
-<!--              <br/>-->
-<!--              (export using current search and sort settings)-->
+              <!--              <br/>-->
+              <!--              (export using current search and sort settings)-->
             </div>
           </template>
           <template v-slot:bottom-row>
@@ -439,8 +439,8 @@ onMounted(() => {
     </q-splitter>
   </q-page>
 
-  <ReservationDialog :reservation="selectedReservation" :ticket-types="ticketTypes" v-model="showDetail"
-                     @save="onSaveReservation" @cancel="onCancel" @edit-payment="onEditPayment"/>
+  <ReservationDialog :reservation="selectedReservation" :ticket-types="ticketTypes" :event-id="selectedEventId"
+                     v-model="showDetail" @save="onSaveReservation" @cancel="onCancel" @edit-payment="onEditPayment"/>
   <PaymentDialog :payment="selectedPayment" v-model="showPaymentDialog" @save="onSavePayment"
                  @cancel="onCancelPayment"/>
   <ConfirmationDialog v-model="confirmDelete" @yes="onConfirmDelete">

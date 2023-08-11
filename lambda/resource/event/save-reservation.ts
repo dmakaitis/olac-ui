@@ -4,10 +4,25 @@ import {DynamoDBDocument} from "@aws-sdk/lib-dynamodb";
 
 import {Reservation} from "./reservation";
 
+import * as crypto from "crypto";
+
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocument.from(client);
 
-export const handler: Handler = async (event) => {
+interface SaveReservationRequest {
+    reservation: Reservation,
+    username: string
+}
+
+interface AuditEvent {
+    id: string,
+    reservationId: string,
+    timestamp: string,
+    user: string,
+    note: string
+}
+
+export const apiHandler: Handler = async (event) => {
     console.log(`Save event: ${JSON.stringify(event)}`);
 
     const body: Reservation = JSON.parse(event.body);
@@ -65,6 +80,47 @@ export const handler: Handler = async (event) => {
     }
 };
 
+export async function handler(request: SaveReservationRequest): Promise<Reservation> {
+    const reservation = request.reservation;
+
+    // If we don't have a reservation timestamp, set it now...
+    if (!reservation.reservationTimestamp) {
+        reservation.reservationTimestamp = new Date().toJSON();
+    }
+
+    // If we don't have an ID value, set it now...
+    if (!reservation.reservationId) {
+        reservation.reservationId = await getNewReservationId();
+    }
+
+    let newReservation = true;
+
+    if (reservation.id) {
+        const getResponse = await docClient.get({
+            TableName: process.env.TABLE_NAME,
+            Key: {
+                id: reservation.id
+            }
+        });
+
+        if (getResponse.Item) {
+            await logChangesToReservation(<Reservation>getResponse.Item, reservation, request.username);
+            newReservation = false;
+        }
+    }
+
+    if (newReservation) {
+        await logReservationEvent(reservation?.id || 'unknown', `Saving new reservation for ${reservation.firstName} ${reservation.lastName}`, request.username);
+    }
+
+    docClient.put({
+        TableName: process.env.TABLE_NAME,
+        Item: reservation
+    });
+
+    return reservation;
+}
+
 function isValidEventReservation(reservation: Reservation) {
     return true;
 }
@@ -104,10 +160,73 @@ function updateStatus(reservation: Reservation, username: string) {
             .map(t => t.count * t.costPerTicket)
             .reduce((a, b) => a + b, 0);
 
-        if(amountPaid >= amountDue) {
+        if (amountPaid >= amountDue) {
             reservation.status = 'RESERVED';
         } else {
             reservation.status = 'PENDING_PAYMENT';
         }
     }
+}
+
+async function logChangesToReservation(original: Reservation, updated: Reservation, username: string) {
+    if(original.reservationId !== updated.reservationId) {
+        await logReservationEvent(<string>original.id, `Updated reservation ID: ${original.reservationId} => ${updated.reservationId}`, username);
+    }
+    if(original.firstName !== updated.firstName) {
+        await logReservationEvent(<string>original.id, `Updated first name: ${original.firstName} => ${updated.firstName}`, username);
+    }
+    if(original.lastName !== updated.lastName) {
+        await logReservationEvent(<string>original.id, `Updated last name: ${original.lastName} => ${updated.lastName}`, username);
+    }
+    if(original.email !== updated.email) {
+        await logReservationEvent(<string>original.id, `Updated email: ${original.email} => ${updated.email}`, username);
+    }
+    if(original.phone !== updated.phone) {
+        await logReservationEvent(<string>original.id, `Updated phone: ${original.phone} => ${updated.phone}`, username);
+    }
+    if(original.status !== updated.status) {
+        await logReservationEvent(<string>original.id, `Updated status: ${original.status} => ${updated.status}`, username);
+    }
+
+    // TODO: Fix object comparisons so this is accurate...
+    // if(original.ticketCounts !== updated.ticketCounts) {
+    //     await logReservationEvent(<string>original.id, `Updated ticket counts: ${JSON.stringify(original.ticketCounts)} => ${JSON.stringify(updated.ticketCounts)}`, username);
+    // }
+    // if(original.payments !== updated.payments) {
+    //     await logReservationEvent(<string>original.id, `Updated payments: ${JSON.stringify(original.payments)} => ${JSON.stringify(updated.payments)}`, username);
+    // }
+
+    // Temporary solution (though this is probably good enough):
+    const originalTicketCounts = original.ticketCounts.map(t => t.count).reduce((a, b) => a + b, 0);
+    const updatedTicketCounts = updated.ticketCounts.map(t => t.count).reduce((a, b) => a + b, 0);
+    if(originalTicketCounts !== updatedTicketCounts) {
+        await logReservationEvent(<string>original.id, `Updated total ticket counts: ${originalTicketCounts} => ${updatedTicketCounts}`, username);
+    }
+
+    const originalAmountDue = original.ticketCounts.map(t => t.count * t.costPerTicket).reduce((a, b) => a + b, 0);
+    const updatedAmountDue = updated.ticketCounts.map(t => t.count * t.costPerTicket).reduce((a, b) => a + b, 0);
+    if(originalAmountDue !== updatedAmountDue) {
+        await logReservationEvent(<string>original.id, `Updated total amount due: ${originalAmountDue} => ${updatedAmountDue}`, username);
+    }
+
+    const originalPayments = original.payments.map(p => p.amount).reduce((a, b) => a + b, 0);
+    const updatedPayments = updated.payments.map(p => p.amount).reduce((a, b) => a + b, 0);
+    if(originalPayments !== updatedPayments) {
+        await logReservationEvent(<string>original.id, `Updated total payments: ${originalPayments} => ${updatedPayments}`, username);
+    }
+}
+
+async function logReservationEvent(reservationId: string, note: string, username: string) {
+    const auditLog: AuditEvent = {
+        id: crypto.randomUUID().toString(),
+        reservationId: reservationId,
+        timestamp: new Date().toJSON(),
+        user: username,
+        note: note
+    };
+
+    await docClient.put({
+        TableName: process.env.AUDIT_TABLE_NAME,
+        Item: auditLog
+    })
 }

@@ -16,7 +16,7 @@ interface Response {
     body: string
 }
 
-export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+export async function apiHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     const request : Request = {
         eventId: event.pathParameters?.eventId || '',
         requestedTicketCount: +(event.queryStringParameters?.ticketCount || '0')
@@ -28,7 +28,7 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
         statusCode: 200,
         body: `${JSON.stringify(rVal)}`
     };
-};
+}
 
 async function processRequest(request: Request) : Promise<boolean> {
     // Get the number of available tickets from the events table...

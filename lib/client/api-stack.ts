@@ -23,11 +23,14 @@ interface ApiStackProps extends cdk.StackProps {
     eventDeleteFunction: Function,
 
     eventsTable: Table,
+    auditTable: Table,
 
     reservationListFunction: Function,
     reservationListCsvFunction: Function,
     reservationSaveFunction: Function,
     reservationDeleteFunction: Function,
+
+    postNewReservationFunction: Function,
 
     areTicketsAvailableFunction: Function;
 
@@ -137,13 +140,6 @@ export class ApiStack extends cdk.Stack {
         }));
 
 
-
-        // TODO: Move this method into the new API somewhere...
-        const publicReservations = publicApi.addResource("reservations");
-        publicReservations.addMethod("POST", echoIntegration);
-
-
-
         // TODO: Add auditing and make available through the new API
         const admin = api.addResource("admin");
         const adminReservations = admin.addResource("reservations");
@@ -164,11 +160,25 @@ export class ApiStack extends cdk.Stack {
         apiRole.attachInlinePolicy(new Policy(this, 'ApiEventsPolicy', {
             statements: [
                 new PolicyStatement({
-                    actions: ['dynamodb:GetItem'],
+                    actions: [
+                        'dynamodb:GetItem',
+                    ],
                     effect: Effect.ALLOW,
-                    resources: [props.eventsTable.tableArn]
+                    resources: [
+                        props.eventsTable.tableArn,
+                    ]
                 }),
-            ],
+                new PolicyStatement({
+                    actions: [
+                        'dynamodb:Query'
+                    ],
+                    effect: Effect.ALLOW,
+                    resources: [
+                        props.auditTable.tableArn,
+                        `${props.auditTable.tableArn}/index/*`
+                    ]
+                }),
+            ]
         }));
 
         const errorResponses = [
@@ -259,6 +269,11 @@ export class ApiStack extends cdk.Stack {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }));
 
+        const eventsEventIdNewReservation = eventsEventId.addResource("_newReservation");
+        eventsEventIdNewReservation.addMethod("POST", new LambdaIntegration(props.postNewReservationFunction, {
+            requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+        }));
+
         const eventsEventIdReservationsCsv = eventsEventId.addResource("reservations.csv");
         eventsEventIdReservationsCsv.addMethod("GET", new LambdaIntegration(props.reservationListCsvFunction, {
             requestTemplates: {"text/csv": '{ "statusCode": "200" }'}
@@ -287,8 +302,71 @@ export class ApiStack extends cdk.Stack {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }), authorizers.eventCoordinator);
 
-
-
+        const eventsEventIdReservationsReservationIdAudit = eventsEventIdReservationsReservationId.addResource("audit");
+        eventsEventIdReservationsReservationIdAudit.addMethod("GET", new AwsIntegration({
+            service: "dynamodb",
+            action: "Query",
+            options: {
+                credentialsRole: apiRole,
+                requestTemplates: {
+                    "application/json": `{
+                        "TableName": "${props.auditTable.tableName}",
+                        "IndexName": "GlobalReservationIndex",
+                        "ScanIndexForward": false,
+                        "KeyConditionExpression": "reservationId = :resId",
+                        "ExpressionAttributeValues": {
+                            ":resId": {
+                                "S": "$method.request.path.reservationId"
+                            }
+                        }
+                    }`
+                },
+                integrationResponses: [
+                    {
+                        statusCode: '200',
+                        responseTemplates: {
+                            "application/json": `
+                                #set($inputRoot = $input.path('$'))
+                                {
+                                    "items": [
+                                        #foreach($item in $inputRoot.Items)
+                                        {
+                                            "timestamp": "$item.timestamp.S",
+                                            "user": "$item.user.S",
+                                            "note": "$item.note.S.replace('\\', '\\\\').replace('"', '\\"')"
+                                        }#if($foreach.hasNext),#end
+                                        #end
+                                    ]
+                                }
+                            `
+                        }
+                        // responseTemplates: {
+                        //     "application/json": `
+                        //         #set($inputRoot = $input.path('$'))
+                        //         {
+                        //             "id": "$inputRoot.Item.id.S",
+                        //             "name": "$inputRoot.Item.name.S",
+                        //             "eventDate": "$inputRoot.Item.eventDate.S",
+                        //             #if($inputRoot.Item.ticketSaleStartDate.S != "") "ticketSaleStartDate": "$inputRoot.Item.ticketSaleStartDate.S",#end
+                        //             #if($inputRoot.Item.ticketSaleEndDate.S != "") "ticketSaleEndDate": "$inputRoot.Item.ticketSaleEndDate.S",#end
+                        //             #if($inputRoot.Item.maxTickets.N != "") "maxTickets": $inputRoot.Item.maxTickets.N,#end
+                        //             "ticketTypes": [
+                        //                 #foreach($ticketType in $inputRoot.Item.ticketTypes.L)
+                        //                     {
+                        //                         "name": "$ticketType.M.name.S",
+                        //                         "price": $ticketType.M.price.N
+                        //                     },
+                        //                 #end
+                        //             ]
+                        //         }`
+                        // }
+                    },
+                    ...errorResponses
+                ]
+            }
+        }), {
+            methodResponses: [{statusCode: '200'}, {statusCode: '400'}, {statusCode: '500'}]
+        });
         const auth = api.addResource("auth");
         const whoAmI = auth.addResource("who-am-i");
         whoAmI.addMethod("GET", new LambdaIntegration(props.whoAmIFunction, {

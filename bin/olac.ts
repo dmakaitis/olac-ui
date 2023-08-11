@@ -34,7 +34,9 @@ class OlacConstruct extends Construct {
         const adminStack = new AdministrationManagerStack(this, 'AdminManager', {
             getConfigFunction: configStack.getConfigLambda
         });
-        const reservationStack = new ReservationManagerStack(this, 'ReservationManager', {});
+        const reservationStack = new ReservationManagerStack(this, 'ReservationManager', {
+            saveReservationFunction: eventStack.saveReservationFunction
+        });
 
         const apiStack = new ApiStack(this, 'Apis', {
             apiRoleARN: 'arn:aws:iam::543748744721:role/OlacDevApiRole',
@@ -43,18 +45,21 @@ class OlacConstruct extends Construct {
             getClientConfigFunction: adminStack.getClientConfigFunction,
             whoAmIFunction: securityStack.whoAmIFunction,
 
-            newReservationIdFunction: reservationStack.getNewReservationIdFunction,
+            newReservationIdFunction: reservationStack.apiGetNewReservationIdFunction,
 
             eventListFunction: eventStack.listEventsFunction,
             eventSaveFunction: eventStack.saveEventFunction,
             eventDeleteFunction: eventStack.deleteEventFunction,
 
             eventsTable: eventStack.eventsTable,
+            auditTable: eventStack.auditTable,
 
             reservationListFunction: eventStack.listReservationsFunction,
             reservationListCsvFunction: eventStack.listReservationsCsvFunction,
-            reservationSaveFunction: eventStack.saveReservationFunction,
+            reservationSaveFunction: reservationStack.apiSaveReservationAdminFunction,
             reservationDeleteFunction: eventStack.deleteReservationFunction,
+
+            postNewReservationFunction: reservationStack.apiSaveReservationFunction,
 
             areTicketsAvailableFunction: eventStack.areTicketsAvailableFunction,
 
@@ -74,6 +79,10 @@ class OlacConstruct extends Construct {
             certificateArn: props.websiteProps.certificateArn,
             restApi: apiStack.restApi
         });
+
+        // new GarbageStack(this, 'Garbage', {
+        //     functionToDelete: eventStack.apiSaveReservationFunction
+        // });
     }
 }
 
@@ -100,27 +109,3 @@ new OlacConstruct(app, 'Dev', {
         clientId: '5nnetbctluvi4q512nlt51hkcl'
     }
 });
-
-// new ApiStack(app, 'OlacPublicApiStack', {
-// })
-
-// new OlacWebsiteStack(app, 'OlacStack', {
-//
-//     /* If you don't specify 'env', this stack will be environment-agnostic.
-//      * Account/Region-dependent features and context lookups will not work,
-//      * but a single synthesized template can be deployed anywhere. */
-//
-//     /* Uncomment the next line to specialize this stack for the AWS Account
-//      * and Region that are implied by the current CLI configuration. */
-//     // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-//
-//     /* Uncomment the next line if you know exactly what Account and Region you
-//      * want to deploy the stack to. */
-//     // env: { account: '123456789012', region: 'us-east-1' },
-//
-//     /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
-//
-//     domainNames: [ 'dev.omahalithuanians.org' ],
-//     certificateArn: 'arn:aws:acm:us-east-1:543748744721:certificate/d82d9aa8-4c48-47e0-8970-7cdd385679f9'
-//
-// });

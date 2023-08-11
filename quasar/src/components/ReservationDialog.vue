@@ -124,7 +124,7 @@ const auditColumns = [
     sortable: true
   },
   {name: 'user', label: 'User', field: row => row.user, align: 'left', sortable: true},
-  {name: 'description', label: 'Description', field: row => row.description, align: 'left', sortable: true},
+  {name: 'note', label: 'Note', field: row => row.note, align: 'left', sortable: true},
 ];
 
 export default {
@@ -135,13 +135,13 @@ export default {
       this.reservationData = this.reservation
       this.ticketTypeData = this.ticketTypes
 
-      // if (this.fullEdit) {
-      //   api.get(`/api/admin/reservations/${this.reservationData.reservationId}/audit`)
-      //     .then(response => this.auditData = response.data)
-      //     .catch(error => alert(error))
-      // } else {
+      if (this.fullEdit) {
+        api.get(`/api/events/${this.eventId}/reservations/${this.reservationData.id}/audit`)
+          .then(response => this.auditData = response.data.items)
+          .catch(error => alert(error))
+      } else {
         this.auditData = [];
-      // }
+      }
     },
     onSaveReservation() {
       this.$emit('save', this.reservationData)
@@ -175,7 +175,8 @@ export default {
   },
   props: {
     reservation: Object,
-    ticketTypes: Object
+    ticketTypes: Object,
+    eventId: String
   },
   setup(props) {
     return {
