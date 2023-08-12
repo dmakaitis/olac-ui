@@ -20,7 +20,7 @@ interface OlacWebsiteStaticProps {
 interface OlacConstructProps {
     websiteProps: OlacWebsiteStaticProps,
     configProps: ConfigUtilityStackProps,
-    securityProps: SecurityUtilityStackProps
+    securityProps: SecurityUtilityStackProps,
 }
 
 class OlacConstruct extends Construct {
@@ -65,7 +65,10 @@ class OlacConstruct extends Construct {
             grantGroupMap: {
                 admin: securityStack.adminUserGroup,
                 eventCoordinator: securityStack.eventCoordinatorUserGroup
-            }
+            },
+
+            cognitoUserPoolId: props.securityProps.userPoolId,
+            cognitoClientId: props.securityProps.clientId
         });
 
         new OlacWebsiteStack(this, 'Website', {
@@ -89,7 +92,7 @@ new OlacConstruct(app, 'Dev', {
     },
     configProps: {
         payPalApiBase: 'https://api-m.paypal.com',
-        payPalClientId: 'AWlSY8P90RHz_lXFE_37F9e_8RZ4w3Vng1mYF4-U6EWlVlRIBFbE21UTxMSE36ry0dJLI_VDwzDh5Mbm',
+        payPalClientId: 'Abho_XH0WoNgTUb4dlLPUXvKzWWhrBVrgVoZcc6O3YSZL80WKf-f8F6ow09WZnrL4QnOmX7yz46GCzdc',
         enableReservations: false,
         cognito: {
             domain: 'https://omahalithuanians.auth.us-east-2.amazoncognito.com',
@@ -101,5 +104,27 @@ new OlacConstruct(app, 'Dev', {
         environment: 'Dev',
         userPoolId: 'us-east-2_LKok1DKIU',
         clientId: '5nnetbctluvi4q512nlt51hkcl'
+    }
+});
+
+new OlacConstruct(app, 'Test', {
+    websiteProps: {
+        domainNames: ['test.omahalithuanians.org'],
+        certificateArn: 'arn:aws:acm:us-east-1:543748744721:certificate/d634888b-e3a2-4e88-8e77-687556c68dd5'
+    },
+    configProps: {
+        payPalApiBase: 'https://api-m.paypal.com',
+        payPalClientId: 'Abho_XH0WoNgTUb4dlLPUXvKzWWhrBVrgVoZcc6O3YSZL80WKf-f8F6ow09WZnrL4QnOmX7yz46GCzdc',
+        enableReservations: false,
+        cognito: {
+            domain: 'https://omahalithuanians.auth.us-east-2.amazoncognito.com',
+            clientId: '5mf492piqlmeahu5nf7mu9n7ra',
+            redirectUri: 'https://test.omahalithuanians.org'
+        }
+    },
+    securityProps: {
+        environment: 'Test',
+        userPoolId: 'us-east-2_LKok1DKIU',
+        clientId: '5mf492piqlmeahu5nf7mu9n7ra'
     }
 });

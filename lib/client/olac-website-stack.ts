@@ -68,7 +68,6 @@ export class OlacWebsiteStack extends cdk.Stack {
                     cachePolicy: new cloudfront.CachePolicy(this, 'AuthorizationCachePolicy', {
                         headerBehavior: cloudfront.CacheHeaderBehavior.allowList('Authorization', 'Origin', 'Referer'),
                         queryStringBehavior: cloudfront.CacheQueryStringBehavior.all(),
-                        cachePolicyName: 'ApiGwWithAuthorization',
                         cookieBehavior: cloudfront.CacheCookieBehavior.all(),
                         enableAcceptEncodingBrotli: true,
                         enableAcceptEncodingGzip: true,
@@ -79,8 +78,7 @@ export class OlacWebsiteStack extends cdk.Stack {
                     originRequestPolicy: new cloudfront.OriginRequestPolicy(this, 'RestApiOriginRequestPolicy', {
                         headerBehavior: cloudfront.OriginRequestHeaderBehavior.none(),
                         queryStringBehavior: cloudfront.OriginRequestQueryStringBehavior.all(),
-                        cookieBehavior: cloudfront.OriginRequestCookieBehavior.none(),
-                        originRequestPolicyName: 'ApiGwWithAuthorization'
+                        cookieBehavior: cloudfront.OriginRequestCookieBehavior.none()
                     })
                 }
             },

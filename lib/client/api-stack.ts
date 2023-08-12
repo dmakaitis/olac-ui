@@ -36,7 +36,10 @@ interface ApiStackProps extends cdk.StackProps {
     grantGroupMap: {
         admin: cognito.CfnUserPoolGroup,
         eventCoordinator: cognito.CfnUserPoolGroup
-    }
+    };
+
+    cognitoUserPoolId: string;
+    cognitoClientId: string;
 }
 
 interface Authorizers {
@@ -86,6 +89,8 @@ export class ApiStack extends cdk.Stack {
                         code: lambda.Code.fromAsset('./lambda/utility/security'),
                         handler: 'authorize.handler',
                         environment: {
+                            USER_POOL_ID: props.cognitoUserPoolId,
+                            CLIENT_ID: props.cognitoClientId,
                             ADMIN_GROUP_NAME: `${props.grantGroupMap.admin.groupName}`,
                             EVENT_COORDINATOR_GROUP_NAME:  `${props.grantGroupMap.eventCoordinator.groupName}`,
                             REQUIRED_GROUPS: `${props.grantGroupMap.eventCoordinator.groupName} ${props.grantGroupMap.admin.groupName}`
@@ -106,6 +111,8 @@ export class ApiStack extends cdk.Stack {
                         code: lambda.Code.fromAsset('./lambda/utility/security'),
                         handler: 'authorize.handler',
                         environment: {
+                            USER_POOL_ID: props.cognitoUserPoolId,
+                            CLIENT_ID: props.cognitoClientId,
                             ADMIN_GROUP_NAME: `${props.grantGroupMap.admin.groupName}`,
                             EVENT_COORDINATOR_GROUP_NAME:  `${props.grantGroupMap.eventCoordinator.groupName}`,
                             REQUIRED_GROUPS: `${props.grantGroupMap.admin.groupName}`
