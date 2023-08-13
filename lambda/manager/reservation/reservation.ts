@@ -10,7 +10,7 @@ export interface Payment {
     method: 'ONLINE' | 'CHECK' | 'COMP',
     notes: string,
     enteredBy: string,
-    createdTimestamp: string
+    createdTimestamp?: string
 }
 
 export interface Reservation {

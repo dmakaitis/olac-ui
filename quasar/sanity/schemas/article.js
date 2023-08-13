@@ -51,7 +51,8 @@ export default {
         {type: 'block'},
         {type: 'image'},
         {type: 'floatingimages'},
-        {type: 'collection'}
+        {type: 'collection'},
+        {type: 'ticketwidget'}
       ]
     }
   ]

@@ -1,6 +1,7 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
 import {Reservation, TicketCount} from "./reservation";
 import {InvokeCommand, LambdaClient, LogType} from "@aws-sdk/client-lambda";
+import {validateAndAddOnlinePayment} from "./payment";
 
 export interface NewReservationRequest {
     id: string,
@@ -43,11 +44,15 @@ export async function handler(request: NewReservationRequest): Promise<number> {
         status: 'PENDING_PAYMENT'
     };
 
+    // TODO: Optimize this so we only have to save the reservation once!
+
     const hasPayment = !!request.payPalPayment;
     newReservation = await saveReservation(newReservation, !hasPayment, request.username);
 
+    console.log(`Reservation included payment: ${hasPayment}`);
+
     if (hasPayment) {
-        await validateAndAddPayment(newReservation.id || '', request.payPalPayment.id);
+        await validateAndAddOnlinePayment(newReservation, request.payPalPayment.id, request.username);
     }
 
     return newReservation.reservationId || 0;
@@ -102,9 +107,4 @@ export function normalizePaymentsAndStatus(reservation: Reservation, username: s
             reservation.status = 'PENDING_PAYMENT';
         }
     }
-}
-
-export async function validateAndAddPayment(reservationId: string, paymentProcessorTransactionId: string): Promise<boolean> {
-    // TODO: Implement processing of PayPal payments!!!!
-    return false;
 }

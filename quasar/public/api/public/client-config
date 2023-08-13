@@ -1,7 +1,7 @@
 {
   "payPal": {
-    "apiBase": "https://api-m.paypal.com",
-    "clientId": "AWlSY8P90RHz_lXFE_37F9e_8RZ4w3Vng1mYF4-U6EWlVlRIBFbE21UTxMSE36ry0dJLI_VDwzDh5Mbm"
+    "apiBase": "https://api-m.sandbox.paypal.com",
+    "clientId": "Abho_XH0WoNgTUb4dlLPUXvKzWWhrBVrgVoZcc6O3YSZL80WKf-f8F6ow09WZnrL4QnOmX7yz46GCzdc"
   },
   "cognito": {
     "domain": "https://omahalithuanians.auth.us-east-2.amazoncognito.com",

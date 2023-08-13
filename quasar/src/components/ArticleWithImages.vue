@@ -23,6 +23,7 @@ import {SanityBlocks} from "sanity-blocks-vue-component";
 import ArticleList from "components/ArticleList.vue";
 import ArticleImage from "components/ArticleImage.vue";
 import FloatingImages from "components/FloatingImages.vue";
+import TicketSalesWidget from "components/TicketSalesWidget.vue";
 
 export default {
   name: "ArticleWithImages",
@@ -81,7 +82,8 @@ export default {
       types: {
         collection: ArticleList,
         image: ArticleImage,
-        floatingimages: FloatingImages
+        floatingimages: FloatingImages,
+        ticketwidget: TicketSalesWidget
       }
     }
 

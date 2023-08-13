@@ -61,7 +61,7 @@ export class ApiStack extends cdk.Stack {
         const prdLogGroup = new logs.LogGroup(this, "PrdLogs");
 
         this.restApi = new apigateway.RestApi(this, "OlacApi", {
-            restApiName: "OLAC API",
+            restApiName: this.stackName,
             description: "API for the OLAC website back end functions",
             cloudWatchRole: true,
             deployOptions: {
@@ -243,7 +243,7 @@ export class ApiStack extends cdk.Stack {
                                             {
                                                 "name": "$ticketType.M.name.S",
                                                 "price": $ticketType.M.price.N
-                                            },
+                                            }#if($foreach.hasNext),#end
                                         #end
                                     ]
                                 }`

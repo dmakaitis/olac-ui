@@ -1,0 +1,141 @@
+import axios from "axios";
+import {Payment, Reservation} from "./reservation";
+import {InvokeCommand, LambdaClient, LogType} from "@aws-sdk/client-lambda";
+
+// export async function validateAndAddPayment(reservationId: string, paymentProcessorTransactionId: string): Promise<boolean> {
+//     // TODO: Implement processing of PayPal payments!!!!
+//     // Optional<Reservation> optional = reservationDatastoreAccess.getReservation(reservationId);
+//     // if (optional.isEmpty()) {
+//     //     return false;
+//     // }
+//     // Reservation reservation = optional.get();
+//     //
+//     // if (paymentEngine.validateAndAddOnlinePayment(reservation, paymentProcessorTransactionId)) {
+//     //     saveReservation(reservation, true);
+//     //     return true;
+//     // }
+//
+//     return false;
+// }
+
+export async function validateAndAddOnlinePayment(reservation: Reservation, paymentProcessorTransactionId: string, username: string): Promise<boolean> {
+    console.log(`validateAndAddOnlinePayment(${JSON.stringify(reservation)}, ${paymentProcessorTransactionId}, ${username})...`);
+
+    if (!reservation || !paymentProcessorTransactionId) {
+        return false;
+    }
+
+    // Load the actual transaction from PayPal since the one we have could have been altered...
+    const response = await getOrder(paymentProcessorTransactionId);
+    if (!response) {
+        // Not a valid transaction
+        return false;
+    }
+
+    // Search through the transaction for our reservation in order to find the amount paid...
+    const payment = buildOnlinePayment(reservation.id || 'no-id', paymentProcessorTransactionId, response, username);
+    if (!payment) {
+        return false;
+    }
+
+    reservation.payments.push(payment);
+
+    console.log(`Saving updated reservation: ${reservation}`);
+
+    const client = new LambdaClient({region: "us-east-2"})
+    const command = new InvokeCommand({
+        FunctionName: process.env.SAVE_RESERVATION_FUNCTION,
+        Payload: JSON.stringify({
+            reservation: reservation,
+            username: username
+        }),
+        LogType: LogType.Tail
+    });
+    const {Payload} = await client.send(command);
+
+    return true;
+}
+
+function buildOnlinePayment(id: string, paymentProcessorTransactionId: string, response: any, username: string): Payment | undefined {
+    console.log(`buildOnlinePayment(${id}, ${paymentProcessorTransactionId}, ${JSON.stringify(response)}, ${username})...`);
+
+    // Search through the transaction for our reservation in order to find the amount paid...
+    const amount = getPaymentAmount(id, response);
+
+    if (amount <= 0) {
+        // Could not find purchase unit with payment for reservation
+        return undefined;
+    }
+
+    // Record the payment:
+    const payment: Payment = {
+        amount: amount,
+        status: 'SUCCESSFUL',
+        method: "ONLINE",
+        notes: `PayPal Transaction ID: ${paymentProcessorTransactionId}`,
+        enteredBy: username
+    }
+
+    if (response.create_time) {
+        payment.createdTimestamp = response.create_time;
+    }
+
+    console.log(`buildOnlinePayment(${id}, ${paymentProcessorTransactionId}, ${JSON.stringify(response)}, ${username}) => ${JSON.stringify(payment)}`);
+
+    return payment;
+}
+
+function getPaymentAmount(reservationId: string, response: any): number {
+    console.log(`getPaymentAmount(${reservationId}, ${JSON.stringify(response)})...`);
+
+    const purchaseUnits = response.purchase_units || [];
+
+    const paymentAmount = purchaseUnits
+        .filter((p: any): boolean => p.custom_id === reservationId)
+        .filter((p: any): boolean => p.amount?.value)
+        .map((p: any): number => +p.amount.value)
+        .reduce((a: number, b: number) => a + b, 0);
+
+    console.log(`getPaymentAmount(${reservationId}, ${JSON.stringify(response)}) => ${paymentAmount}`);
+
+    return paymentAmount;
+}
+
+async function getOrder(paymentProcessorTransactionId: string): Promise<any> {
+    console.log(`paymentProcessorTransactionId(${paymentProcessorTransactionId})...`);
+
+    const apiBase = process.env.PAYPAL_API_BASE || 'https://api-m.sandbox.paypal.com';
+    const bearerToken = await getAccessToken();
+
+    const response = await axios.get(`${apiBase}/v2/checkout/orders/${paymentProcessorTransactionId}`, {
+        headers: {
+            'Authorization': `Bearer ${bearerToken}`
+        }
+    });
+
+    console.log(`paymentProcessorTransactionId(${paymentProcessorTransactionId}) => ${JSON.stringify(response.data)}`);
+
+    return response.data;
+}
+
+async function getAccessToken(): Promise<string> {
+    console.log(`getAccessToken()...`);
+
+    const apiBase = process.env.PAYPAL_API_BASE || 'https://api-m.sandbox.paypal.com';
+    const clientId = process.env.PAYPAL_CLIENT_ID || 'Abho_XH0WoNgTUb4dlLPUXvKzWWhrBVrgVoZcc6O3YSZL80WKf-f8F6ow09WZnrL4QnOmX7yz46GCzdc';
+    const clientSecret = process.env.PAYPAL_SECRET || 'EHvGFTVVzX8iKJ6rGl0L3--NxTU3qIphBYBytPMG-gkeVSmHQJPEujRGSmT73aftkd5G1qJdWFHNT5S2';
+
+    const response = await axios.request({
+        url: '/v1/oauth2/token',
+        method: 'post',
+        baseURL: apiBase,
+        auth: {
+            username: clientId,
+            password: clientSecret
+        },
+        data: 'grant_type=client_credentials'
+    });
+
+    return response.data.access_token;
+}
+

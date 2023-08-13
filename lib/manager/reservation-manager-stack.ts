@@ -5,7 +5,13 @@ import {Function} from 'aws-cdk-lib/aws-lambda';
 
 export interface ReservationManagerStackProps extends cdk.StackProps {
 
-    saveReservationFunction: Function
+    saveReservationFunction: Function;
+
+    payPal: {
+        apiBase: string,
+        clientId: string,
+        secret: string
+    };
 
 }
 
@@ -31,7 +37,10 @@ export class ReservationManagerStack extends cdk.Stack {
             code: lambda.Code.fromAsset('./lambda/manager/reservation'),
             handler: 'save-reservation.apiHandler',
             environment: {
-                SAVE_RESERVATION_FUNCTION: props.saveReservationFunction.functionName
+                SAVE_RESERVATION_FUNCTION: props.saveReservationFunction.functionName,
+                PAYPAL_API_BASE: props.payPal.apiBase,
+                PAYPAL_CLIENT_ID: props.payPal.clientId,
+                PAYPAL_SECRET: props.payPal.secret
             }
         });
         props.saveReservationFunction.grantInvoke(this.apiSaveReservationFunction);
@@ -42,7 +51,10 @@ export class ReservationManagerStack extends cdk.Stack {
             code: lambda.Code.fromAsset('./lambda/manager/reservation'),
             handler: 'save-reservation-admin.apiHandler',
             environment: {
-                SAVE_RESERVATION_FUNCTION: props.saveReservationFunction.functionName
+                SAVE_RESERVATION_FUNCTION: props.saveReservationFunction.functionName,
+                PAYPAL_API_BASE: props.payPal.apiBase,
+                PAYPAL_CLIENT_ID: props.payPal.clientId,
+                PAYPAL_SECRET: props.payPal.secret
             }
         });
         props.saveReservationFunction.grantInvoke(this.apiSaveReservationAdminFunction);
