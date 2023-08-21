@@ -4,13 +4,14 @@ import {api} from "boot/axios";
 import {currency} from "boot/helper";
 import PayPalButton from "components/PayPalButton.vue";
 
-const props = defineProps(['eventId'])
+const props = defineProps(['eventId']);
 const event = ref({});
+
+const widgetState = ref('LOADING');
 
 const mode = ref(1);
 const showConfirmation = ref(false);
 const showPayment = ref(false);
-const showThankYou = ref(false);
 const showPayPalError = ref(false);
 
 const ticketFields = ref(null);
@@ -25,7 +26,7 @@ const notEnoughTickets = ref(false);
 const reservationId = ref('');
 const purchaseUnits = ref([]);
 
-const paymentMethod = ref('online');
+// const paymentMethod = ref('online');
 
 const reservationNumber = ref(0);
 
@@ -34,7 +35,11 @@ function updateMode(newMode) {
 
   showConfirmation.value = newMode === 2;
   showPayment.value = newMode === 3;
-  showThankYou.value = newMode === 4;
+
+  if (newMode === 4) {
+    mode.value = 1;
+    widgetState.value = 'DONE';
+  }
 }
 
 function sendGtagEvent(eventType, transactionId = null) {
@@ -169,6 +174,30 @@ function onReset() {
   updateMode(1);
 }
 
+function getInitialWidgetState(event) {
+  if (event.ticketTypes?.length) {
+    const today = new Date().toJSON().substring(0, 10).replaceAll('-', '/');
+
+    console.log(`Today is ${today}`);
+
+    if (today > event.eventDate) {
+      return 'LATE';
+    }
+
+    if (event.ticketSaleStartDate && today < event.ticketSaleStartDate) {
+      return 'EARLY';
+    }
+
+    if (event.ticketSaleEndDate && today > event.ticketSaleEndDate) {
+      return 'LATE';
+    }
+
+    return 'NORMAL';
+  } else {
+    return 'EARLY';
+  }
+}
+
 onMounted(() => {
   console.log(`Loading event: ${props.eventId}`);
 
@@ -181,7 +210,9 @@ onMounted(() => {
           price: t.price,
           count: 0
         };
-      })
+      });
+
+      widgetState.value = getInitialWidgetState(result.data);
     })
     .catch(error => alert(error));
 
@@ -195,7 +226,58 @@ onMounted(() => {
 
 <template>
   <q-card class="q-pa-sm reservations text-center">
-    <q-form greedy @submit="onSubmit">
+    <div v-if="widgetState === 'EARLY'">
+      <q-card-section>
+        <span class="text-h5" style="color: #475971;">Sorry!</span>
+      </q-card-section>
+
+      <q-card-section>
+        Reservations for this event are not yet available online. Please check back here later.
+      </q-card-section>
+    </div>
+
+    <div v-if="widgetState === 'LATE'">
+      <q-card-section>
+        <span class="text-h5" style="color: #475971;">Sorry!</span>
+      </q-card-section>
+
+      <q-card-section>
+        Reservations for this event are no longer available online.
+      </q-card-section>
+    </div>
+
+    <div v-if="widgetState === 'DONE'">
+      <q-card-section>
+        <span class="text-h5" style="color: #475971;">Thank You!</span>
+      </q-card-section>
+
+      <q-card-section>
+        Thank you very much for supporting the Omaha Lithuanian-American Community!
+      </q-card-section>
+    </div>
+
+    <div v-if="widgetState === 'LOADING'">
+      <q-card-section>
+        <span class="text-h5" style="color: #475971;"><q-skeleton type="text"/></span>
+      </q-card-section>
+
+      <q-card-section>
+        <div class="row justify-center q-gutter-md">
+          <q-skeleton type="QInput" class="width-400"/>
+          <q-skeleton type="QInput" class="width-400"/>
+          <q-skeleton type="QInput" class="width-400"/>
+          <q-skeleton type="QInput" class="width-400"/>
+          <q-skeleton type="QInput" class="width-400"/>
+          <q-skeleton type="QInput" class="width-400"/>
+        </div>
+      </q-card-section>
+
+      <q-card-actions align="center">
+        <q-skeleton type="QBtn"/>
+      </q-card-actions>
+    </div>
+
+    <q-form v-if="widgetState === 'NORMAL'" greedy @submit="onSubmit">
       <q-card-section>
         <span class="text-h5" style="color: #475971;">Reserve Your Tickets:</span>
       </q-card-section>
@@ -213,7 +295,7 @@ onMounted(() => {
           <q-input v-for="type in ticketTypes" :key="type.name" ref="ticketFields" class="width-400"
                    :label="type.name + ' @ ' + currency(type.price) + ' each'"
                    v-model.number="type.count" type="number" lazy-rules :rules="[
-                         val => val !== null && val !== '' || 'Ticket count must be a number',
+                         val => val !== null && val !== '' || 'Reservation count must be a number',
                          val => val >= 0 || 'Must be zero or more',
                          atLeastOneTicket,
                          validateTicketsAvailable
@@ -279,45 +361,36 @@ onMounted(() => {
   <q-dialog persistent v-model="showPayment">
     <q-card class="q-pa-sm max-width-900">
       <q-card-section>
-        Thank you for reserving tickets to the Omaha Lithuanian Community 70th Anniversary Event!
+        Thank you for placing your reservation to our event! Please select a payment option:
       </q-card-section>
-      <q-card-section>
-        How would you like to pay?
-      </q-card-section>
+      <!--      <q-card-section>-->
+      <!--        How would you like to pay?-->
+      <!--      </q-card-section>-->
 
       <q-card-section class="row justify-center">
-        <div class="width-400 q-gutter-sm">
-          <q-radio v-model="paymentMethod" val="online" label="Pay online now"/>
-          <br/>
-          <q-radio v-model="paymentMethod" val="check" label="Pay by check later"/>
-        </div>
+        <!--        <div class="width-400 q-gutter-sm">-->
+        <!--          <q-radio v-model="paymentMethod" val="online" label="Pay online now"/>-->
+        <!--          <br/>-->
+        <!--          <q-radio v-model="paymentMethod" val="check" label="Pay by check later"/>-->
+        <!--        </div>-->
         <div class="width-400">
-          <div v-if="paymentMethod === 'online'">
-            <PayPalButton :purchase-units="purchaseUnits" @approved="onPayPayPaymentAccepted" @error="onPayPalError"/>
-          </div>
-          <div v-if="paymentMethod === 'check'">
-            <p>Please note that your tickets will not be reserved until payment has been received, so be sure to
-              send your payment by check as soon as possible to ensure your reservation for the event.</p>
-
-            <p>If you would prefer to pay online, please select the online option on the left at this time. If you
-              would still prefer to pay by check, click the button below.</p>
-
-            <q-btn label="Pay by Check" @click="onPayByCheck"/>
-          </div>
+          <!--          <div v-if="paymentMethod === 'online'">-->
+          <PayPalButton :purchase-units="purchaseUnits" @approved="onPayPayPaymentAccepted" @error="onPayPalError"/>
         </div>
-      </q-card-section>
-    </q-card>
-  </q-dialog>
+        <!--          <div v-if="paymentMethod === 'check'">-->
+        <!--            <p>Please note that your tickets will not be reserved until payment has been received, so be sure to-->
+        <!--              send your payment by check as soon as possible to ensure your reservation for the event.</p>-->
 
-  <q-dialog persistent v-model="showThankYou">
-    <q-card class="q-pa-sm max-width-900">
-      <q-card-section>
-        Thank you very much for supporting the Omaha Lithuanian-American Community! A confirmation has been sent to
-        the email address you provided.
+        <!--            <p>If you would prefer to pay online, please select the online option on the left at this time. If you-->
+        <!--              would still prefer to pay by check, click the button below.</p>-->
+
+        <!--            <q-btn label="Pay by Check" @click="onPayByCheck"/>-->
+        <!--          </div>-->
+        <!--        </div>-->
       </q-card-section>
 
-      <q-card-actions>
-        <q-btn label="Okay" @click="onReset"/>
+      <q-card-actions align="center">
+        <q-btn label="Cancel" @click="onMakeOrderChanges"/>
       </q-card-actions>
     </q-card>
   </q-dialog>
