@@ -34,22 +34,31 @@ export default {
       })
 
       this.$router.push('/main/about')
+    },
+
+    redirectToCognito() {
+      const props = this.store.getters["config/cognito"]
+
+      if (props?.domain) {
+        const cognitoDomain = props.domain
+        const clientId = props.clientId
+        const redirectUri = props.redirectUri
+
+        window.location.href = `${cognitoDomain}/login?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}`
+      } else {
+        setTimeout(this.redirectToCognito, 200)
+      }
     }
   },
   setup() {
     const store = useStore()
 
-    const props = store.getters["config/cognito"]
-
-    const cognitoDomain = props.domain
-    const clientId = props.clientId
-    const redirectUri = props.redirectUri
-
-    window.location.href = `${cognitoDomain}/login?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}`
-
     return {
       store
     }
+  },
+  mounted() {
+    this.redirectToCognito();
   }
 }
 </script>
