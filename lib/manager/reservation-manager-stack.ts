@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import {Construct} from 'constructs';
 import {Function} from 'aws-cdk-lib/aws-lambda';
+import {Duration} from "aws-cdk-lib";
 
 export interface ReservationManagerStackProps extends cdk.StackProps {
 
@@ -41,7 +42,8 @@ export class ReservationManagerStack extends cdk.Stack {
                 PAYPAL_API_BASE: props.payPal.apiBase,
                 PAYPAL_CLIENT_ID: props.payPal.clientId,
                 PAYPAL_SECRET: props.payPal.secret
-            }
+            },
+            timeout: Duration.seconds(10)
         });
         props.saveReservationFunction.grantInvoke(this.apiSaveReservationFunction);
 

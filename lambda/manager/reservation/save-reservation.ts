@@ -44,16 +44,9 @@ export async function handler(request: NewReservationRequest): Promise<number> {
         status: 'PENDING_PAYMENT'
     };
 
-    // TODO: Optimize this so we only have to save the reservation once!
+    newReservation = await validateAndAddOnlinePayment(newReservation, request.payPalPayment.id, request.username);
 
-    const hasPayment = !!request.payPalPayment;
-    newReservation = await saveReservation(newReservation, !hasPayment, request.username);
-
-    console.log(`Reservation included payment: ${hasPayment}`);
-
-    if (hasPayment) {
-        await validateAndAddOnlinePayment(newReservation, request.payPalPayment.id, request.username);
-    }
+    newReservation = await saveReservation(newReservation, true, request.username);
 
     return newReservation.reservationId || 0;
 }

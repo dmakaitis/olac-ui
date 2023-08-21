@@ -18,42 +18,29 @@ import {InvokeCommand, LambdaClient, LogType} from "@aws-sdk/client-lambda";
 //     return false;
 // }
 
-export async function validateAndAddOnlinePayment(reservation: Reservation, paymentProcessorTransactionId: string, username: string): Promise<boolean> {
+export async function validateAndAddOnlinePayment(reservation: Reservation, paymentProcessorTransactionId: string, username: string): Promise<Reservation> {
     console.log(`validateAndAddOnlinePayment(${JSON.stringify(reservation)}, ${paymentProcessorTransactionId}, ${username})...`);
 
     if (!reservation || !paymentProcessorTransactionId) {
-        return false;
+        return reservation;
     }
 
     // Load the actual transaction from PayPal since the one we have could have been altered...
     const response = await getOrder(paymentProcessorTransactionId);
     if (!response) {
         // Not a valid transaction
-        return false;
+        return reservation;
     }
 
     // Search through the transaction for our reservation in order to find the amount paid...
     const payment = buildOnlinePayment(reservation.id || 'no-id', paymentProcessorTransactionId, response, username);
     if (!payment) {
-        return false;
+        return reservation;
     }
 
     reservation.payments.push(payment);
 
-    console.log(`Saving updated reservation: ${reservation}`);
-
-    const client = new LambdaClient({region: "us-east-2"})
-    const command = new InvokeCommand({
-        FunctionName: process.env.SAVE_RESERVATION_FUNCTION,
-        Payload: JSON.stringify({
-            reservation: reservation,
-            username: username
-        }),
-        LogType: LogType.Tail
-    });
-    const {Payload} = await client.send(command);
-
-    return true;
+    return reservation;
 }
 
 function buildOnlinePayment(id: string, paymentProcessorTransactionId: string, response: any, username: string): Payment | undefined {

@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ddb from 'aws-cdk-lib/aws-dynamodb';
+import {BillingMode} from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import {Construct} from 'constructs';
 
@@ -27,7 +28,8 @@ export class EventResourceStack extends cdk.Stack {
 
     private defineEventFunctions() {
         const table = new ddb.Table(this, 'EventTable', {
-            partitionKey: {name: 'id', type: ddb.AttributeType.STRING}
+            partitionKey: {name: 'id', type: ddb.AttributeType.STRING},
+            billingMode: BillingMode.PAY_PER_REQUEST
         });
         table.addGlobalSecondaryIndex({
             indexName: 'GlobalSortByEventDateIndex',
@@ -72,7 +74,8 @@ export class EventResourceStack extends cdk.Stack {
 
     private defineReservationFunctions() {
         const table = new ddb.Table(this, 'ReservationTable', {
-            partitionKey: {name: 'id', type: ddb.AttributeType.STRING}
+            partitionKey: {name: 'id', type: ddb.AttributeType.STRING},
+            billingMode: BillingMode.PAY_PER_REQUEST
         });
         table.addGlobalSecondaryIndex({
             indexName: 'GlobalEventIndex',
@@ -81,7 +84,8 @@ export class EventResourceStack extends cdk.Stack {
         });
 
         this.auditTable = new ddb.Table(this, 'ReservationAuditTable', {
-            partitionKey: {name: 'id', type: ddb.AttributeType.STRING}
+            partitionKey: {name: 'id', type: ddb.AttributeType.STRING},
+            billingMode: BillingMode.PAY_PER_REQUEST
         });
         this.auditTable.addGlobalSecondaryIndex({
             indexName: 'GlobalReservationIndex',
@@ -90,7 +94,8 @@ export class EventResourceStack extends cdk.Stack {
         });
 
         const counterTable = new ddb.Table(this, 'ReservationCounterTable', {
-            partitionKey: {name: 'id', type: ddb.AttributeType.STRING}
+            partitionKey: {name: 'id', type: ddb.AttributeType.STRING},
+            billingMode: BillingMode.PAY_PER_REQUEST
         });
 
         this.listReservationsFunction = new lambda.Function(this, 'ListEventReservations', {
