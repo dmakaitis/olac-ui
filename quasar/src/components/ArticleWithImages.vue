@@ -24,6 +24,7 @@ import ArticleList from "components/ArticleList.vue";
 import ArticleImage from "components/ArticleImage.vue";
 import FloatingImages from "components/FloatingImages.vue";
 import TicketSalesWidget from "components/TicketSalesWidget.vue";
+import PayPalDonation from "components/PayPalDonation.vue";
 
 export default {
   name: "ArticleWithImages",
@@ -83,7 +84,8 @@ export default {
         collection: ArticleList,
         image: ArticleImage,
         floatingimages: FloatingImages,
-        ticketwidget: TicketSalesWidget
+        ticketwidget: TicketSalesWidget,
+        paypaldonation: PayPalDonation
       }
     }
 

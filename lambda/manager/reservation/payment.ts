@@ -1,22 +1,5 @@
 import axios from "axios";
 import {Payment, Reservation} from "./reservation";
-import {InvokeCommand, LambdaClient, LogType} from "@aws-sdk/client-lambda";
-
-// export async function validateAndAddPayment(reservationId: string, paymentProcessorTransactionId: string): Promise<boolean> {
-//     // TODO: Implement processing of PayPal payments!!!!
-//     // Optional<Reservation> optional = reservationDatastoreAccess.getReservation(reservationId);
-//     // if (optional.isEmpty()) {
-//     //     return false;
-//     // }
-//     // Reservation reservation = optional.get();
-//     //
-//     // if (paymentEngine.validateAndAddOnlinePayment(reservation, paymentProcessorTransactionId)) {
-//     //     saveReservation(reservation, true);
-//     //     return true;
-//     // }
-//
-//     return false;
-// }
 
 export async function validateAndAddOnlinePayment(reservation: Reservation, paymentProcessorTransactionId: string, username: string): Promise<Reservation> {
     console.log(`validateAndAddOnlinePayment(${JSON.stringify(reservation)}, ${paymentProcessorTransactionId}, ${username})...`);

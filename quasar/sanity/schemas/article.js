@@ -52,7 +52,8 @@ export default {
         {type: 'image'},
         {type: 'floatingimages'},
         {type: 'collection'},
-        {type: 'ticketwidget'}
+        {type: 'ticketwidget'},
+        {type: 'paypaldonation'}
       ]
     }
   ]

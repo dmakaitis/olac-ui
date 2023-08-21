@@ -21,15 +21,15 @@ export const handler: Handler = async (event, context) => {
         body: JSON.stringify({
             "paypal": {
                 "apiBase": config.olac.paypal["api-base"],
-                "clientId": config.olac.paypal.client
+                "clientId": config.olac.paypal.client,
+                "donationButtonId": config.olac.paypal.donationButtonId
             },
             "cognito": {
                 "domain": config.olac.cognito.domain,
                 "clientId": config.olac.cognito.clientId,
                 "redirectUri": config.olac.cognito.redirectUri
             },
-            "showLogin": showLogin,
-            "enableReservations": config.olac["enable-reservations"]
+            "showLogin": showLogin
         })
     }
 }
@@ -43,7 +43,7 @@ function doesCookieExist(headers: any): boolean {
     var cookieFound: boolean = false;
 
     rc && rc.split(';').forEach(function (cookie: string) {
-        if(cookie === "ShowLoginButton=Y") {
+        if (cookie === "ShowLoginButton=Y") {
             cookieFound = true;
         }
     });
