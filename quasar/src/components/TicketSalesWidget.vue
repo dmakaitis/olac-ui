@@ -26,6 +26,8 @@ const notEnoughTickets = ref(false);
 const reservationId = ref('');
 const purchaseUnits = ref([]);
 
+const paymentCancelButtonEnabled = ref(true);
+
 // const paymentMethod = ref('online');
 
 const reservationNumber = ref(0);
@@ -132,6 +134,8 @@ function onMakeOrderChanges() {
 function onPayPayPaymentAccepted(orderData) {
   sendGtagEvent('purchase', reservationId.value)
 
+  paymentCancelButtonEnabled.value = false;
+
   const url = `/api/events/${props.eventId}/_newReservation`;
   const newReservationRequest = {
     "id": reservationId.value,
@@ -170,6 +174,8 @@ function onReset() {
   email.value = '';
   phone.value = '';
   ticketTypes.value.forEach(t => t.count = 0);
+
+  paymentCancelButtonEnabled.value = true;
 
   updateMode(1);
 }
@@ -390,7 +396,7 @@ onMounted(() => {
       </q-card-section>
 
       <q-card-actions align="center">
-        <q-btn label="Cancel" @click="onMakeOrderChanges"/>
+        <q-btn :disable="!paymentCancelButtonEnabled" label="Cancel" @click="onMakeOrderChanges"/>
       </q-card-actions>
     </q-card>
   </q-dialog>

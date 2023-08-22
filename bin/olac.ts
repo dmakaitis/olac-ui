@@ -158,3 +158,26 @@ new OlacConstruct(app, 'Test', {
         }
     }
 });
+
+new OlacConstruct(app, 'Prod', {
+    environment: 'Prod',
+    website: {
+        domainNames: ['omahalithuanians.org', 'www.omahalithuanians.org'],
+        certificateArn: 'arn:aws:acm:us-east-1:543748744721:certificate/637249ec-6229-40f5-943a-c8b595eafef3'
+    },
+    payPal: {
+        apiBase: 'https://api-m.paypal.com',
+        clientId: 'AWlSY8P90RHz_lXFE_37F9e_8RZ4w3Vng1mYF4-U6EWlVlRIBFbE21UTxMSE36ry0dJLI_VDwzDh5Mbm',
+        secret: 'EOfL9HOUDirUFX56GGQpcX-GG3L5IHhvPFTzWam_OlbY9KD-kXziiMRkWN7dQQxF2exoAZ0izYGYf9Xw',
+        donationButtonId: 'N4ZY3QGD6CMVN'
+    },
+    security: {
+        apiRoleArn: 'arn:aws:iam::543748744721:role/OlacProdApiRole',
+        cognito: {
+            userPoolId: 'us-east-2_LKok1DKIU',
+            domain: 'https://omahalithuanians.auth.us-east-2.amazoncognito.com',
+            clientId: '57frgnd1ffhcj5ipgab08jl6oc',
+            redirectUri: 'https://omahalithuanians.org'
+        }
+    }
+});
