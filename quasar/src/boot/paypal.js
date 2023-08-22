@@ -18,6 +18,8 @@ function loadPayPalLibrary(store) {
   if (config && config.paypal && !window.paypal) {
     console.log(`Loading PayPal library using client ID: ${config.paypal.clientId}`);
     loadScript(`https://www.paypal.com/sdk/js?client-id=${config.paypal.clientId}&enable-funding=venmo&currency=USD`, 'payPalScript')
+  } else {
+    console.log(`Can't load PayPal library - missing PayPal client configuration`);
   }
 }
 

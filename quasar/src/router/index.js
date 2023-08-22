@@ -51,7 +51,7 @@ export default route(function ({store /*, ssrContext */}) {
           });
 
           // Update our configuration so the login button will now show for the rest of the session:
-          this.store.commit('config/setShowLogin', true);
+          store.commit('config/setShowLogin', true);
         });
 
       next({name: 'Home'});
