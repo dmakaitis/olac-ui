@@ -9,8 +9,9 @@ import AdminReservations from "pages/AdminReservations.vue";
 import LoginUser from "pages/LoginUser.vue";
 import LogoutUser from "pages/LogoutUser.vue";
 import AdminEvents from "pages/AdminEvents.vue";
+import {RouteRecordRaw} from "vue-router";
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     name: 'Login',
     path: '/login',
