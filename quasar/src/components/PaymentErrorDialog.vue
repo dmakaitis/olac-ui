@@ -1,3 +1,7 @@
+<script script lang="ts">
+
+</script>
+
 <template>
   <q-dialog vmodel="model-value">
     <q-card>
@@ -19,20 +23,6 @@
     </q-card>
   </q-dialog>
 </template>
-
-<script>
-import {ref} from "vue";
-
-export default {
-  name: "PaymentErrorDialog",
-
-  setup() {
-    return {
-      modelValue: ref(true)
-    }
-  }
-}
-</script>
 
 <style scoped>
 

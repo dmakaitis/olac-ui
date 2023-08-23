@@ -2,13 +2,16 @@
 import {ref} from "vue";
 import {useStore} from "vuex";
 
-const props = defineProps(['size']);
+const props = defineProps<{
+  size: boolean
+}>();
 
 const store = useStore();
 
 function buttonId() {
   return store.getters["config/payPalDonationButtonId"] || 'N4ZY3QGD6CMVN';
 }
+
 const buttonImage = ref(props.size ? 'https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif' : 'https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif');
 </script>
 

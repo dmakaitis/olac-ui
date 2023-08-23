@@ -1,3 +1,50 @@
+<script setup lang="ts">
+import {ref} from 'vue';
+
+interface Payment {
+  index?: number,
+  amount: 0,
+  method: 'ONLINE' | 'CHECK' | 'COMP',
+  status: 'PENDING' | 'SUCCESSFUL' | 'FAILED',
+  notes: string
+}
+
+const emit = defineEmits<{
+  save: [data: Payment],
+  cancel: []
+}>();
+
+const props = defineProps<{payment: Payment}>();
+
+const data = ref<Payment>({
+  amount: 0,
+  method: 'CHECK',
+  status: 'SUCCESSFUL',
+  notes: ''
+});
+const methodOptions = ['ONLINE', 'CHECK', 'COMP'];
+const statusOptions = ['PENDING', 'SUCCESSFUL', 'FAILED'];
+
+function resetData() {
+  console.log("Resetting payment data")
+  console.log(`   Provided: ${JSON.stringify(props.payment)}`)
+
+  data.value.index = props.payment.index;
+  data.value.amount = props.payment.amount || 0;
+  data.value.method = props.payment.method || 'CHECK';
+  data.value.status = props.payment.status || 'SUCCESSFUL';
+  data.value.notes = props.payment.notes || '';
+}
+
+function onSave() {
+  emit('save', data.value);
+}
+
+function onCancel() {
+  emit('cancel');
+}
+</script>
+
 <template>
   <q-dialog persistent vmodel="model-value" @before-show="resetData">
     <q-card class="q-gutter-md">
@@ -18,49 +65,6 @@
     </q-card>
   </q-dialog>
 </template>
-
-<script>
-import {ref, toRefs} from 'vue';
-
-export default {
-  name: "PaymentDialog",
-  methods: {
-    resetData() {
-      console.log("Resetting payment data")
-      console.log(`   Provided: ${JSON.stringify(this.payment)}`)
-
-      this.data.index = this.payment.index;
-      this.data.amount = this.payment.amount || 0;
-      this.data.method = this.payment.method || 'CHECK';
-      this.data.status = this.payment.status || 'SUCCESSFUL';
-      this.data.notes = this.payment.notes || '';
-    },
-    onSave() {
-      this.$emit('save', this.data);
-    },
-    onCancel() {
-      this.$emit('cancel');
-    }
-  },
-  props: [
-    'payment'
-  ],
-  setup(props) {
-    return {
-      modelValue: ref(false),
-      data: ref({
-        amount: 0,
-        method: 'CHECK',
-        status: 'SUCCESSFUL',
-        notes: '',
-        payment: toRefs(props).payment
-      }),
-      methodOptions: ['ONLINE', 'CHECK', 'COMP'],
-      statusOptions: ['PENDING', 'SUCCESSFUL', 'FAILED']
-    }
-  }
-}
-</script>
 
 <style scoped>
 

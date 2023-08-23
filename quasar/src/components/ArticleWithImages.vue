@@ -1,44 +1,45 @@
-<template>
-  <q-card>
-    <q-card-section v-if="loading">
-      <div class="text-center">
-        <q-spinner size="lg"/>
-      </div>
-    </q-card-section>
-    <q-card-section v-if="!loading && showTitle">
-      <div v-if="title" class="text-h4">{{ title }}</div>
-      <div v-if="subtitle" class="text-h5">{{ subtitle }}</div>
-    </q-card-section>
-    <q-card-section v-if="!loading">
-      <SanityBlocks :blocks="copy" :serializers="serializers"/>
-      <div style="clear: both;"></div>
-    </q-card-section>
-  </q-card>
-</template>
-
-<script>
-import {ref} from "vue";
+<script setup lang="ts">
+import {onBeforeUpdate, onMounted, Ref, ref} from "vue";
 import {useSanityFetcher} from "vue-sanity";
 import {SanityBlocks} from "sanity-blocks-vue-component";
+import {BlockSerializer, BlockText, Serializers} from "sanity-blocks-vue-component/dist/types";
 import ArticleList from "components/ArticleList.vue";
 import ArticleImage from "components/ArticleImage.vue";
 import FloatingImages from "components/FloatingImages.vue";
 import TicketSalesWidget from "components/TicketSalesWidget.vue";
 import PayPalDonation from "components/PayPalDonation.vue";
 
-export default {
-  name: "ArticleWithImages",
-  components: {SanityBlocks},
-  props: {
-    slug: String,
-  },
-  methods: {
-    onNewSlug() {
-      this.loadedSlug = ''
-      this.loading = true
+const props = defineProps({slug: String});
 
-      useSanityFetcher(() => `
-*[_type == 'article' && slug.current == '${this.slug}'][0]{
+const loading = ref(true);
+const loadedSlug = ref('');
+const title = ref('');
+const subtitle = ref('');
+const showTitle = ref(false);
+const copy: Ref<any[]> = ref([]);
+const serializers : Partial<Serializers> = {
+  types: {
+    "collection": ((ArticleList as unknown) as BlockSerializer<BlockText>),
+    "image": ((ArticleImage as unknown) as BlockSerializer<BlockText>),
+    "floatingimages": ((FloatingImages as unknown) as BlockSerializer<BlockText>),
+    "ticketwidget": ((TicketSalesWidget as unknown) as BlockSerializer<BlockText>),
+    "paypaldonation": ((PayPalDonation as unknown) as BlockSerializer<BlockText>)
+  }
+};
+
+function onNewSlug() {
+  loadedSlug.value = '';
+  loading.value = true;
+
+  interface SanityResult {
+    title: string,
+    subtitle: string,
+    showtitle: boolean,
+    copy: any[]
+  }
+
+  useSanityFetcher<SanityResult>(() => `
+*[_type == 'article' && slug.current == '${props.slug}'][0]{
   title,
   subtitle,
   showtitle,
@@ -67,48 +68,45 @@ export default {
   }
 }
       `).fetch()
-        .then(result => {
-          this.loading = false
-          this.loadedSlug = this.slug
+      .then((result: SanityResult | null) => {
+        loading.value = false;
+        loadedSlug.value = props.slug || '';
 
-          this.title = result.title
-          this.subtitle = result.subtitle
-          this.showTitle = result.showtitle
-          this.copy = result.copy
-        })
-    }
-  },
-  setup(props) {
-    const serializers = {
-      types: {
-        collection: ArticleList,
-        image: ArticleImage,
-        floatingimages: FloatingImages,
-        ticketwidget: TicketSalesWidget,
-        paypaldonation: PayPalDonation
-      }
-    }
-
-    return {
-      loading: ref(true),
-      loadedSlug: ref(''),
-      title: ref(''),
-      subtitle: ref(''),
-      showTitle: ref(false),
-      copy: ref([]),
-      serializers
-    }
-  },
-  mounted() {
-    this.onNewSlug()
-  },
-  beforeUpdate() {
-    if (this.slug != this.loadedSlug) {
-      this.onNewSlug()
-    }
-  }
+        title.value = result?.title || '';
+        subtitle.value = result?.subtitle || '';
+        showTitle.value = result?.showtitle || false;
+        copy.value = result?.copy || [];
+      });
 }
+
+onMounted(() => {
+  onNewSlug();
+});
+
+onBeforeUpdate(() => {
+  if (props.slug != loadedSlug.value) {
+    onNewSlug();
+  }
+})
 </script>
+
+<template>
+  <q-card>
+    <q-card-section v-if="loading">
+      <div class="text-center">
+        <q-spinner size="lg"/>
+      </div>
+    </q-card-section>
+    <q-card-section v-if="!loading && showTitle">
+      <div v-if="title" class="text-h4">{{ title }}</div>
+      <div v-if="subtitle" class="text-h5">{{ subtitle }}</div>
+    </q-card-section>
+    <q-card-section v-if="!loading">
+      <SanityBlocks :blocks="copy" :serializers="serializers"/>
+      <div style="clear: both;"></div>
+    </q-card-section>
+  </q-card>
+</template>
 
 <style scoped>
 

@@ -1,3 +1,7 @@
+<script setup lang="ts">
+
+</script>
+
 <template>
   <q-dialog persistent vmodel="model-value">
     <q-card>
@@ -12,20 +16,6 @@
     </q-card>
   </q-dialog>
 </template>
-
-<script>
-import {ref} from 'vue';
-
-export default {
-  name: "ConfirmationDialog",
-
-  setup() {
-    return {
-      modelValue: ref(false)
-    }
-  }
-}
-</script>
 
 <style scoped>
 

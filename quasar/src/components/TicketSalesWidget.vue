@@ -1,11 +1,31 @@
-<script setup>
+<script setup lang="ts">
 import {onMounted, ref} from "vue";
 import {api} from "boot/axios";
 import {currency} from "boot/helper";
 import PayPalButton from "components/PayPalButton.vue";
+import {QField} from "quasar";
+
+interface Event {
+  id: string,
+  name: string,
+  eventDate: string,
+  ticketSaleStartDate?: string,
+  ticketSaleEndDate?: string,
+  maxTickets?: number,
+  ticketTypes?: {
+    name: string,
+    price: number
+  }[]
+}
+
+interface TicketType {
+  name: string,
+  price: number,
+  count: number
+}
 
 const props = defineProps(['eventId']);
-const event = ref({});
+const event = ref<Event | undefined>(undefined);
 
 const widgetState = ref('LOADING');
 
@@ -14,17 +34,17 @@ const showConfirmation = ref(false);
 const showPayment = ref(false);
 const showPayPalError = ref(false);
 
-const ticketFields = ref(null);
+const ticketFields = ref<QField[]>([]);
 
 const firstName = ref('');
 const lastName = ref('');
 const email = ref('');
 const phone = ref('');
-const ticketTypes = ref([]);
+const ticketTypes = ref<TicketType[]>([]);
 const notEnoughTickets = ref(false);
 
 const reservationId = ref('');
-const purchaseUnits = ref([]);
+const purchaseUnits = ref<any[]>([]);
 
 const paymentCancelButtonEnabled = ref(true);
 
@@ -32,7 +52,7 @@ const paymentCancelButtonEnabled = ref(true);
 
 const reservationNumber = ref(0);
 
-function updateMode(newMode) {
+function updateMode(newMode: number) {
   mode.value = newMode;
 
   showConfirmation.value = newMode === 2;
@@ -44,7 +64,7 @@ function updateMode(newMode) {
   }
 }
 
-function sendGtagEvent(eventType, transactionId = null) {
+function sendGtagEvent(eventType: string, transactionId: string | null = null) {
   console.log(`Tracking event: ${eventType}`)
 
   gtag('event', eventType, {
@@ -61,22 +81,22 @@ function sendGtagEvent(eventType, transactionId = null) {
   })
 }
 
-function isValidEmail(val) {
+function isValidEmail(val: string): boolean | string {
   const emailPattern = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
   return emailPattern.test(val) || 'Enter a valid email address';
 }
 
-function atLeastOneTicket(val) {
+function atLeastOneTicket(val: number): boolean | string {
   let total = ticketTypes.value.reduce((sum, type) => sum = sum + +type.count, 0)
   return total > 0 || 'You must order at least one ticket'
 }
 
-function validateTicketsAvailable(val) {
+function validateTicketsAvailable(val: number): Promise<boolean | string> {
   let total = ticketTypes.value.reduce((sum, type) => sum = sum + +type.count, 0)
   return new Promise((resolve) => {
     api.get(`/api/events/${props.eventId}/_available?ticketCount=${total}`)
-      .then(response => resolve(response.data || 'Not enough tickets are available'))
-      .catch(error => resolve('Unable to verify tickets available. Try again later.'))
+        .then(response => resolve(response.data || 'Not enough tickets are available'))
+        .catch(error => resolve('Unable to verify tickets available. Try again later.'))
   })
 }
 
@@ -84,10 +104,10 @@ function onTicketFieldFocus() {
   ticketFields.value.forEach(f => f.resetValidation())
 }
 
-function getGrandTotal() {
+function getGrandTotal(): number {
   return ticketTypes.value
-    .map(t => t.count * t.price)
-    .reduce((a, b) => a + b, 0)
+      .map(t => t.count * t.price)
+      .reduce((a, b) => a + b, 0)
 }
 
 function onSubmit() {
@@ -110,14 +130,14 @@ function onConfirmation() {
     },
     "description": event.value.name,
     "items": ticketTypes.value
-      .filter(t => t.count > 0)
-      .map(t => {
-        return {
-          "name": t.name,
-          "quantity": `${t.count}`,
-          "unit_amount": {"value": t.price, "currency_code": "USD"}
-        }
-      }),
+        .filter(t => t.count > 0)
+        .map(t => {
+          return {
+            "name": t.name,
+            "quantity": `${t.count}`,
+            "unit_amount": {"value": t.price, "currency_code": "USD"}
+          }
+        }),
     "custom_id": reservationId,
     "soft_descriptor": 'OLAC Tickets'
   }]
@@ -131,7 +151,7 @@ function onMakeOrderChanges() {
   updateMode(1);
 }
 
-function onPayPayPaymentAccepted(orderData) {
+function onPayPayPaymentAccepted(orderData: any) {
   sendGtagEvent('purchase', reservationId.value)
 
   paymentCancelButtonEnabled.value = false;
@@ -144,10 +164,10 @@ function onPayPayPaymentAccepted(orderData) {
     "email": email.value,
     "phone": phone.value,
     "ticketCounts": ticketTypes.value
-      .filter(t => t.count > 0)
-      .map(t => {
-        return {"typeName": t.name, "costPerTicket": t.price, "count": t.count}
-      }),
+        .filter(t => t.count > 0)
+        .map(t => {
+          return {"typeName": t.name, "costPerTicket": t.price, "count": t.count}
+        }),
     "payPalPayment": orderData
   };
 
@@ -155,11 +175,11 @@ function onPayPayPaymentAccepted(orderData) {
   console.log(`Posting new reservation: ${JSON.stringify(newReservationRequest)}`);
 
   api.post(url, newReservationRequest)
-    .then(response => {
-      reservationNumber.value = response.data;
-      updateMode(4);
-    })
-    .catch(error => alert(error));
+      .then(response => {
+        reservationNumber.value = response.data;
+        updateMode(4);
+      })
+      .catch(error => alert(error));
 }
 
 function onPayPalError() {
@@ -180,7 +200,7 @@ function onReset() {
   updateMode(1);
 }
 
-function getInitialWidgetState(event) {
+function getInitialWidgetState(event: Event) {
   if (event.ticketTypes?.length) {
     const today = new Date().toJSON().substring(0, 10).replaceAll('-', '/');
 
@@ -208,25 +228,25 @@ onMounted(() => {
   console.log(`Loading event: ${props.eventId}`);
 
   api.get(`/api/events/${props.eventId}`)
-    .then(result => {
-      event.value = result.data;
-      ticketTypes.value = event.value.ticketTypes.map(t => {
-        return {
-          name: t.name,
-          price: t.price,
-          count: 0
-        };
-      });
+      .then(result => {
+        event.value = result.data;
+        ticketTypes.value = result.data.ticketTypes.map((t: TicketType) => {
+          return {
+            name: t.name,
+            price: t.price,
+            count: 0
+          };
+        });
 
-      widgetState.value = getInitialWidgetState(result.data);
-    })
-    .catch(error => alert(error));
+        widgetState.value = getInitialWidgetState(result.data);
+      })
+      .catch(error => alert(error));
 
   api.get(`/api/events/${props.eventId}/reservations/_new-id`)
-    .then(result => {
-      reservationId.value = result.data;
-    })
-    .catch(error => alert(error));
+      .then(result => {
+        reservationId.value = result.data;
+      })
+      .catch(error => alert(error));
 });
 </script>
 
@@ -338,7 +358,7 @@ onMounted(() => {
               <th class="text-right" scope="col">Subtotal</th>
             </tr>
 
-            <tr v-for="type in ticketTypes.filter(t => t.count > 0)" :key="type.code">
+            <tr v-for="type in ticketTypes.filter(t => t.count > 0)" :key="type.name">
               <td class="text-left">{{ type.name }}</td>
               <td class="text-center">{{ type.count }}</td>
               <td class="text-right">{{ currency(type.count * type.price) }}</td>

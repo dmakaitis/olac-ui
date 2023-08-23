@@ -1,11 +1,19 @@
-<script setup>
+<script setup lang="ts">
 import {useRouter} from "vue-router";
 
-const router = useRouter()
-const props = defineProps(['articleData'])
+interface ArticleData {
+  slug: string,
+  title: string,
+  imageUrl: string
+}
 
-function onClickArticle(slug) {
-  router.push(`/main/article/${slug}`)
+const router = useRouter();
+const props = defineProps<{
+  articleData: ArticleData[]
+}>();
+
+function onClickArticle(slug: string) {
+  router.push(`/main/article/${slug}`);
 }
 </script>
 

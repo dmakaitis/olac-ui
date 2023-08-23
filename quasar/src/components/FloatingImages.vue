@@ -1,14 +1,32 @@
-<script setup>
-const props = defineProps(['left', 'imageData', 'images'])
+<script setup lang="ts">
+interface ImageData {
+  altText: string,
+  url: string
+}
+
+interface Image {
+  "_type": string,
+  "_key": string,
+  asset: {
+    "_ref": string,
+    "_type": string
+  }
+}
+
+const props = defineProps<{
+  left: boolean,
+  imageData: ImageData[],
+  images: Image[]
+}>();
 </script>
 
 <template>
   <div v-if="left" class="float-left">
-    <img v-for="image in imageData" :key="image" :src="`${image.url}?w=300`" :alt="image.altText"
+    <img v-for="image in imageData" :key="image.url" :src="`${image.url}?w=300`" :alt="image.altText"
          class="shadow-24"/>
   </div>
   <div v-if="!left" class="float-right">
-    <img v-for="image in imageData" :key="image" :src="`${image.url}?w=300`" :alt="image.altText"
+    <img v-for="image in imageData" :key="image.url" :src="`${image.url}?w=300`" :alt="image.altText"
          class="shadow-24"/>
   </div>
 </template>
