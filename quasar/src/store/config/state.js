@@ -1,8 +1,11 @@
 export default function () {
-  return {
-    config: {
-      showLogin: false,
-      enableReservations: true
+    return {
+        config: {
+            paypal: {
+                clientId: ''
+            },
+            cognito: {},
+            showLogin: false,
+        }
     }
-  }
 }

@@ -10,3 +10,17 @@ export interface WhoAmIResponse {
     username: string,
     grants: ("ROLE_ADMIN" | "ROLE_EVENT_COORDINATOR")[]
 }
+
+export interface ClientConfig {
+    paypal: {
+        apiBase: string,
+        clientId: string,
+        donationButtonId: string
+    },
+    cognito: {
+        domain: string,
+        clientId: string,
+        redirectUri: string
+    },
+    showLogin: boolean
+}
