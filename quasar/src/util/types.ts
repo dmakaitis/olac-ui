@@ -24,3 +24,13 @@ export interface ClientConfig {
     },
     showLogin: boolean
 }
+
+export interface ConfigState {
+    config: ClientConfig
+}
+
+export interface AuthState {
+    jwtToken: string,
+    username: string,
+    grants: string[]
+}
