@@ -24,7 +24,7 @@ export class ConfigUtilityStack extends cdk.Stack {
 
         this.getConfigLambda = new lambda.Function(this, 'GetConfiguration', {
             description: 'Returns the application configuration',
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             code: lambda.Code.fromAsset('./lambda/utility/config'),
             handler: 'get.handler',
             environment: {
