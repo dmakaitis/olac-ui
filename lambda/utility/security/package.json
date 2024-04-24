@@ -1,13 +1,13 @@
 {
   "name": "security",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Security Utility",
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@types/aws-lambda": "^8.10.119",
+    "@types/aws-lambda": "^8.10.137",
     "aws-jwt-verify": "^4.0.0"
   }
 }

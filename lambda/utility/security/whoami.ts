@@ -1,7 +1,7 @@
-import {Handler} from "aws-lambda";
 import {CognitoJwtVerifier} from "aws-jwt-verify";
+import {Handler} from "aws-lambda";
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
     const verifier = CognitoJwtVerifier.create({
         userPoolId: process.env.USER_POOL_ID || 'us-east-2_LKok1DKIU',
         tokenUse: 'access',
