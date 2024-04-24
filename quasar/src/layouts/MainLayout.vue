@@ -1,3 +1,13 @@
+<script setup lang="ts">
+import {useStore} from "vuex";
+import MenuBar from "components/MenuBar.vue";
+import {computed} from "vue";
+
+const store = useStore();
+
+const isLoggedIn = computed((): boolean => store.getters['auth/isLoggedIn']);
+</script>
+
 <template>
   <q-layout view="hHh lpR fFf">
 
@@ -27,28 +37,6 @@
 
   </q-layout>
 </template>
-
-<script>
-import {useStore} from "vuex";
-import MenuBar from "components/MenuBar.vue";
-
-export default {
-  name: 'MainLayout',
-  components: {MenuBar},
-  computed: {
-    isLoggedIn() {
-      return this.store.getters['auth/isLoggedIn'];
-    }
-  },
-  setup() {
-    const store = useStore()
-
-    return {
-      store
-    }
-  }
-}
-</script>
 
 <style scoped>
 .headerimage {

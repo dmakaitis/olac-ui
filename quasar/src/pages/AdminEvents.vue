@@ -1,16 +1,31 @@
-<script setup>
+<script setup lang="ts">
 import {onMounted, ref} from "vue";
 import {api} from "boot/axios";
-import {copyToClipboard} from "quasar";
+import {copyToClipboard, QTableColumn} from "quasar";
+
+interface TicketTypes {
+  name: string,
+  price: number
+}
+
+interface Event {
+  id?: string,
+  eventDate: string,
+  name: string,
+  maxTickets?: number,
+  ticketSaleStartDate?: string,
+  ticketSaleEndDate?: string,
+  ticketTypes: TicketTypes[]
+}
 
 const state = ref({
   rows: []
 });
-const selected = ref([]);
-const detail = ref({});
+const selected = ref<Event[]>([]);
+const detail = ref<Event>({eventDate: '', name: '', ticketTypes: []});
 const showDetail = ref(false);
 
-const columns = [
+const columns: QTableColumn<Event>[] = [
   {
     name: 'eventDate',
     required: true,
@@ -51,7 +66,7 @@ function onNewEvent() {
   showDetail.value = true;
 }
 
-function onRowClick(event, row) {
+function onRowClick(event: any, row: Event) {
   detail.value = {
     id: row.id,
     name: row.name,
@@ -66,19 +81,19 @@ function onRowClick(event, row) {
 
 function onDelete() {
   api.delete(`/api/events/${selected.value[0].id}`)
-    .then(response => loadEventData())
-    .catch(error => alert(error))
+      .then(() => loadEventData())
+      .catch(error => alert(error))
 }
 
 function onSave() {
-  if(detail.value.id) {
+  if (detail.value.id) {
     api.put(`/api/events/${detail.value.id}`, detail.value)
-      .then(response => loadEventData())
-      .catch(error => alert(error))
+        .then(() => loadEventData())
+        .catch(error => alert(error))
   } else {
     api.post(`/api/events`, detail.value)
-      .then(response => loadEventData())
-      .catch(error => alert(error))
+        .then(() => loadEventData())
+        .catch(error => alert(error))
   }
   showDetail.value = false;
 }
@@ -96,10 +111,10 @@ function onAddTicketType() {
 
 const loadingEvents = ref(false);
 
-function loadEventData(startKey) {
+function loadEventData(startKey: string | undefined = undefined) {
   let url = '/api/events';
 
-  if(!startKey) {
+  if (!startKey) {
     state.value = {
       rows: []
     };
@@ -109,28 +124,28 @@ function loadEventData(startKey) {
   }
 
   api.get(url)
-    .then(response => {
-      state.value.rows = state.value.rows.concat(response.data.items);
-      if(response.data.nextStartKey) {
-        loadEventData(response.data.nextStartKey);
-      } else {
-        loadingEvents.value = false;
-      }
-    })
-    .catch(error => alert(error))
+      .then(response => {
+        state.value.rows = state.value.rows.concat(response.data.items);
+        if (response.data.nextStartKey) {
+          loadEventData(response.data.nextStartKey);
+        } else {
+          loadingEvents.value = false;
+        }
+      })
+      .catch(error => alert(error))
 }
 
 /**
  * Called when the user clicks the copy event ID button.
  */
 function onCopyEventId() {
-  copyToClipboard(detail.value.id)
-    .then(() => {
-      alert(`Copied event id to clipboard.`);
-    })
-    .catch(() => {
-      // ignore failure...
-    })
+  copyToClipboard(detail.value?.id || '')
+      .then(() => {
+        alert(`Copied event id to clipboard.`);
+      })
+      .catch(() => {
+        // ignore failure...
+      })
 }
 
 onMounted(() => {
@@ -147,7 +162,7 @@ onMounted(() => {
   </q-page>
 
   <q-dialog persistent v-model="showDetail">
-    <q-card style="max-width: 1000px;">
+    <q-card class="max-width-dialog">
       <div class="q-pa-md">
         <q-card-section>
           <h5>Event</h5>
@@ -173,7 +188,8 @@ onMounted(() => {
                   </q-icon>
                 </template>
               </q-input>
-              <q-input outlined v-model="detail.name" label="Event Name" :rules="[v => !!v || 'The event must have a name']"/>
+              <q-input outlined v-model="detail.name" label="Event Name"
+                       :rules="[v => !!v || 'The event must have a name']"/>
               <q-input outlined v-model="detail.ticketSaleStartDate" label="First Day of Ticket Sales (opt)" mask="date"
                        :rules="[v => /(^$)|(^-?[\d]+\/[0-1]\d\/[0-3]\d$)/.test(v || '') || 'Must be blank or a valid date']">
                 <template v-slot:append>
@@ -213,10 +229,10 @@ onMounted(() => {
             <q-card-section>
               <b>Ticket Types</b>
             </q-card-section>
-            <q-card-section v-for="t in detail.ticketTypes" :key="t">
-              <div class="q-gutter-md row items-start">
-                <q-input outlined v-model="t.name" label="Ticket Type Name"/>
-                <q-input outlined number v-model.number="t.price" label="Price" prefix="$"/>
+            <q-card-section v-for="t in detail.ticketTypes" :key="t.name">
+              <div class="q-gutter-md row justify-start items-start">
+                <q-input class="ticket-type-field" outlined v-model.trim="t.name" label="Ticket Type Name"/>
+                <q-input class="ticket-type-field" outlined number v-model.number="t.price" label="Price" prefix="$"/>
               </div>
             </q-card-section>
             <q-card-section>
@@ -230,5 +246,11 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.ticket-type-field {
+  width: 200px;
+}
 
+.max-width-dialog {
+  max-width: 1000px;
+}
 </style>

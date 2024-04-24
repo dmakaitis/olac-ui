@@ -1,3 +1,42 @@
+<script setup lang="ts">
+import {useStore} from 'vuex'
+import {useRouter} from "vue-router";
+import {onMounted} from "vue";
+
+const store = useStore();
+const router = useRouter();
+
+function onAuth(authentication: any) {
+  console.log(`Received authentication: ${JSON.stringify(authentication)}`);
+  store.commit('auth/storeAuthentication', authentication);
+  store.commit('config/setShowLogin', true);
+
+  gtag('event', 'login', {
+    method: 'Google'
+  });
+
+  router.push('/main/about');
+}
+
+function redirectToCognito() {
+  const props = store.getters['config/cognito'];
+
+  if (props?.domain) {
+    const cognitoDomain = props.domain;
+    const clientId = props.clientId;
+    const redirectUri = props.redirectUri;
+
+    window.location.href = `${cognitoDomain}/login?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}`
+  } else {
+    setTimeout(redirectToCognito, 200);
+  }
+}
+
+onMounted(() => {
+  redirectToCognito();
+})
+</script>
+
 <template>
   <q-layout view="hhh lpr fff">
     <q-page-container>
@@ -17,51 +56,6 @@
     </q-page-container>
   </q-layout>
 </template>
-
-<script>
-import {useStore} from 'vuex'
-
-export default {
-  name: "LoginUser",
-  methods: {
-    onAuth(authentication) {
-      console.log(`Received authentication: ${JSON.stringify(authentication)}`)
-      this.store.commit('auth/storeAuthentication', authentication)
-      this.store.commit('config/setShowLogin', true)
-
-      gtag('event', 'login', {
-        method: 'Google'
-      })
-
-      this.$router.push('/main/about')
-    },
-
-    redirectToCognito() {
-      const props = this.store.getters["config/cognito"]
-
-      if (props?.domain) {
-        const cognitoDomain = props.domain
-        const clientId = props.clientId
-        const redirectUri = props.redirectUri
-
-        window.location.href = `${cognitoDomain}/login?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}`
-      } else {
-        setTimeout(this.redirectToCognito, 200)
-      }
-    }
-  },
-  setup() {
-    const store = useStore()
-
-    return {
-      store
-    }
-  },
-  mounted() {
-    this.redirectToCognito();
-  }
-}
-</script>
 
 <style scoped>
 .q-card {

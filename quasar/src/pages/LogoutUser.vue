@@ -1,3 +1,21 @@
+<script setup lang="ts">
+import {onMounted, ref} from 'vue'
+import {useStore} from 'vuex'
+import {useRouter} from "vue-router";
+
+const store = useStore();
+
+const router = useRouter();
+
+function onConfirm() {
+  router.push('/');
+}
+
+onMounted(() => {
+  store.commit('auth/storeAuthentication', {});
+})
+</script>
+
 <template>
   <q-layout view="hhh lpr fff">
     <q-page-container>
@@ -21,32 +39,6 @@
     </q-page-container>
   </q-layout>
 </template>
-
-<script>
-import {ref} from 'vue'
-import {useStore} from 'vuex'
-
-export default {
-  name: "LogoutUser",
-  methods: {
-    onConfirm() {
-      this.$router.push('/')
-    }
-  },
-  setup() {
-    const store = useStore()
-
-    return {
-      store,
-      username: ref(""),
-      password: ref("")
-    }
-  },
-  mounted() {
-    this.store.commit('auth/storeAuthentication', {})
-  }
-}
-</script>
 
 <style scoped>
 .q-card {

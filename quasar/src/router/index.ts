@@ -88,7 +88,7 @@ export default route(function ({store}) {
 })
 
 function parseTokens(to: RouteLocationNormalized): OIDCResponse {
-    var tokens: Partial<OIDCResponse> = {};
+    var tokens: any = {};
 
     var path = to.fullPath.slice(1);
 

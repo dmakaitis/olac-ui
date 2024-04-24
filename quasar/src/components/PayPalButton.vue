@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {useStore} from "vuex";
 import {onMounted, ref} from "vue";
+import {usePayPal} from "boot/paypal";
 
 interface PurchaseUnit {
 
@@ -15,7 +15,7 @@ const emit = defineEmits<{
   'error': []
 }>();
 
-const store = useStore();
+const paypal = usePayPal();
 
 const paymentAccepted = ref(false);
 
@@ -37,16 +37,15 @@ function initPayPalButton() {
   const emitPaymentApprovedEventFunc = emitPaymentApprovedEvent
   const emitPaymentErrorEventFunc = emitPaymentErrorEvent
 
-  if (window.paypal) {
+  if (paypal) {
     console.log("Initializing PayPal buttons")
 
-    window.paypal.Buttons({
+    paypal.Buttons({
       style: {
         shape: 'rect',
         color: 'gold',
         layout: 'vertical',
-        label: 'checkout',
-
+        label: 'checkout'
       },
       createOrder: function (data: any, actions: any) {
         console.log(`Creating order with purchase units: ${JSON.stringify(getPurchaseUnitsFunc())}`)
@@ -55,7 +54,7 @@ function initPayPalButton() {
         });
       },
       onApprove: function (data: any, actions: any) {
-        console.log(`Configurating PayPal onApproval`)
+        console.log(`Configuring PayPal onApproval`)
         return actions.order.capture().then(function (orderData: any) {
           // Full available details
           console.log('Capture result', orderData, JSON.stringify(orderData, null, 2))

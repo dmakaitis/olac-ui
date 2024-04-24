@@ -1,46 +1,47 @@
-<script setup>
+<script setup lang="ts">
 import {onMounted, ref} from "vue";
 import {api} from "boot/axios";
-import {date, exportFile, useQuasar} from "quasar";
+import {date, exportFile, QTable, QTableColumn, useQuasar} from "quasar";
 import {currency} from "boot/helper";
 import {useStore} from "vuex";
 import ReservationDialog from "components/ReservationDialog.vue";
 import PaymentDialog from "components/PaymentDialog.vue";
 import ConfirmationDialog from "components/ConfirmationDialog.vue";
+import {Event, IndexedPayment, Payment, Reservation, TicketCount} from "src/types";
 
 const store = useStore();
 const splitterSize = ref(400);
-const reservationTable = ref({});
+const reservationTable = ref<QTable | null>(null);
 const filter = ref('');
 
 const loadingEvents = ref(false);
-const events = ref([]);
+const events = ref<Event[]>([]);
 
 const loadingReservations = ref(false);
-const reservations = ref([]);
+const reservations = ref<Reservation[]>([]);
 const totalTicketCount = ref(0);
 const totalAmountDue = ref(0);
 const totalPaid = ref(0);
 
-const selectedEvents = ref([]);
+const selectedEvents = ref<Event[]>([]);
 const selectedEventId = ref('');
-const ticketTypes = ref([]);
+const ticketTypes = ref<TicketCount[]>([]);
 
-const selectedReservations = ref([]);
-const selectedReservation = ref({});
+const selectedReservations = ref<Reservation[]>([]);
+const selectedReservation = ref<Reservation>({eventId: '', email: "", payments: [], reservationTimestamp: "", status: "PENDING_PAYMENT", ticketCounts: [], id: '', firstName: '', lastName: ''});
 
 const showDetail = ref(false);
 
 const showPaymentDialog = ref(false);
-const selectedPayment = ref({});
+const selectedPayment = ref<IndexedPayment>({index: -1, amount: 0, method: "CHECK", status: "PENDING"});
 
 const confirmDelete = ref(false);
 
-const eventColumns = [
-  {name: 'event', label: 'Event', field: row => row.name, align: 'left', sort: true},
-  {name: 'date', label: 'Date', field: row => row.date, align: 'left', sort: true}
+const eventColumns: QTableColumn<Event>[] = [
+  {name: 'event', label: 'Event', field: row => row.name, align: 'left', sortable: true},
+  {name: 'date', label: 'Date', field: row => row.eventDate, align: 'left', sortable: true}
 ];
-const reservationColumns = [
+const reservationColumns: QTableColumn<Reservation>[] = [
   {name: 'id', label: 'Reservation Number', field: row => row.reservationId, align: 'left', sortable: true},
   {
     name: 'reservationTimestamp',
@@ -60,19 +61,19 @@ const reservationColumns = [
     label: 'Tickets',
     field: row => row.ticketCounts,
     align: 'center',
-    format: val => `${val.reduce((a, b) => a + b.count, 0)}`
+    format: (val: TicketCount[]) => `${val.reduce((a, b) => a + b.count, 0)}`
   },
   {
     name: 'amount-due',
     label: 'Amount Due',
     field: row => row.ticketCounts,
-    format: val => `${currency(val.reduce((a, b) => a + (b.count * b.costPerTicket), 0))}`
+    format: (val: TicketCount[]) => `${currency(val.reduce((a, b) => a + (b.count * b.costPerTicket), 0))}`
   },
   {
     name: 'amount-paid',
     label: 'Amount Paid',
     field: row => row.payments,
-    format: val => `${currency(val.reduce((a, b) => a + parseFloat(b.amount), 0.0))}`
+    format: (val: Payment[]) => `${currency(val.reduce((a, b) => a + b.amount, 0.0))}`
   }
 ];
 
@@ -81,7 +82,7 @@ const reservationColumns = [
  *
  * @param startKey the optional start key if the events need to be loaded in batches.
  */
-function loadEvents(startKey) {
+function loadEvents(startKey: string | undefined = undefined) {
   let url = '/api/events';
 
   if (!startKey) {
@@ -91,28 +92,27 @@ function loadEvents(startKey) {
     url = `${url}?startKey=${startKey}`
   }
 
-  api.get(url)
-    .then(response => {
-      // noinspection JSValidateTypes
-      events.value = events.value.concat(response.data.items.map(e => {
-        return {id: e.id, name: e.name, date: e.eventDate, ticketTypes: e.ticketTypes}
-      }));
-      if (response.data.nextStartKey) {
-        loadEvents(response.data.nextStartKey);
-      } else {
-        loadingEvents.value = false;
-      }
-    })
-    .catch(error => alert(error))
+  api.get<{ items: Event[], nextStartKey?: string }>(url)
+      .then(response => {
+        // noinspection JSValidateTypes
+        events.value = events.value.concat(response.data.items.map(e => {
+          return {id: e.id, name: e.name, date: e.eventDate, ticketTypes: e.ticketTypes}
+        }));
+        if (response.data.nextStartKey) {
+          loadEvents(response.data.nextStartKey);
+        } else {
+          loadingEvents.value = false;
+        }
+      })
+      .catch(error => alert(error))
 }
 
-// noinspection JSValidateTypes
 /**
  * Load reservations from the datastore for the currently selected event.
  *
- * @param startKey the optional start key if the reservations need to be laoded in batches.
+ * @param startKey the optional start key if the reservations need to be loaded in batches.
  */
-function loadReservations(startKey) {
+function loadReservations(startKey: string | undefined = undefined) {
   let url = `/api/events/${selectedEventId.value}/reservations`;
 
   if (!startKey) {
@@ -125,35 +125,23 @@ function loadReservations(startKey) {
     url = `${url}?startKey=${startKey}`
   }
 
-  api.get(url)
-    .then(response => {
-      totalTicketCount.value = response.data.items.reduce((a, b) => a + b.ticketCounts.reduce((c, d) => c + d.count, 0), totalTicketCount.value);
-      totalAmountDue.value = response.data.items.reduce((a, b) => a + b.ticketCounts.reduce((c, d) => c + (d.count * d.costPerTicket), 0), totalAmountDue.value);
-      totalPaid.value = response.data.items.reduce((a, b) => a + b.payments.reduce((c, d) => c + d.amount, 0), totalPaid.value);
+  api.get<{ items: Reservation[], nextStartKey?: string }>(url)
+      .then(response => {
+        const items: Reservation[] = response.data.items;
 
-      // noinspection JSValidateTypes
-      reservations.value = reservations.value.concat(response.data.items.map(r => {
-        return {
-          id: r.id,
-          reservationId: r.reservationId,
-          reservationTimestamp: r.reservationTimestamp,
-          firstName: r.firstName,
-          lastName: r.lastName,
-          email: r.email,
-          phone: r.phone,
-          status: r.status,
-          ticketCounts: r.ticketCounts,
-          amountDue: 0,
-          payments: r.payments
+        totalTicketCount.value = items.reduce((a, b) => a + b.ticketCounts.reduce((c, d) => c + d.count, 0), totalTicketCount.value);
+        totalAmountDue.value = items.reduce((a, b) => a + b.ticketCounts.reduce((c, d) => c + (d.count * d.costPerTicket), 0), totalAmountDue.value);
+        totalPaid.value = items.reduce((a, b) => a + b.payments.reduce((c, d) => c + d.amount, 0), totalPaid.value);
+
+        // noinspection JSValidateTypes
+        reservations.value = reservations.value.concat(items);
+        if (response.data.nextStartKey) {
+          loadReservations(response.data.nextStartKey);
+        } else {
+          loadingReservations.value = false;
         }
-      }));
-      if (response.data.nextStartKey) {
-        loadReservations(response.data.nextStartKey);
-      } else {
-        loadingReservations.value = false;
-      }
-    })
-    .catch(error => alert(error))
+      })
+      .catch(error => alert(error))
 }
 
 /**
@@ -161,15 +149,16 @@ function loadReservations(startKey) {
  *
  * @param event the selected event.
  */
-function eventSelected(event) {
+function eventSelected(event: Event) {
   if (event.id !== selectedEventId.value) {
-    selectedEventId.value = event.id;
-    ticketTypes.value = event.ticketTypes.map(t => {
+    selectedEventId.value = event.id || '';
+    ticketTypes.value = event.ticketTypes.map<TicketCount>(t => {
       return {
-        description: t.name,
-        costPerTicket: t.price
-      };
-    })
+        typeName: t.name,
+        costPerTicket: t.price,
+        count: 0
+      }
+    });
     loadReservations();
   }
 }
@@ -180,7 +169,7 @@ function eventSelected(event) {
  * @param event the UI event.
  * @param row the row containing the event data.
  */
-function onClickEvent(event, row) {
+function onClickEvent(event: any, row: Event) {
   selectedEvents.value = [row];
   eventSelected(row);
 }
@@ -190,7 +179,7 @@ function onClickEvent(event, row) {
  *
  * @param details the Quasar provided selection details.
  */
-function onSelectEvent(details) {
+function onSelectEvent(details: { rows: readonly Event[], keys: readonly any[], added: boolean, evt: any }) {
   if (details.added) {
     eventSelected(details.rows[0])
   } else {
@@ -207,17 +196,17 @@ function onExportTable() {
 
   //   api.get(`/api/event/reservations.csv?sortBy=${sortBy}&desc=${descending}&filter=${this.filter}`)
   api.get(`/api/events/${selectedEventId.value}/reservations.csv`)
-    .then(response => {
-      const status = exportFile('reservations.csv', response.data, 'text/csv');
+      .then(response => {
+        const status = exportFile('reservations.csv', response.data, 'text/csv');
 
-      if (status !== true) {
-        useQuasar().notify({
-          message: "Browser denied file download",
-          color: "negative",
-          icon: "warning"
-        })
-      }
-    });
+        if (status !== true) {
+          useQuasar().notify({
+            message: "Browser denied file download",
+            color: "negative",
+            icon: "warning"
+          })
+        }
+      });
 }
 
 /**
@@ -227,11 +216,10 @@ function onExportTable() {
 function onNewReservation() {
   if (selectedEventId.value) {
     selectedReservation.value = {
-      id: '',
+      eventId: selectedEventId.value,
       firstName: '',
       lastName: '',
       email: '',
-      phone: '',
       status: 'PENDING_PAYMENT',
       payments: [],
       ticketCounts: []
@@ -260,13 +248,13 @@ function onDeleteReservation() {
  * @param event the UI event.
  * @param row the selected reservation data.
  */
-function onClickReservation(event, row) {
+function onClickReservation(event: any, row: Reservation) {
   selectedReservation.value = row;
 
   ticketTypes.value.forEach(type => {
     type.count = 0;
 
-    let ticketCount = selectedReservation.value.ticketCounts.find(c => c.typeName === type.description);
+    let ticketCount = selectedReservation.value.ticketCounts.find(c => c.typeName === type.typeName);
     if (ticketCount) {
       type.count = ticketCount.count;
     }
@@ -280,34 +268,27 @@ function onClickReservation(event, row) {
  *
  * @param reservationData the reservation data to save.
  */
-function onSaveReservation(reservationData) {
+function onSaveReservation(reservationData: Reservation) {
   reservationData.ticketCounts = ticketTypes.value
-    .filter(t => t.count > 0)
-    .map(t => {
-      return {
-        typeName: t.description,
-        costPerTicket: t.costPerTicket,
-        count: t.count
-      }
-    });
+      .filter(t => t.count > 0);
 
   if (!reservationData.id) {
-    reservationData.id = null;
+    reservationData.id = undefined;
   }
   if (!reservationData.reservationId) {
-    reservationData.reservationId = null;
+    reservationData.reservationId = undefined;
   }
 
   if (reservationData.id) {
     // Update the existing reservation
     api.put(`/api/events/${selectedEventId.value}/reservations/${reservationData.id}`, reservationData)
-      .then(response => loadReservations())
-      .catch(error => alert(error));
+        .then(() => loadReservations())
+        .catch(error => alert(error));
   } else {
     // Insert a new reservation
     api.post(`/api/events/${selectedEventId.value}/reservations`, reservationData)
-      .then(response => loadReservations())
-      .catch(error => alert(error));
+        .then(() => loadReservations())
+        .catch(error => alert(error));
   }
 
   showDetail.value = false;
@@ -325,7 +306,7 @@ function onCancel() {
  *
  * @param data the payment the user clicked on.
  */
-function onEditPayment(data) {
+function onEditPayment(data: IndexedPayment) {
   selectedPayment.value = data;
   showPaymentDialog.value = true;
 }
@@ -336,7 +317,7 @@ function onEditPayment(data) {
  *
  * @param data the updated payment information.
  */
-function onSavePayment(data) {
+function onSavePayment(data: IndexedPayment) {
   if (data.index >= 0) {
     selectedReservation.value.payments[data.index].amount = data.amount;
     selectedReservation.value.payments[data.index].status = data.status;
@@ -375,11 +356,11 @@ function isAdmin() {
 function onConfirmDelete() {
   confirmDelete.value = false;
   api.delete(`/api/events/${selectedEventId.value}/reservations/${selectedReservations.value[0].id}`)
-    .then(response => {
-      selectedReservations.value = [];
-      loadReservations();
-    })
-    .catch(error => alert(error));
+      .then(() => {
+        selectedReservations.value = [];
+        loadReservations();
+      })
+      .catch(error => alert(error));
 }
 
 onMounted(() => {
@@ -402,7 +383,7 @@ onMounted(() => {
                  row-key="id" @row-click="onClickReservation" :selection="isAdmin() ? 'single' : 'none'"
                  v-model:selected="selectedReservations" :loading="loadingReservations" :filter="filter">
           <template v-slot:top-left>
-            <span class="q-table__title">{{ reservationTable.title }}</span><br/>
+            <span class="q-table__title">{{ reservationTable?.title || '' }}</span><br/>
             <q-input borderless dense debounce="300" placeholder="Search" v-model="filter">
               <template v-slot:prepend>
                 <q-icon name="search"/>
@@ -412,8 +393,6 @@ onMounted(() => {
           <template v-slot:top-right>
             <div class="text-right">
               <q-btn color="primary" icon-right="archive" label="Export to CSV" no-caps @click="onExportTable"/>
-              <!--              <br/>-->
-              <!--              (export using current search and sort settings)-->
             </div>
           </template>
           <template v-slot:bottom-row>

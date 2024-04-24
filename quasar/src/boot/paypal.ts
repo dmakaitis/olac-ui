@@ -1,6 +1,31 @@
 import {boot} from 'quasar/wrappers'
 import {Store} from "vuex";
 
+interface PayPalButtonsStyle {
+    layout?: 'vertical' | 'horizontal',
+    color?: 'gold' | 'blue' | 'silver' | 'white' | 'black',
+    shape?: 'rect' | 'pill',
+    height?: number,
+    disableMaxWidth?: boolean,
+    label?: 'paypal' | 'checkout' | 'buynow' | 'pay' | 'installment',
+    tagline?: boolean
+}
+
+interface PayPalButtonsOptions {
+    style?: PayPalButtonsStyle,
+    createOrder?: (data: any, actions: any) => any,
+    onApprove?: (data: any, actions: any) => any,
+    onError?: (err: any) => void
+}
+
+interface PayPalRenderable {
+    render: (target: string) => void;
+}
+
+interface PayPal {
+    Buttons: (options: PayPalButtonsOptions) => PayPalRenderable;
+}
+
 function loadScript(url: string, className: string) {
     let loadedNodeList = document.querySelectorAll(className)
     if (loadedNodeList.length > 0) {
@@ -14,7 +39,7 @@ function loadScript(url: string, className: string) {
     }
 }
 
-function loadPayPalLibrary(store: Store) {
+function loadPayPalLibrary(store: Store<any>) {
     let config = store.state.config.config
     if (config && config?.paypal?.clientId && !window.paypal) {
         console.log(`Loading PayPal library using client ID: ${config.paypal.clientId}`);
@@ -24,9 +49,13 @@ function loadPayPalLibrary(store: Store) {
     }
 }
 
+function usePayPal(): PayPal {
+    return window.paypal as PayPal;
+}
+
 // "async" is optional;
 // more info on params: https://v2.quasar.dev/quasar-cli/boot-files
 export default boot(async () => {
 })
 
-export {loadPayPalLibrary}
+export {loadPayPalLibrary, usePayPal, PayPal}

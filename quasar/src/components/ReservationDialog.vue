@@ -4,32 +4,7 @@ import {currency} from "boot/helper";
 import {date, QTableColumn} from "quasar";
 import {api} from "boot/axios";
 import {useStore} from "vuex";
-
-interface Reservation {
-  id: string,
-  reservationId: number,
-  firstName: string,
-  lastName: string,
-  email: string,
-  phone?: string,
-  status: "PENDING_PAYMENT" | "RESERVED" | "CHECKED_IN" | "CANCELLED",
-  payments: Payment[]
-}
-
-interface TicketType {
-  description: string,
-  costPerTicket: number,
-  count: number
-}
-
-interface Payment {
-  index: number,
-  method: 'ONLINE' | 'CHECK' | 'COMP',
-  status: 'PENDING' | 'SUCCESSFUL' | 'FAILED',
-  amount: number,
-  notes: string,
-  enteredBy?: string
-}
+import {IndexedPayment, Payment, Reservation, TicketCount} from "src/types";
 
 interface AuditEntry {
   timestamp: string,
@@ -39,64 +14,66 @@ interface AuditEntry {
 
 const props = defineProps<{
   reservation: Reservation,
-  ticketTypes: TicketType[],
+  ticketTypes: TicketCount[],
   eventId: string
 }>();
 
 const emit = defineEmits<{
   'save': [reservation: Reservation],
   'cancel': [],
-  'edit-payment': [payment: Payment]
+  'edit-payment': [payment: IndexedPayment]
 }>();
 
-const ticketTypeColumns: QTableColumn[] = [
-  {name: 'description', label: 'Ticket Type', field: (row: TicketType) => row.description, align: 'left'},
+const ticketTypeColumns: QTableColumn<TicketCount>[] = [
+  {name: 'description', label: 'Ticket Type', field: row => row.typeName, align: 'left'},
   {
     name: 'costPerTicket',
     label: 'Cost per Ticket',
-    field: (row: TicketType) => row.costPerTicket,
+    field: row => row.costPerTicket,
     align: 'center',
     format: (val: number) => `${currency(val)}`
   },
-  {name: 'count', label: 'Count', field: (row: TicketType) => row.count, align: 'center'},
+  {name: 'count', label: 'Count', field: row => row.count, align: 'center'},
 ];
-const paymentColumns: QTableColumn[] = [
+const paymentColumns: QTableColumn<Payment>[] = [
   {
     name: 'amount',
     label: 'Amount',
-    field: (row: Payment) => row.amount,
+    field: row => row.amount,
     align: 'left',
     format: (val: number) => `${currency(val)}`,
     sortable: true
   },
-  {name: 'status', label: 'Status', field: (row: Payment) => row.status, align: 'left', sortable: true},
-  {name: 'method', label: 'Method', field: (row: Payment) => row.method, align: 'left', sortable: true},
-  {name: 'notes', label: 'Notes', field: (row: Payment) => row.notes, align: 'left'},
-  {name: 'enteredBy', label: 'Entered By', field: (row: Payment) => row.enteredBy, align: 'left', sortable: true},
+  {name: 'status', label: 'Status', field: row => row.status, align: 'left', sortable: true},
+  {name: 'method', label: 'Method', field: row => row.method, align: 'left', sortable: true},
+  {name: 'notes', label: 'Notes', field: row => row.notes, align: 'left'},
+  {name: 'enteredBy', label: 'Entered By', field: row => row.enteredBy, align: 'left', sortable: true},
 ];
-const auditColumns: QTableColumn[] = [
+const auditColumns: QTableColumn<AuditEntry>[] = [
   {
     name: 'timestamp',
     label: 'Timestamp',
-    field: (row: AuditEntry) => row.timestamp,
+    field: row => row.timestamp,
     align: "left",
     format: (val: string) => `${date.formatDate(val, 'MM/DD/YYYY HH:mm:ss')}`,
     sortable: true
   },
-  {name: 'user', label: 'User', field: (row: AuditEntry) => row.user, align: 'left', sortable: true},
-  {name: 'note', label: 'Note', field: (row: AuditEntry) => row.note, align: 'left', sortable: true},
+  {name: 'user', label: 'User', field: row => row.user, align: 'left', sortable: true},
+  {name: 'note', label: 'Note', field: row => row.note, align: 'left', sortable: true},
 ];
 
 const reservationData = ref<Reservation>({
   id: '',
+  eventId: '',
   reservationId: 0,
   status: "PENDING_PAYMENT",
   firstName: '',
   lastName: '',
   email: '',
-  payments: []
+  payments: [],
+  ticketCounts: []
 });
-const ticketTypeData = ref<TicketType[]>([]);
+const ticketTypeData = ref<TicketCount[]>([]);
 const auditData = ref<AuditEntry[]>([]);
 const fullEdit = ref(false);
 
@@ -125,20 +102,21 @@ function onCancel() {
 
 function onSelectPaymentRow(event: any, row: Payment, index: number) {
   if (isFullEdit()) {
-    let data: Payment = JSON.parse(JSON.stringify(row));
+    let data: IndexedPayment = JSON.parse(JSON.stringify(row));
     data.index = index
     emit('edit-payment', data);
   }
 }
 
 function onAddNewPayment() {
-  let data: Payment = {
+  let data: IndexedPayment = {
     index: -1,
     amount: 0,
     method: 'CHECK',
     status: 'SUCCESSFUL',
     notes: ''
   }
+  emit('edit-payment', data);
 }
 
 function isFullEdit() {
@@ -146,7 +124,7 @@ function isFullEdit() {
 }
 
 function getAmountDue() {
-  return props.ticketTypes.reduce((a: number, b: TicketType) => a + (b.count * b.costPerTicket), 0);
+  return props.ticketTypes.reduce((a: number, b: TicketCount) => a + (b.count * b.costPerTicket), 0);
 }
 
 function isValidEmail(val: string): boolean | string {

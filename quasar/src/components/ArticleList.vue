@@ -32,11 +32,6 @@ function onClickArticle(slug: string) {
 </template>
 
 <style scoped>
-.container {
-  max-width: 1000px;
-  margin: auto;
-}
-
 .my-card {
   width: 100%;
   max-width: 300px;

@@ -1,20 +1,14 @@
+<script setup lang="ts">
+import ArticleWithImages from "components/ArticleWithImages.vue";
+</script>
+
 <template>
   <q-page>
     <div class="container q-gutter-y-lg">
-      <ArticleWithImages :slug="$route.params.slug"/>
+      <ArticleWithImages :slug="$route.params.slug as string"/>
     </div>
   </q-page>
 </template>
-
-<script>
-import {ref} from "vue";
-import ArticleWithImages from "components/ArticleWithImages.vue";
-
-export default {
-  name: "MainAbout",
-  components: {ArticleWithImages}
-}
-</script>
 
 <style scoped>
 .container {

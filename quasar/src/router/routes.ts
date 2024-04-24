@@ -1,7 +1,5 @@
 import MainLayout from "layouts/MainLayout.vue";
-import MainAbout from "pages/MainAbout.vue";
 import MainArticle from "pages/MainArticle.vue";
-import MainTickets from "pages/MainTickets.vue";
 
 import AdminLayout from "layouts/AdminLayout.vue";
 import AdminReservations from "pages/AdminReservations.vue";
@@ -33,18 +31,8 @@ const routes: RouteRecordRaw[] = [
     component: MainLayout,
     children: [
       {
-        name: 'About OLAC',
-        path: 'about',
-        component: MainAbout
-      },
-      {
         path: 'article/:slug',
         component: MainArticle
-      },
-      {
-        name: 'Event Information and Registration',
-        path: 'tickets',
-        component: MainTickets
       }
     ]
   },

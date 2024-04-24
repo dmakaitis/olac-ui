@@ -1,3 +1,13 @@
+<script setup lang="ts">
+import {computed, ref} from 'vue';
+import {useStore} from 'vuex';
+import MenuBar from "components/MenuBar.vue";
+
+const store = useStore();
+
+const isLoggedIn = computed((): boolean => store.getters['auth/isLoggedIn']);
+</script>
+
 <template>
   <q-layout view="hHh lpR fFf">
 
@@ -24,35 +34,6 @@
 
   </q-layout>
 </template>
-
-<script>
-import {ref} from 'vue';
-import {useStore} from 'vuex';
-import MenuBar from "components/MenuBar.vue";
-
-export default {
-  name: 'AdminLayout',
-  components: {MenuBar},
-  computed: {
-    isLoggedIn() {
-      return this.store.getters['auth/isLoggedIn'];
-    }
-  },
-  methods: {
-    toggleDrawer() {
-      this.drawerOpen = !this.drawerOpen
-    }
-  },
-  setup() {
-    const store = useStore()
-
-    return {
-      store,
-      drawerOpen: ref(true)
-    }
-  },
-}
-</script>
 
 <style scoped>
 .headerimage {

@@ -1,22 +1,16 @@
 <script setup lang="ts">
 import {ref} from 'vue';
-
-interface Payment {
-  index?: number,
-  amount: 0,
-  method: 'ONLINE' | 'CHECK' | 'COMP',
-  status: 'PENDING' | 'SUCCESSFUL' | 'FAILED',
-  notes: string
-}
+import {IndexedPayment} from "src/types";
 
 const emit = defineEmits<{
-  save: [data: Payment],
+  save: [data: IndexedPayment],
   cancel: []
 }>();
 
-const props = defineProps<{payment: Payment}>();
+const props = defineProps<{payment: IndexedPayment}>();
 
-const data = ref<Payment>({
+const data = ref<IndexedPayment>({
+  index: -1,
   amount: 0,
   method: 'CHECK',
   status: 'SUCCESSFUL',

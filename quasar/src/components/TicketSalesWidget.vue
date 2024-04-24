@@ -128,7 +128,7 @@ function onConfirmation() {
       },
       "currency_code": "USD"
     },
-    "description": event.value.name,
+    "description": event.value?.name,
     "items": ticketTypes.value
         .filter(t => t.count > 0)
         .map(t => {
