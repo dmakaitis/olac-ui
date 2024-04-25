@@ -40,7 +40,7 @@ export class EventResourceStack extends cdk.Stack {
 
         this.listEventsFunction = new lambda.Function(this, 'ListEvents', {
             description: 'Retrieves the list of OLAC events from the datastore',
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             code: lambda.Code.fromAsset('./lambda/resource/event'),
             handler: 'get-events.handler',
             environment: {
@@ -51,7 +51,7 @@ export class EventResourceStack extends cdk.Stack {
 
         this.saveEventFunction = new lambda.Function(this, 'SaveEvent', {
             description: 'Saves OLAC event information to the datastore',
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             code: lambda.Code.fromAsset('./lambda/resource/event'),
             handler: 'save-event.handler',
             environment: {
@@ -62,7 +62,7 @@ export class EventResourceStack extends cdk.Stack {
 
         this.deleteEventFunction = new lambda.Function(this, 'DeleteEvent', {
             description: 'Deletes OLAC event information from the datastore',
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             code: lambda.Code.fromAsset('./lambda/resource/event'),
             handler: 'delete-event.handler',
             environment: {
@@ -100,7 +100,7 @@ export class EventResourceStack extends cdk.Stack {
 
         this.listReservationsFunction = new lambda.Function(this, 'ListEventReservations', {
             description: 'Retrieves the list of OLAC event reservations from the datastore',
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             code: lambda.Code.fromAsset('./lambda/resource/event'),
             handler: 'get-event-reservations.handler',
             environment: {
@@ -111,7 +111,7 @@ export class EventResourceStack extends cdk.Stack {
 
         this.listReservationsCsvFunction = new lambda.Function(this, 'ListEventReservationsCsv', {
             description: 'Retrieves the list of OLAC event reservations from the datastore in CSV format',
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             code: lambda.Code.fromAsset('./lambda/resource/event'),
             handler: 'get-event-reservations-csv.handler',
             environment: {
@@ -122,7 +122,7 @@ export class EventResourceStack extends cdk.Stack {
 
         this.saveReservationFunction = new lambda.Function(this, 'SaveEventReservation', {
             description: 'Saves OLAC event reservation information to the datastore',
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             code: lambda.Code.fromAsset('./lambda/resource/event'),
             handler: 'save-reservation.handler',
             environment: {
@@ -137,7 +137,7 @@ export class EventResourceStack extends cdk.Stack {
 
         this.deleteReservationFunction = new lambda.Function(this, 'DeleteReservation', {
             description: 'Deletes an OLAC event reservation from the datastore',
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             code: lambda.Code.fromAsset('./lambda/resource/event'),
             handler: 'delete-reservation.handler',
             environment: {
@@ -148,7 +148,7 @@ export class EventResourceStack extends cdk.Stack {
 
         this.areTicketsAvailableFunction = new lambda.Function(this, 'AreTicketsAvailable', {
             description: 'Checks to see if the requested number of tickets are available for an event',
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             code: lambda.Code.fromAsset('./lambda/resource/event'),
             handler: 'are-tickets-available.apiHandler',
             environment: {

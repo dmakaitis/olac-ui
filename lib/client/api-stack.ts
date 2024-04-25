@@ -85,7 +85,7 @@ export class ApiStack extends cdk.Stack {
                 authorizer: new apigateway.RequestAuthorizer(this, 'EventCoordinatorAuthorizer', {
                     handler: new lambda.Function(this, 'EventCoordinatorAuthorizerFunction', {
                         description: 'API Gateway Event Coordinator Authorizer',
-                        runtime: lambda.Runtime.NODEJS_16_X,
+                        runtime: lambda.Runtime.NODEJS_18_X,
                         code: lambda.Code.fromAsset('./lambda/utility/security'),
                         handler: 'authorize.handler',
                         environment: {
@@ -107,7 +107,7 @@ export class ApiStack extends cdk.Stack {
                 authorizer: new apigateway.RequestAuthorizer(this, 'AdminAuthorizer', {
                     handler: new lambda.Function(this, 'AdminAuthorizerFunction', {
                         description: 'API Gateway Admin Authorizer',
-                        runtime: lambda.Runtime.NODEJS_16_X,
+                        runtime: lambda.Runtime.NODEJS_18_X,
                         code: lambda.Code.fromAsset('./lambda/utility/security'),
                         handler: 'authorize.handler',
                         environment: {
