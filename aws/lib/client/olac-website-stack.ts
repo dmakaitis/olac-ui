@@ -32,7 +32,7 @@ export class OlacWebsiteStack extends cdk.Stack {
         });
 
         new s3deploy.BucketDeployment(this, 'DeploySite', {
-            sources: [s3deploy.Source.asset('./quasar/dist/spa')],
+            sources: [s3deploy.Source.asset('../quasar/dist/spa')],
             destinationBucket: siteBucket
         });
 

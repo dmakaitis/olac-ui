@@ -2,8 +2,5 @@
   "extends": "@quasar/app-webpack/tsconfig-preset",
   "compilerOptions": {
     "baseUrl": "."
-  },
-  "exclude": [
-    "sanity"
-  ]
+  }
 }
