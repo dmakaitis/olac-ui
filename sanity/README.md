@@ -1,30 +1,17 @@
 # Sanity Clean Content Studio
 
-## Commands
+## Useful Commands
 
-```bash
-yarn dev
-```
+```yarn upgrade``` - Update all Node.js packages.
 
-Starts a development server for the Sanity Studio.
+```yarn dev``` - Starts a development server for the Sanity Studio.
 
-```bash
-yarn start
-```
+```yarn start``` - Starts a local web server for previewing production build.
 
-Starts a local web server for previewing production build.
+```yarn build``` - Builds the current Sanity configuration to a static bundle.
 
-```bash
-yarn build
-```
-
-Builds the current Sanity configuration to a static bundle.
-
-```bash
-yarn deploy
-```
-
-Deploys a statically built Sanity studio.
+```yarn deploy``` - Deploys a statically built Sanity studio. If you get an error saying indicating "Session not found", run the
+```sanity login``` command to reauthenticate to Sanity.IO.
 
 Other Sanity IO CLI commands can be referenced here: [CLI reference](https://www.sanity.io/docs/cli-reference)
 
