@@ -1,0 +1,299 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ReservationManagerStack Config utility stack creation 1`] = `
+{
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "GetNewReservationIdDDB46ED0": {
+      "DependsOn": [
+        "GetNewReservationIdServiceRole6EE55A20",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "135313691e433318c40ff77bc13e22527efcb2d9cc547415259e1168996cf61a.zip",
+        },
+        "Description": "Generate a new reservation ID",
+        "Handler": "new-reservation-id.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "GetNewReservationIdServiceRole6EE55A20",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "GetNewReservationIdServiceRole6EE55A20": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "SaveReservationAdminApi4455CA97": {
+      "DependsOn": [
+        "SaveReservationAdminApiServiceRoleDefaultPolicy009E90D0",
+        "SaveReservationAdminApiServiceRoleC90B1719",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "135313691e433318c40ff77bc13e22527efcb2d9cc547415259e1168996cf61a.zip",
+        },
+        "Description": "Saves a new reservation to the datastore (for event coordinator use)",
+        "Environment": {
+          "Variables": {
+            "PAYPAL_API_BASE": "https://test.paypal.com/api",
+            "PAYPAL_CLIENT_ID": "test-paypal-client-id",
+            "PAYPAL_SECRET": "my-paypal-secret",
+            "SAVE_RESERVATION_FUNCTION": {
+              "Fn::ImportValue": "EventResourceStack:ExportsOutputRefSaveEventReservation38592C5B26F9E271",
+            },
+          },
+        },
+        "Handler": "save-reservation-admin.apiHandler",
+        "Role": {
+          "Fn::GetAtt": [
+            "SaveReservationAdminApiServiceRoleC90B1719",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "SaveReservationAdminApiServiceRoleC90B1719": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "SaveReservationAdminApiServiceRoleDefaultPolicy009E90D0": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttSaveEventReservation38592C5BArn797C18A2",
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttSaveEventReservation38592C5BArn797C18A2",
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "SaveReservationAdminApiServiceRoleDefaultPolicy009E90D0",
+        "Roles": [
+          {
+            "Ref": "SaveReservationAdminApiServiceRoleC90B1719",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "SaveReservationApi83E02627": {
+      "DependsOn": [
+        "SaveReservationApiServiceRoleDefaultPolicyF64BDC17",
+        "SaveReservationApiServiceRole9C0B18F4",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "135313691e433318c40ff77bc13e22527efcb2d9cc547415259e1168996cf61a.zip",
+        },
+        "Description": "Saves a new reservation to the datastore (for public use)",
+        "Environment": {
+          "Variables": {
+            "PAYPAL_API_BASE": "https://test.paypal.com/api",
+            "PAYPAL_CLIENT_ID": "test-paypal-client-id",
+            "PAYPAL_SECRET": "my-paypal-secret",
+            "SAVE_RESERVATION_FUNCTION": {
+              "Fn::ImportValue": "EventResourceStack:ExportsOutputRefSaveEventReservation38592C5B26F9E271",
+            },
+          },
+        },
+        "Handler": "save-reservation.apiHandler",
+        "Role": {
+          "Fn::GetAtt": [
+            "SaveReservationApiServiceRole9C0B18F4",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 10,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "SaveReservationApiServiceRole9C0B18F4": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "SaveReservationApiServiceRoleDefaultPolicyF64BDC17": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttSaveEventReservation38592C5BArn797C18A2",
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttSaveEventReservation38592C5BArn797C18A2",
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "SaveReservationApiServiceRoleDefaultPolicyF64BDC17",
+        "Roles": [
+          {
+            "Ref": "SaveReservationApiServiceRole9C0B18F4",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

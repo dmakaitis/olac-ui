@@ -3,14 +3,14 @@ import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import {Construct} from 'constructs'
 
-import {ConfigUtilityStack, ConfigUtilityStackProps} from "../lib/utility/config-utility-stack";
-import {SecurityUtilityStack, SecurityUtilityStackProps} from "../lib/utility/security-utility-stack";
-import {EventResourceStack} from "../lib/resource/event-resource-stack";
-import {AdministrationManagerStack} from "../lib/manager/administration-manager-stack";
-import {ReservationManagerStack} from "../lib/manager/reservation-manager-stack";
+import {ConfigUtilityStack, ConfigUtilityStackProps} from "../lib/stacks/utility/config-utility-stack";
+import {SecurityUtilityStack, SecurityUtilityStackProps} from "../lib/stacks/utility/security-utility-stack";
+import {EventResourceStack} from "../lib/stacks/resource/event-resource-stack";
+import {AdministrationManagerStack} from "../lib/stacks/manager/administration-manager-stack";
+import {ReservationManagerStack} from "../lib/stacks/manager/reservation-manager-stack";
 
-import {OlacWebsiteStack} from '../lib/client/olac-website-stack';
-import {ApiStack} from "../lib/client/api-stack";
+import {OlacWebsiteStack} from '../lib/stacks/client/olac-website-stack';
+import {ApiStack} from "../lib/stacks/client/api-stack";
 
 interface OlacConstructProps {
     environment: string,

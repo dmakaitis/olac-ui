@@ -27,14 +27,14 @@ export class ReservationManagerStack extends cdk.Stack {
 
         this.apiGetNewReservationIdFunction = new lambda.Function(this, 'GetNewReservationId', {
             description: 'Generate a new reservation ID',
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_22_X,
             code: lambda.Code.fromAsset('./lambda/manager/reservation'),
             handler: 'new-reservation-id.handler',
         });
 
         this.apiSaveReservationFunction = new Function(this, 'SaveReservationApi', {
             description: 'Saves a new reservation to the datastore (for public use)',
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_22_X,
             code: lambda.Code.fromAsset('./lambda/manager/reservation'),
             handler: 'save-reservation.apiHandler',
             environment: {
@@ -49,7 +49,7 @@ export class ReservationManagerStack extends cdk.Stack {
 
         this.apiSaveReservationAdminFunction = new Function(this, 'SaveReservationAdminApi', {
             description: 'Saves a new reservation to the datastore (for event coordinator use)',
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_22_X,
             code: lambda.Code.fromAsset('./lambda/manager/reservation'),
             handler: 'save-reservation-admin.apiHandler',
             environment: {

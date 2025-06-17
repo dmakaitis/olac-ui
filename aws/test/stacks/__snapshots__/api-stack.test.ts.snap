@@ -1,0 +1,3277 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ApiStack Config utility stack creation 1`] = `
+{
+  "Outputs": {
+    "OlacApiEndpoint77E8990B": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "OlacApi471C2DF4",
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region",
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            {
+              "Ref": "OlacApiDeploymentStageprod73B86EA1",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "AdminAuthorizer1A05EB76": {
+      "Properties": {
+        "AuthorizerResultTtlInSeconds": 0,
+        "AuthorizerUri": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Fn::Select": [
+                  1,
+                  {
+                    "Fn::Split": [
+                      ":",
+                      {
+                        "Fn::GetAtt": [
+                          "AdminAuthorizerFunction6484617E",
+                          "Arn",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              ":apigateway:",
+              {
+                "Fn::Select": [
+                  3,
+                  {
+                    "Fn::Split": [
+                      ":",
+                      {
+                        "Fn::GetAtt": [
+                          "AdminAuthorizerFunction6484617E",
+                          "Arn",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              ":lambda:path/2015-03-31/functions/",
+              {
+                "Fn::GetAtt": [
+                  "AdminAuthorizerFunction6484617E",
+                  "Arn",
+                ],
+              },
+              "/invocations",
+            ],
+          ],
+        },
+        "IdentitySource": "method.request.header.Authorization",
+        "Name": "ApiStackAdminAuthorizer4337C7A5",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+        "Type": "REQUEST",
+      },
+      "Type": "AWS::ApiGateway::Authorizer",
+    },
+    "AdminAuthorizerFunction6484617E": {
+      "DependsOn": [
+        "AdminAuthorizerFunctionServiceRole273E2BAF",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "7896cd0e56c8376f77a75f6148894c8d41592656bc11ccacc70de7136b63e87f.zip",
+        },
+        "Description": "API Gateway Admin Authorizer",
+        "Environment": {
+          "Variables": {
+            "ADMIN_GROUP_NAME": "olac-admin-test",
+            "CLIENT_ID": "client-id",
+            "EVENT_COORDINATOR_GROUP_NAME": "olac-event-coordinator-test",
+            "REQUIRED_GROUPS": "olac-admin-test",
+            "USER_POOL_ID": "user-pool-id",
+          },
+        },
+        "Handler": "authorize.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "AdminAuthorizerFunctionServiceRole273E2BAF",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "AdminAuthorizerFunctionApiStackAdminAuthorizer4337C7A5PermissionsE8218A8A": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "AdminAuthorizerFunction6484617E",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/authorizers/",
+              {
+                "Ref": "AdminAuthorizer1A05EB76",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "AdminAuthorizerFunctionServiceRole273E2BAF": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiEventsPolicy8FDE46FE": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "dynamodb:GetItem",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttEventTable3F3CD4B2Arn3B7AEA50",
+              },
+            },
+            {
+              "Action": "dynamodb:Query",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttReservationAuditTable377DB63AArn125AA762",
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttReservationAuditTable377DB63AArn125AA762",
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ApiEventsPolicy8FDE46FE",
+        "Roles": [
+          "OlacDevApiRole",
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "EventCoordinatorAuthorizer02365C16": {
+      "Properties": {
+        "AuthorizerResultTtlInSeconds": 0,
+        "AuthorizerUri": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Fn::Select": [
+                  1,
+                  {
+                    "Fn::Split": [
+                      ":",
+                      {
+                        "Fn::GetAtt": [
+                          "EventCoordinatorAuthorizerFunctionDE58561B",
+                          "Arn",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              ":apigateway:",
+              {
+                "Fn::Select": [
+                  3,
+                  {
+                    "Fn::Split": [
+                      ":",
+                      {
+                        "Fn::GetAtt": [
+                          "EventCoordinatorAuthorizerFunctionDE58561B",
+                          "Arn",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              ":lambda:path/2015-03-31/functions/",
+              {
+                "Fn::GetAtt": [
+                  "EventCoordinatorAuthorizerFunctionDE58561B",
+                  "Arn",
+                ],
+              },
+              "/invocations",
+            ],
+          ],
+        },
+        "IdentitySource": "method.request.header.Authorization",
+        "Name": "ApiStackEventCoordinatorAuthorizer3ACD47FD",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+        "Type": "REQUEST",
+      },
+      "Type": "AWS::ApiGateway::Authorizer",
+    },
+    "EventCoordinatorAuthorizerFunctionApiStackEventCoordinatorAuthorizer3ACD47FDPermissionsF56B12BD": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "EventCoordinatorAuthorizerFunctionDE58561B",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/authorizers/",
+              {
+                "Ref": "EventCoordinatorAuthorizer02365C16",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "EventCoordinatorAuthorizerFunctionDE58561B": {
+      "DependsOn": [
+        "EventCoordinatorAuthorizerFunctionServiceRole1F357105",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "7896cd0e56c8376f77a75f6148894c8d41592656bc11ccacc70de7136b63e87f.zip",
+        },
+        "Description": "API Gateway Event Coordinator Authorizer",
+        "Environment": {
+          "Variables": {
+            "ADMIN_GROUP_NAME": "olac-admin-test",
+            "CLIENT_ID": "client-id",
+            "EVENT_COORDINATOR_GROUP_NAME": "olac-event-coordinator-test",
+            "REQUIRED_GROUPS": "olac-event-coordinator-test olac-admin-test",
+            "USER_POOL_ID": "user-pool-id",
+          },
+        },
+        "Handler": "authorize.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "EventCoordinatorAuthorizerFunctionServiceRole1F357105",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "EventCoordinatorAuthorizerFunctionServiceRole1F357105": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "OlacApi471C2DF4": {
+      "Properties": {
+        "Description": "API for the OLAC website back end functions",
+        "Name": "ApiStack",
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "OlacApiAccount71DCB271": {
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "OlacApi471C2DF4",
+      ],
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "OlacApiCloudWatchRole70BB652C",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "OlacApiCloudWatchRole70BB652C": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "OlacApiDeployment471BD4350e3bdaf766366fb4381e091144ceb6f5": {
+      "DependsOn": [
+        "OlacApiapiauthOPTIONS72CABD72",
+        "OlacApiapiauthFC9FE756",
+        "OlacApiapiauthwhoamiGETABEDE9CE",
+        "OlacApiapiauthwhoamiOPTIONS1E79A43A",
+        "OlacApiapiauthwhoami3224AFAC",
+        "OlacApiapieventseventIdavailableGET62BD8DB5",
+        "OlacApiapieventseventIdavailableOPTIONSE9C5F59D",
+        "OlacApiapieventseventIdavailable0F9A5034",
+        "OlacApiapieventseventIdnewReservationOPTIONSCB8FDE06",
+        "OlacApiapieventseventIdnewReservationPOST77E59BF3",
+        "OlacApiapieventseventIdnewReservationE863DBEC",
+        "OlacApiapieventseventIdDELETE640ED0F7",
+        "OlacApiapieventseventIdGETE8B8E0F1",
+        "OlacApiapieventseventIdOPTIONSC6BE57B2",
+        "OlacApiapieventseventIdPUT22E9381E",
+        "OlacApiapieventseventIdreservationscsvGETE62DEAD1",
+        "OlacApiapieventseventIdreservationscsvOPTIONSFE70FAD0",
+        "OlacApiapieventseventIdreservationscsv14481546",
+        "OlacApiapieventseventIdreservationsnewidGET73C6646B",
+        "OlacApiapieventseventIdreservationsnewidOPTIONS3FB1985C",
+        "OlacApiapieventseventIdreservationsnewid8CDBD9B9",
+        "OlacApiapieventseventIdreservationsreservationIdauditGETA0EE1CEB",
+        "OlacApiapieventseventIdreservationsreservationIdauditOPTIONS4B33010E",
+        "OlacApiapieventseventIdreservationsreservationIdauditA293CBA6",
+        "OlacApiapieventseventIdreservationsreservationIdDELETE87FDAC4D",
+        "OlacApiapieventseventIdreservationsreservationIdOPTIONS389B6B16",
+        "OlacApiapieventseventIdreservationsreservationIdPUT27DA06EA",
+        "OlacApiapieventseventIdreservationsreservationIdBF29A676",
+        "OlacApiapieventseventIdreservationsGET961CA6F9",
+        "OlacApiapieventseventIdreservationsOPTIONS93CCE556",
+        "OlacApiapieventseventIdreservationsPOSTD1B1CB56",
+        "OlacApiapieventseventIdreservationsDA67A925",
+        "OlacApiapieventseventId96D217C1",
+        "OlacApiapieventsGETDA4A1118",
+        "OlacApiapieventsOPTIONS35C6E8A9",
+        "OlacApiapieventsPOST622C4516",
+        "OlacApiapievents7FF9F1E3",
+        "OlacApiapiOPTIONSD7A47E68",
+        "OlacApiapipublicclientconfigGETCC6E7BFA",
+        "OlacApiapipublicclientconfigOPTIONS88D9C689",
+        "OlacApiapipublicclientconfigBE9F9E61",
+        "OlacApiapipublicOPTIONS42F5DA3C",
+        "OlacApiapipublicBFEC7C00",
+        "OlacApiapi5A46DC5C",
+        "OlacApiOPTIONSE209C28F",
+        "OlacApiEventE9E409F7",
+        "OlacApiGetEventsResponse4E6EF7E6",
+      ],
+      "Properties": {
+        "Description": "API for the OLAC website back end functions",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "OlacApiDeploymentStageprod73B86EA1": {
+      "DependsOn": [
+        "OlacApiAccount71DCB271",
+      ],
+      "Properties": {
+        "AccessLogSetting": {
+          "DestinationArn": {
+            "Fn::GetAtt": [
+              "PrdLogs0608B8C2",
+              "Arn",
+            ],
+          },
+          "Format": "{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","user":"$context.identity.user","caller":"$context.identity.caller","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}",
+        },
+        "DeploymentId": {
+          "Ref": "OlacApiDeployment471BD4350e3bdaf766366fb4381e091144ceb6f5",
+        },
+        "MethodSettings": [
+          {
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "LoggingLevel": "ERROR",
+            "ResourcePath": "/*",
+          },
+        ],
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+        "StageName": "prod",
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "OlacApiEventE9E409F7": {
+      "Properties": {
+        "ContentType": "application/json",
+        "Name": "Event",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+        "Schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "properties": {
+            "eventDate": {
+              "description": "The date on which the event takes place.",
+              "type": "string",
+            },
+            "id": {
+              "description": "The unique identifier for this event.",
+              "type": "string",
+            },
+            "maxTickets": {
+              "description": "The maximum number of tickets to sell for this event, or blank for unlimited tickets.",
+              "minimum": 1,
+              "type": "integer",
+            },
+            "name": {
+              "description": "The name of the event",
+              "type": "string",
+            },
+            "ticketSaleEndDate": {
+              "description": "The last date for which tickets for this event should be sold, or blank if they should be sold up to the date of the event.",
+              "type": "string",
+            },
+            "ticketSaleStartDate": {
+              "description": "The fist date on which tickets for this event should go on sale, or blank if they should immediately go on sale.",
+              "type": "string",
+            },
+            "ticketTypes": {
+              "description": "The types of tickets available and their associated prices.",
+              "items": {
+                "properties": {
+                  "name": {
+                    "description": "The name of the ticket type",
+                    "type": "string",
+                  },
+                  "price": {
+                    "description": "The price for each ticket",
+                    "minimum": 0,
+                    "type": "number",
+                  },
+                },
+                "required": [
+                  "name",
+                  "price",
+                ],
+                "type": "object",
+              },
+              "type": "array",
+            },
+          },
+          "required": [
+            "id",
+            "name",
+          ],
+          "title": "event",
+          "type": "object",
+        },
+      },
+      "Type": "AWS::ApiGateway::Model",
+    },
+    "OlacApiGetEventsResponse4E6EF7E6": {
+      "Properties": {
+        "ContentType": "application/json",
+        "Name": "GetEventsResponse",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+        "Schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "properties": {
+            "items": {
+              "items": {},
+              "type": "array",
+            },
+            "nextStartKey": {
+              "type": "string",
+            },
+          },
+          "required": [
+            "items",
+          ],
+          "title": "get-events-response",
+          "type": "object",
+        },
+      },
+      "Type": "AWS::ApiGateway::Model",
+    },
+    "OlacApiOPTIONSE209C28F": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Fn::GetAtt": [
+            "OlacApi471C2DF4",
+            "RootResourceId",
+          ],
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapi5A46DC5C": {
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "OlacApi471C2DF4",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "api",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "OlacApiapiOPTIONSD7A47E68": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapi5A46DC5C",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapiauthFC9FE756": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "OlacApiapi5A46DC5C",
+        },
+        "PathPart": "auth",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "OlacApiapiauthOPTIONS72CABD72": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapiauthFC9FE756",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapiauthwhoami3224AFAC": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "OlacApiapiauthFC9FE756",
+        },
+        "PathPart": "who-am-i",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "OlacApiapiauthwhoamiGETABEDE9CE": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "GET",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ "statusCode": "200" }",
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::ImportValue": "SecurityUtilityStack:ExportsOutputFnGetAttWhoAmI9A40C4E3Arn56C5D5DF",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "OlacApiapiauthwhoami3224AFAC",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapiauthwhoamiGETApiPermissionApiStackOlacApiA344EA22GETapiauthwhoami5811B46C": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "SecurityUtilityStack:ExportsOutputFnGetAttWhoAmI9A40C4E3Arn56C5D5DF",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/",
+              {
+                "Ref": "OlacApiDeploymentStageprod73B86EA1",
+              },
+              "/GET/api/auth/who-am-i",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapiauthwhoamiGETApiPermissionTestApiStackOlacApiA344EA22GETapiauthwhoamiCBA0C900": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "SecurityUtilityStack:ExportsOutputFnGetAttWhoAmI9A40C4E3Arn56C5D5DF",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/test-invoke-stage/GET/api/auth/who-am-i",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapiauthwhoamiOPTIONS1E79A43A": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapiauthwhoami3224AFAC",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapievents7FF9F1E3": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "OlacApiapi5A46DC5C",
+        },
+        "PathPart": "events",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "OlacApiapieventsGETApiPermissionApiStackOlacApiA344EA22GETapieventsBF5A2251": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttListEvents505D6CABArnAB36AA24",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/",
+              {
+                "Ref": "OlacApiDeploymentStageprod73B86EA1",
+              },
+              "/GET/api/events",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventsGETApiPermissionTestApiStackOlacApiA344EA22GETapievents5C56E251": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttListEvents505D6CABArnAB36AA24",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/test-invoke-stage/GET/api/events",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventsGETDA4A1118": {
+      "Properties": {
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "EventCoordinatorAuthorizer02365C16",
+        },
+        "HttpMethod": "GET",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ "statusCode": "200" }",
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttListEvents505D6CABArnAB36AA24",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "OlacApiapievents7FF9F1E3",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventsOPTIONS35C6E8A9": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapievents7FF9F1E3",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventsPOST622C4516": {
+      "Properties": {
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AdminAuthorizer1A05EB76",
+        },
+        "HttpMethod": "POST",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ "statusCode": "200" }",
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttSaveEvent8C2BB524Arn6C04CF1B",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "OlacApiapievents7FF9F1E3",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventsPOSTApiPermissionApiStackOlacApiA344EA22POSTapievents069AA914": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttSaveEvent8C2BB524Arn6C04CF1B",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/",
+              {
+                "Ref": "OlacApiDeploymentStageprod73B86EA1",
+              },
+              "/POST/api/events",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventsPOSTApiPermissionTestApiStackOlacApiA344EA22POSTapieventsED46578A": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttSaveEvent8C2BB524Arn6C04CF1B",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/test-invoke-stage/POST/api/events",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventId96D217C1": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "OlacApiapievents7FF9F1E3",
+        },
+        "PathPart": "{eventId}",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "OlacApiapieventseventIdDELETE640ED0F7": {
+      "Properties": {
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AdminAuthorizer1A05EB76",
+        },
+        "HttpMethod": "DELETE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ "statusCode": "200" }",
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttDeleteEvent0488BC5DArn92E0FA9B",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventId96D217C1",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdDELETEApiPermissionApiStackOlacApiA344EA22DELETEapieventseventIdC74E8A59": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttDeleteEvent0488BC5DArn92E0FA9B",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/",
+              {
+                "Ref": "OlacApiDeploymentStageprod73B86EA1",
+              },
+              "/DELETE/api/events/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdDELETEApiPermissionTestApiStackOlacApiA344EA22DELETEapieventseventIdB7724607": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttDeleteEvent0488BC5DArn92E0FA9B",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/test-invoke-stage/DELETE/api/events/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdGETE8B8E0F1": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "GET",
+        "Integration": {
+          "Credentials": "arn:aws:iam::543748744721:role/OlacDevApiRole",
+          "IntegrationHttpMethod": "POST",
+          "IntegrationResponses": [
+            {
+              "ResponseTemplates": {
+                "application/json": "
+                                #set($inputRoot = $input.path('$'))
+                                {
+                                    "id": "$inputRoot.Item.id.S",
+                                    "name": "$inputRoot.Item.name.S",
+                                    "eventDate": "$inputRoot.Item.eventDate.S",
+                                    #if($inputRoot.Item.ticketSaleStartDate.S != "") "ticketSaleStartDate": "$inputRoot.Item.ticketSaleStartDate.S",#end
+                                    #if($inputRoot.Item.ticketSaleEndDate.S != "") "ticketSaleEndDate": "$inputRoot.Item.ticketSaleEndDate.S",#end
+                                    #if($inputRoot.Item.maxTickets.N != "") "maxTickets": $inputRoot.Item.maxTickets.N,#end
+                                    "ticketTypes": [
+                                        #foreach($ticketType in $inputRoot.Item.ticketTypes.L)
+                                            {
+                                                "name": "$ticketType.M.name.S",
+                                                "price": $ticketType.M.price.N
+                                            }#if($foreach.hasNext),#end
+                                        #end
+                                    ]
+                                }",
+              },
+              "StatusCode": "200",
+            },
+            {
+              "ResponseTemplates": {
+                "application/json": "{
+                        "error": "Bad input!"
+                    }",
+              },
+              "SelectionPattern": "400",
+              "StatusCode": "400",
+            },
+            {
+              "ResponseTemplates": {
+                "application/json": "{
+                        "error": "Internal Service Error!"
+                    }",
+              },
+              "SelectionPattern": "5\\d{2}",
+              "StatusCode": "500",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": {
+              "Fn::Join": [
+                "",
+                [
+                  "{
+                        "TableName": "",
+                  {
+                    "Fn::ImportValue": "EventResourceStack:ExportsOutputRefEventTable3F3CD4B25C10E802",
+                  },
+                  "",
+                        "Key": {
+                            "id": {
+                                "S": "$method.request.path.eventId"
+                            }
+                        }
+                    }",
+                ],
+              ],
+            },
+          },
+          "Type": "AWS",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":dynamodb:action/GetItem",
+              ],
+            ],
+          },
+        },
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+          },
+          {
+            "StatusCode": "400",
+          },
+          {
+            "StatusCode": "500",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventId96D217C1",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdOPTIONSC6BE57B2": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventId96D217C1",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdPUT22E9381E": {
+      "Properties": {
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AdminAuthorizer1A05EB76",
+        },
+        "HttpMethod": "PUT",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ "statusCode": "200" }",
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttSaveEvent8C2BB524Arn6C04CF1B",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventId96D217C1",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdPUTApiPermissionApiStackOlacApiA344EA22PUTapieventseventId75658C8D": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttSaveEvent8C2BB524Arn6C04CF1B",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/",
+              {
+                "Ref": "OlacApiDeploymentStageprod73B86EA1",
+              },
+              "/PUT/api/events/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdPUTApiPermissionTestApiStackOlacApiA344EA22PUTapieventseventId0D1355FF": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttSaveEvent8C2BB524Arn6C04CF1B",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/test-invoke-stage/PUT/api/events/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdavailable0F9A5034": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "OlacApiapieventseventId96D217C1",
+        },
+        "PathPart": "_available",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "OlacApiapieventseventIdavailableGET62BD8DB5": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "GET",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ "statusCode": "200" }",
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttAreTicketsAvailable934E6F8BArn13F08238",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdavailable0F9A5034",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdavailableGETApiPermissionApiStackOlacApiA344EA22GETapieventseventIdavailable96E95BE9": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttAreTicketsAvailable934E6F8BArn13F08238",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/",
+              {
+                "Ref": "OlacApiDeploymentStageprod73B86EA1",
+              },
+              "/GET/api/events/*/_available",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdavailableGETApiPermissionTestApiStackOlacApiA344EA22GETapieventseventIdavailableA2F3E707": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttAreTicketsAvailable934E6F8BArn13F08238",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/test-invoke-stage/GET/api/events/*/_available",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdavailableOPTIONSE9C5F59D": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdavailable0F9A5034",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdnewReservationE863DBEC": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "OlacApiapieventseventId96D217C1",
+        },
+        "PathPart": "_newReservation",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "OlacApiapieventseventIdnewReservationOPTIONSCB8FDE06": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdnewReservationE863DBEC",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdnewReservationPOST77E59BF3": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ "statusCode": "200" }",
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::ImportValue": "ReservationManagerStack:ExportsOutputFnGetAttSaveReservationApi83E02627Arn2DBC7C0D",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdnewReservationE863DBEC",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdnewReservationPOSTApiPermissionApiStackOlacApiA344EA22POSTapieventseventIdnewReservation6870DFE0": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "ReservationManagerStack:ExportsOutputFnGetAttSaveReservationApi83E02627Arn2DBC7C0D",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/",
+              {
+                "Ref": "OlacApiDeploymentStageprod73B86EA1",
+              },
+              "/POST/api/events/*/_newReservation",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdnewReservationPOSTApiPermissionTestApiStackOlacApiA344EA22POSTapieventseventIdnewReservation28B4BDAA": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "ReservationManagerStack:ExportsOutputFnGetAttSaveReservationApi83E02627Arn2DBC7C0D",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/test-invoke-stage/POST/api/events/*/_newReservation",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdreservationsDA67A925": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "OlacApiapieventseventId96D217C1",
+        },
+        "PathPart": "reservations",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "OlacApiapieventseventIdreservationsGET961CA6F9": {
+      "Properties": {
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "EventCoordinatorAuthorizer02365C16",
+        },
+        "HttpMethod": "GET",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ "statusCode": "200" }",
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttListEventReservationsCD53DC0FArn1ADA538A",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdreservationsDA67A925",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdreservationsGETApiPermissionApiStackOlacApiA344EA22GETapieventseventIdreservations1EE8E953": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttListEventReservationsCD53DC0FArn1ADA538A",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/",
+              {
+                "Ref": "OlacApiDeploymentStageprod73B86EA1",
+              },
+              "/GET/api/events/*/reservations",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdreservationsGETApiPermissionTestApiStackOlacApiA344EA22GETapieventseventIdreservations988F19DD": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttListEventReservationsCD53DC0FArn1ADA538A",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/test-invoke-stage/GET/api/events/*/reservations",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdreservationsOPTIONS93CCE556": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdreservationsDA67A925",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdreservationsPOSTApiPermissionApiStackOlacApiA344EA22POSTapieventseventIdreservationsAEFFACD4": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "ReservationManagerStack:ExportsOutputFnGetAttSaveReservationAdminApi4455CA97Arn2B3236C7",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/",
+              {
+                "Ref": "OlacApiDeploymentStageprod73B86EA1",
+              },
+              "/POST/api/events/*/reservations",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdreservationsPOSTApiPermissionTestApiStackOlacApiA344EA22POSTapieventseventIdreservations13205DBC": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "ReservationManagerStack:ExportsOutputFnGetAttSaveReservationAdminApi4455CA97Arn2B3236C7",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/test-invoke-stage/POST/api/events/*/reservations",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdreservationsPOSTD1B1CB56": {
+      "Properties": {
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "EventCoordinatorAuthorizer02365C16",
+        },
+        "HttpMethod": "POST",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ "statusCode": "200" }",
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::ImportValue": "ReservationManagerStack:ExportsOutputFnGetAttSaveReservationAdminApi4455CA97Arn2B3236C7",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdreservationsDA67A925",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdreservationscsv14481546": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "OlacApiapieventseventId96D217C1",
+        },
+        "PathPart": "reservations.csv",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "OlacApiapieventseventIdreservationscsvGETApiPermissionApiStackOlacApiA344EA22GETapieventseventIdreservationscsv2BA4CD95": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttListEventReservationsCsvB6C06311ArnAE8C3D19",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/",
+              {
+                "Ref": "OlacApiDeploymentStageprod73B86EA1",
+              },
+              "/GET/api/events/*/reservations.csv",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdreservationscsvGETApiPermissionTestApiStackOlacApiA344EA22GETapieventseventIdreservationscsvA6CE0E76": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttListEventReservationsCsvB6C06311ArnAE8C3D19",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/test-invoke-stage/GET/api/events/*/reservations.csv",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdreservationscsvGETE62DEAD1": {
+      "Properties": {
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "EventCoordinatorAuthorizer02365C16",
+        },
+        "HttpMethod": "GET",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "text/csv": "{ "statusCode": "200" }",
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttListEventReservationsCsvB6C06311ArnAE8C3D19",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdreservationscsv14481546",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdreservationscsvOPTIONSFE70FAD0": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdreservationscsv14481546",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdreservationsnewid8CDBD9B9": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "OlacApiapieventseventIdreservationsDA67A925",
+        },
+        "PathPart": "_new-id",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "OlacApiapieventseventIdreservationsnewidGET73C6646B": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "GET",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ "statusCode": "200" }",
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::ImportValue": "ReservationManagerStack:ExportsOutputFnGetAttGetNewReservationIdDDB46ED0Arn04D33582",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdreservationsnewid8CDBD9B9",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdreservationsnewidGETApiPermissionApiStackOlacApiA344EA22GETapieventseventIdreservationsnewid107FDD99": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "ReservationManagerStack:ExportsOutputFnGetAttGetNewReservationIdDDB46ED0Arn04D33582",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/",
+              {
+                "Ref": "OlacApiDeploymentStageprod73B86EA1",
+              },
+              "/GET/api/events/*/reservations/_new-id",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdreservationsnewidGETApiPermissionTestApiStackOlacApiA344EA22GETapieventseventIdreservationsnewidB1B536D7": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "ReservationManagerStack:ExportsOutputFnGetAttGetNewReservationIdDDB46ED0Arn04D33582",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/test-invoke-stage/GET/api/events/*/reservations/_new-id",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdreservationsnewidOPTIONS3FB1985C": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdreservationsnewid8CDBD9B9",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdreservationsreservationIdBF29A676": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "OlacApiapieventseventIdreservationsDA67A925",
+        },
+        "PathPart": "{reservationId}",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "OlacApiapieventseventIdreservationsreservationIdDELETE87FDAC4D": {
+      "Properties": {
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "EventCoordinatorAuthorizer02365C16",
+        },
+        "HttpMethod": "DELETE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ "statusCode": "200" }",
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttDeleteReservation20080996ArnF6A88B0E",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdreservationsreservationIdBF29A676",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdreservationsreservationIdDELETEApiPermissionApiStackOlacApiA344EA22DELETEapieventseventIdreservationsreservationId40176567": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttDeleteReservation20080996ArnF6A88B0E",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/",
+              {
+                "Ref": "OlacApiDeploymentStageprod73B86EA1",
+              },
+              "/DELETE/api/events/*/reservations/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdreservationsreservationIdDELETEApiPermissionTestApiStackOlacApiA344EA22DELETEapieventseventIdreservationsreservationId12207F06": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttDeleteReservation20080996ArnF6A88B0E",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/test-invoke-stage/DELETE/api/events/*/reservations/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdreservationsreservationIdOPTIONS389B6B16": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdreservationsreservationIdBF29A676",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdreservationsreservationIdPUT27DA06EA": {
+      "Properties": {
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "EventCoordinatorAuthorizer02365C16",
+        },
+        "HttpMethod": "PUT",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ "statusCode": "200" }",
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::ImportValue": "ReservationManagerStack:ExportsOutputFnGetAttSaveReservationAdminApi4455CA97Arn2B3236C7",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdreservationsreservationIdBF29A676",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdreservationsreservationIdPUTApiPermissionApiStackOlacApiA344EA22PUTapieventseventIdreservationsreservationIdA7BC4973": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "ReservationManagerStack:ExportsOutputFnGetAttSaveReservationAdminApi4455CA97Arn2B3236C7",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/",
+              {
+                "Ref": "OlacApiDeploymentStageprod73B86EA1",
+              },
+              "/PUT/api/events/*/reservations/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdreservationsreservationIdPUTApiPermissionTestApiStackOlacApiA344EA22PUTapieventseventIdreservationsreservationId7C736709": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "ReservationManagerStack:ExportsOutputFnGetAttSaveReservationAdminApi4455CA97Arn2B3236C7",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/test-invoke-stage/PUT/api/events/*/reservations/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapieventseventIdreservationsreservationIdauditA293CBA6": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "OlacApiapieventseventIdreservationsreservationIdBF29A676",
+        },
+        "PathPart": "audit",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "OlacApiapieventseventIdreservationsreservationIdauditGETA0EE1CEB": {
+      "Properties": {
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AdminAuthorizer1A05EB76",
+        },
+        "HttpMethod": "GET",
+        "Integration": {
+          "Credentials": "arn:aws:iam::543748744721:role/OlacDevApiRole",
+          "IntegrationHttpMethod": "POST",
+          "IntegrationResponses": [
+            {
+              "ResponseTemplates": {
+                "application/json": "
+                                #set($inputRoot = $input.path('$'))
+                                {
+                                    "items": [
+                                        #foreach($item in $inputRoot.Items)
+                                        {
+                                            "timestamp": "$item.timestamp.S",
+                                            "user": "$item.user.S",
+                                            "note": "$item.note.S.replace('\\', '\\\\').replace('"', '\\"')"
+                                        }#if($foreach.hasNext),#end
+                                        #end
+                                    ]
+                                }
+                            ",
+              },
+              "StatusCode": "200",
+            },
+            {
+              "ResponseTemplates": {
+                "application/json": "{
+                        "error": "Bad input!"
+                    }",
+              },
+              "SelectionPattern": "400",
+              "StatusCode": "400",
+            },
+            {
+              "ResponseTemplates": {
+                "application/json": "{
+                        "error": "Internal Service Error!"
+                    }",
+              },
+              "SelectionPattern": "5\\d{2}",
+              "StatusCode": "500",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": {
+              "Fn::Join": [
+                "",
+                [
+                  "{
+                        "TableName": "",
+                  {
+                    "Fn::ImportValue": "EventResourceStack:ExportsOutputRefReservationAuditTable377DB63AE24B532E",
+                  },
+                  "",
+                        "IndexName": "GlobalReservationIndex",
+                        "ScanIndexForward": false,
+                        "KeyConditionExpression": "reservationId = :resId",
+                        "ExpressionAttributeValues": {
+                            ":resId": {
+                                "S": "$method.request.path.reservationId"
+                            }
+                        }
+                    }",
+                ],
+              ],
+            },
+          },
+          "Type": "AWS",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":dynamodb:action/Query",
+              ],
+            ],
+          },
+        },
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+          },
+          {
+            "StatusCode": "400",
+          },
+          {
+            "StatusCode": "500",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdreservationsreservationIdauditA293CBA6",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapieventseventIdreservationsreservationIdauditOPTIONS4B33010E": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapieventseventIdreservationsreservationIdauditA293CBA6",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapipublicBFEC7C00": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "OlacApiapi5A46DC5C",
+        },
+        "PathPart": "public",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "OlacApiapipublicOPTIONS42F5DA3C": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapipublicBFEC7C00",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapipublicclientconfigBE9F9E61": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "OlacApiapipublicBFEC7C00",
+        },
+        "PathPart": "client-config",
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "OlacApiapipublicclientconfigGETApiPermissionApiStackOlacApiA344EA22GETapipublicclientconfigFB0AA699": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "AdministrationManagerStack:ExportsOutputFnGetAttGetClientConfigF0ACB15BArn89D8B855",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/",
+              {
+                "Ref": "OlacApiDeploymentStageprod73B86EA1",
+              },
+              "/GET/api/public/client-config",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapipublicclientconfigGETApiPermissionTestApiStackOlacApiA344EA22GETapipublicclientconfig96E55CDC": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::ImportValue": "AdministrationManagerStack:ExportsOutputFnGetAttGetClientConfigF0ACB15BArn89D8B855",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "OlacApi471C2DF4",
+              },
+              "/test-invoke-stage/GET/api/public/client-config",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "OlacApiapipublicclientconfigGETCC6E7BFA": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "GET",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ "statusCode": "200" }",
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::ImportValue": "AdministrationManagerStack:ExportsOutputFnGetAttGetClientConfigF0ACB15BArn89D8B855",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "OlacApiapipublicclientconfigBE9F9E61",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "OlacApiapipublicclientconfigOPTIONS88D9C689": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "OlacApiapipublicclientconfigBE9F9E61",
+        },
+        "RestApiId": {
+          "Ref": "OlacApi471C2DF4",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "PrdLogs0608B8C2": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

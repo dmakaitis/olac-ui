@@ -15,7 +15,7 @@ export class AdministrationManagerStack extends cdk.Stack {
 
         this.getClientConfigFunction = new lambda.Function(this, 'GetClientConfig', {
             description: 'Retrieve the client configuration for the UI',
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_22_X,
             code: lambda.Code.fromAsset('./lambda/manager/administration'),
             handler: 'get-client-config.handler',
             environment: {

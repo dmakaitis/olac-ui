@@ -1,0 +1,106 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ConfigUtilityStack Config utility stack creation 1`] = `
+{
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "GetConfigurationB56ECE29": {
+      "DependsOn": [
+        "GetConfigurationServiceRole91563E63",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "fcf2cbc0262d9ac25baf1815cc89af89cb447c4f26f3c3452192ef6d8d823637.zip",
+        },
+        "Description": "Returns the application configuration",
+        "Environment": {
+          "Variables": {
+            "COGNITO_CLIENT_ID": "test-cognito-client-id",
+            "COGNITO_DOMAIN": "test.domain.com",
+            "COGNITO_REDIRECT_URI": "https://test.domain.com/redirect",
+            "PAYPAL_API_BASE": "https://test.paypal.com/api",
+            "PAYPAL_CLIENT_ID": "test-paypal-client-id",
+            "PAYPAL_DONATION_BUTTON_ID": "test-paypal-button-id",
+          },
+        },
+        "Handler": "get.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "GetConfigurationServiceRole91563E63",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "GetConfigurationServiceRole91563E63": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

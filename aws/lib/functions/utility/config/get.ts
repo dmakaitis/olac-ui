@@ -1,6 +1,25 @@
-import {Handler} from 'aws-lambda';
+type PayPalConfig = {
+    "api-base": string | undefined;
+    client: string | undefined;
+    donationButtonId: string | undefined;
+}
 
-export const handler: Handler = async (event, context) => {
+type CognitoConfig = {
+    domain: string | undefined;
+    clientId: string | undefined;
+    redirectUri: string | undefined;
+}
+
+type OlacConfig = {
+    paypal: PayPalConfig;
+    cognito: CognitoConfig;
+}
+
+export type Config = {
+    olac: OlacConfig;
+}
+
+export async function handler(event: any, context: any) : Promise<Config> {
     return {
         "olac": {
             "paypal": {

@@ -1,0 +1,140 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AdministrationManagerStack Config utility stack creation 1`] = `
+{
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "GetClientConfigF0ACB15B": {
+      "DependsOn": [
+        "GetClientConfigServiceRoleDefaultPolicy3AB1E58B",
+        "GetClientConfigServiceRole9C378730",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "01fd174cf6ae8b3d84498f5a6b958bfb61d44a5900d6836821d37e6619efbe5d.zip",
+        },
+        "Description": "Retrieve the client configuration for the UI",
+        "Environment": {
+          "Variables": {
+            "GET_CONFIG_FUNCTION": {
+              "Fn::ImportValue": "ConfigUtilityStack:ExportsOutputRefGetConfigurationB56ECE29714C453E",
+            },
+          },
+        },
+        "Handler": "get-client-config.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "GetClientConfigServiceRole9C378730",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "GetClientConfigServiceRole9C378730": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "GetClientConfigServiceRoleDefaultPolicy3AB1E58B": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::ImportValue": "ConfigUtilityStack:ExportsOutputFnGetAttGetConfigurationB56ECE29Arn1B5E8961",
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "ConfigUtilityStack:ExportsOutputFnGetAttGetConfigurationB56ECE29Arn1B5E8961",
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "GetClientConfigServiceRoleDefaultPolicy3AB1E58B",
+        "Roles": [
+          {
+            "Ref": "GetClientConfigServiceRole9C378730",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

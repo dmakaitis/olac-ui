@@ -1,0 +1,1224 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventResourceStack Config utility stack creation 1`] = `
+{
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "AreTicketsAvailable934E6F8B": {
+      "DependsOn": [
+        "AreTicketsAvailableServiceRoleDefaultPolicyEC2A5BE3",
+        "AreTicketsAvailableServiceRole9FC9F6CC",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+        },
+        "Description": "Checks to see if the requested number of tickets are available for an event",
+        "Environment": {
+          "Variables": {
+            "EVENT_TABLE_NAME": {
+              "Ref": "EventTable3F3CD4B2",
+            },
+            "RESERVATION_TABLE_NAME": {
+              "Ref": "ReservationTable2D1B2DF4",
+            },
+          },
+        },
+        "Handler": "are-tickets-available.apiHandler",
+        "Role": {
+          "Fn::GetAtt": [
+            "AreTicketsAvailableServiceRole9FC9F6CC",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "AreTicketsAvailableServiceRole9FC9F6CC": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "AreTicketsAvailableServiceRoleDefaultPolicyEC2A5BE3": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "EventTable3F3CD4B2",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "EventTable3F3CD4B2",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ReservationTable2D1B2DF4",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ReservationTable2D1B2DF4",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "AreTicketsAvailableServiceRoleDefaultPolicyEC2A5BE3",
+        "Roles": [
+          {
+            "Ref": "AreTicketsAvailableServiceRole9FC9F6CC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DeleteEvent0488BC5D": {
+      "DependsOn": [
+        "DeleteEventServiceRoleDefaultPolicyC4812D8C",
+        "DeleteEventServiceRole01479800",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+        },
+        "Description": "Deletes OLAC event information from the datastore",
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "EventTable3F3CD4B2",
+            },
+          },
+        },
+        "Handler": "delete-event.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "DeleteEventServiceRole01479800",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "DeleteEventServiceRole01479800": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DeleteEventServiceRoleDefaultPolicyC4812D8C": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "EventTable3F3CD4B2",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "EventTable3F3CD4B2",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DeleteEventServiceRoleDefaultPolicyC4812D8C",
+        "Roles": [
+          {
+            "Ref": "DeleteEventServiceRole01479800",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DeleteReservation20080996": {
+      "DependsOn": [
+        "DeleteReservationServiceRoleDefaultPolicyE7D41307",
+        "DeleteReservationServiceRoleE2193E8F",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+        },
+        "Description": "Deletes an OLAC event reservation from the datastore",
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "ReservationTable2D1B2DF4",
+            },
+          },
+        },
+        "Handler": "delete-reservation.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "DeleteReservationServiceRoleE2193E8F",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "DeleteReservationServiceRoleDefaultPolicyE7D41307": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ReservationTable2D1B2DF4",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ReservationTable2D1B2DF4",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DeleteReservationServiceRoleDefaultPolicyE7D41307",
+        "Roles": [
+          {
+            "Ref": "DeleteReservationServiceRoleE2193E8F",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DeleteReservationServiceRoleE2193E8F": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "EventTable3F3CD4B2": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "id",
+            "AttributeType": "S",
+          },
+          {
+            "AttributeName": "index",
+            "AttributeType": "S",
+          },
+          {
+            "AttributeName": "eventDate",
+            "AttributeType": "S",
+          },
+        ],
+        "BillingMode": "PAY_PER_REQUEST",
+        "GlobalSecondaryIndexes": [
+          {
+            "IndexName": "GlobalSortByEventDateIndex",
+            "KeySchema": [
+              {
+                "AttributeName": "index",
+                "KeyType": "HASH",
+              },
+              {
+                "AttributeName": "eventDate",
+                "KeyType": "RANGE",
+              },
+            ],
+            "Projection": {
+              "ProjectionType": "ALL",
+            },
+          },
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "id",
+            "KeyType": "HASH",
+          },
+        ],
+      },
+      "Type": "AWS::DynamoDB::Table",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ListEventReservationsCD53DC0F": {
+      "DependsOn": [
+        "ListEventReservationsServiceRoleDefaultPolicyBF36F87F",
+        "ListEventReservationsServiceRoleC0A83F0D",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+        },
+        "Description": "Retrieves the list of OLAC event reservations from the datastore",
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "ReservationTable2D1B2DF4",
+            },
+          },
+        },
+        "Handler": "get-event-reservations.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "ListEventReservationsServiceRoleC0A83F0D",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ListEventReservationsCsvB6C06311": {
+      "DependsOn": [
+        "ListEventReservationsCsvServiceRoleDefaultPolicyAA23638F",
+        "ListEventReservationsCsvServiceRoleFFB62ADB",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+        },
+        "Description": "Retrieves the list of OLAC event reservations from the datastore in CSV format",
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "ReservationTable2D1B2DF4",
+            },
+          },
+        },
+        "Handler": "get-event-reservations-csv.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "ListEventReservationsCsvServiceRoleFFB62ADB",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ListEventReservationsCsvServiceRoleDefaultPolicyAA23638F": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ReservationTable2D1B2DF4",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ReservationTable2D1B2DF4",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ListEventReservationsCsvServiceRoleDefaultPolicyAA23638F",
+        "Roles": [
+          {
+            "Ref": "ListEventReservationsCsvServiceRoleFFB62ADB",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ListEventReservationsCsvServiceRoleFFB62ADB": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ListEventReservationsServiceRoleC0A83F0D": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ListEventReservationsServiceRoleDefaultPolicyBF36F87F": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ReservationTable2D1B2DF4",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ReservationTable2D1B2DF4",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ListEventReservationsServiceRoleDefaultPolicyBF36F87F",
+        "Roles": [
+          {
+            "Ref": "ListEventReservationsServiceRoleC0A83F0D",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ListEvents505D6CAB": {
+      "DependsOn": [
+        "ListEventsServiceRoleDefaultPolicy5F9C48AD",
+        "ListEventsServiceRole11FB43D0",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+        },
+        "Description": "Retrieves the list of OLAC events from the datastore",
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "EventTable3F3CD4B2",
+            },
+          },
+        },
+        "Handler": "get-events.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "ListEventsServiceRole11FB43D0",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ListEventsServiceRole11FB43D0": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ListEventsServiceRoleDefaultPolicy5F9C48AD": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "EventTable3F3CD4B2",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "EventTable3F3CD4B2",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ListEventsServiceRoleDefaultPolicy5F9C48AD",
+        "Roles": [
+          {
+            "Ref": "ListEventsServiceRole11FB43D0",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ReservationAuditTable377DB63A": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "id",
+            "AttributeType": "S",
+          },
+          {
+            "AttributeName": "reservationId",
+            "AttributeType": "S",
+          },
+          {
+            "AttributeName": "timestamp",
+            "AttributeType": "S",
+          },
+        ],
+        "BillingMode": "PAY_PER_REQUEST",
+        "GlobalSecondaryIndexes": [
+          {
+            "IndexName": "GlobalReservationIndex",
+            "KeySchema": [
+              {
+                "AttributeName": "reservationId",
+                "KeyType": "HASH",
+              },
+              {
+                "AttributeName": "timestamp",
+                "KeyType": "RANGE",
+              },
+            ],
+            "Projection": {
+              "ProjectionType": "ALL",
+            },
+          },
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "id",
+            "KeyType": "HASH",
+          },
+        ],
+      },
+      "Type": "AWS::DynamoDB::Table",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ReservationCounterTableCC91E7BE": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "id",
+            "AttributeType": "S",
+          },
+        ],
+        "BillingMode": "PAY_PER_REQUEST",
+        "KeySchema": [
+          {
+            "AttributeName": "id",
+            "KeyType": "HASH",
+          },
+        ],
+      },
+      "Type": "AWS::DynamoDB::Table",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ReservationTable2D1B2DF4": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "id",
+            "AttributeType": "S",
+          },
+          {
+            "AttributeName": "eventId",
+            "AttributeType": "S",
+          },
+          {
+            "AttributeName": "reservationId",
+            "AttributeType": "N",
+          },
+        ],
+        "BillingMode": "PAY_PER_REQUEST",
+        "GlobalSecondaryIndexes": [
+          {
+            "IndexName": "GlobalEventIndex",
+            "KeySchema": [
+              {
+                "AttributeName": "eventId",
+                "KeyType": "HASH",
+              },
+              {
+                "AttributeName": "reservationId",
+                "KeyType": "RANGE",
+              },
+            ],
+            "Projection": {
+              "ProjectionType": "ALL",
+            },
+          },
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "id",
+            "KeyType": "HASH",
+          },
+        ],
+      },
+      "Type": "AWS::DynamoDB::Table",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "SaveEvent8C2BB524": {
+      "DependsOn": [
+        "SaveEventServiceRoleDefaultPolicyD3227C5E",
+        "SaveEventServiceRoleD32FD4C5",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+        },
+        "Description": "Saves OLAC event information to the datastore",
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "EventTable3F3CD4B2",
+            },
+          },
+        },
+        "Handler": "save-event.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "SaveEventServiceRoleD32FD4C5",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "SaveEventReservation38592C5B": {
+      "DependsOn": [
+        "SaveEventReservationServiceRoleDefaultPolicy762DA368",
+        "SaveEventReservationServiceRole507E4C05",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+        },
+        "Description": "Saves OLAC event reservation information to the datastore",
+        "Environment": {
+          "Variables": {
+            "AUDIT_TABLE_NAME": {
+              "Ref": "ReservationAuditTable377DB63A",
+            },
+            "COUNTER_TABLE_NAME": {
+              "Ref": "ReservationCounterTableCC91E7BE",
+            },
+            "TABLE_NAME": {
+              "Ref": "ReservationTable2D1B2DF4",
+            },
+          },
+        },
+        "Handler": "save-reservation.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "SaveEventReservationServiceRole507E4C05",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "SaveEventReservationServiceRole507E4C05": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "SaveEventReservationServiceRoleDefaultPolicy762DA368": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ReservationTable2D1B2DF4",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ReservationTable2D1B2DF4",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ReservationCounterTableCC91E7BE",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Ref": "AWS::NoValue",
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ReservationAuditTable377DB63A",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ReservationAuditTable377DB63A",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "SaveEventReservationServiceRoleDefaultPolicy762DA368",
+        "Roles": [
+          {
+            "Ref": "SaveEventReservationServiceRole507E4C05",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "SaveEventServiceRoleD32FD4C5": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "SaveEventServiceRoleDefaultPolicyD3227C5E": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "EventTable3F3CD4B2",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "EventTable3F3CD4B2",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "SaveEventServiceRoleDefaultPolicyD3227C5E",
+        "Roles": [
+          {
+            "Ref": "SaveEventServiceRoleD32FD4C5",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
