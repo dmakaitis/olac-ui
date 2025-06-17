@@ -1,6 +1,12 @@
 import {boot} from 'quasar/wrappers'
 import {Store} from "vuex";
 
+declare global {
+    interface Window {
+        paypal:any;
+    }
+}
+
 interface PayPalButtonsStyle {
     layout?: 'vertical' | 'horizontal',
     color?: 'gold' | 'blue' | 'silver' | 'white' | 'black',
