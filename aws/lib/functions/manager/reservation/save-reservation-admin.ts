@@ -1,7 +1,7 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
 import {saveReservation} from "./save-reservation";
 import {Reservation} from "./reservation";
-import crypto from "crypto";
+import {v4 as uuidv4} from "uuid";
 
 interface SaveReservationAdminRequest {
     reservation: Reservation,
@@ -21,7 +21,7 @@ export async function apiHandler(event: APIGatewayProxyEvent): Promise<APIGatewa
         grants: (event.requestContext.authorizer?.grants || '').split(" ")
     }
 
-    request.reservation.id = event.pathParameters?.reservationId || body.id || crypto.randomUUID();
+    request.reservation.id = event.pathParameters?.reservationId || body.id || uuidv4();
     request.reservation.eventId = event.pathParameters?.eventId || body.eventId;
 
     const response = await handler(request);

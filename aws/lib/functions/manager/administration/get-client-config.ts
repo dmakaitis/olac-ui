@@ -1,7 +1,6 @@
-import {Handler} from 'aws-lambda';
 import {LambdaClient, InvokeCommand, LogType} from "@aws-sdk/client-lambda";
 
-export const handler: Handler = async (event, context) => {
+export async function handler(event: any, context: any) : Promise<any> {
     const client = new LambdaClient({region: "us-east-2"})
     const command = new InvokeCommand({
         FunctionName: process.env.GET_CONFIG_FUNCTION,
