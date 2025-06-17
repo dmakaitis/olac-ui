@@ -25,13 +25,10 @@ To build the UI, run the following from the ```quasar``` directory:
 
 ### 2. Build and Deploy the AWS CDK Stack
 
-In each of the ```lambda``` subdirectories under ```aws```, run ```npm install```, then ```npm run build```. Then, in the ```aws``` directory,
-run the following:
+In the ```aws``` directory, run the following:
 
-* ```npm install``` to download all dependencies.
-* ```npm run clean``` to delete any old files.
-* ```npm run compile``` to build the CDK scripts.
-* ```npm run bundle``` to bundle lambda functions.
+* ```yarn``` to download all dependencies.
+* ```yarn build``` to compile all CDK scripts and lambdas.
 * ```yarn test``` to validate everything.
-* ```cdk deploy Env/*``` to deploy to one of the following environments: Dev, Test, or Prod.
+* ```yarn deploy-env``` to deploy to one of the following environments: ```dev```, ```test```, or ```prod```.
 
