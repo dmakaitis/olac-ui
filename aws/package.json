@@ -13,9 +13,9 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "deploy-dev": "cdk deploy Dev/*",
-    "deploy-test": "cdk deploy Test/*",
-    "deploy-prod": "cdk deploy Prod/*"
+    "deploy-dev": "cdk deploy Dev/\\*",
+    "deploy-test": "cdk deploy Test/\\*",
+    "deploy-prod": "cdk deploy Prod/\\*"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.830.0",
