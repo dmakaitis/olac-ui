@@ -7,8 +7,6 @@ import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import {Construct} from 'constructs';
-import {ALL_METHODS} from "aws-cdk-lib/aws-apigateway/lib/util";
-import {AllowedMethods} from "aws-cdk-lib/aws-cloudfront";
 
 export interface OlacWebsiteStackProps extends cdk.StackProps {
     domainNames: string[];
@@ -37,7 +35,7 @@ export class OlacWebsiteStack extends cdk.Stack {
         });
 
         const certificate = acm.Certificate.fromCertificateArn(this, "Certificate", props.certificateArn);
-        const s3origin = new origins.S3Origin(siteBucket);
+        const s3origin = new origins.S3StaticWebsiteOrigin(siteBucket);
 
         const noCachePolicy = new cloudfront.CachePolicy(this, 'NoCachePolicy', {
             maxTtl: Duration.seconds(1),
