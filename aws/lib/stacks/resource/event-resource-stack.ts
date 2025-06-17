@@ -41,7 +41,7 @@ export class EventResourceStack extends cdk.Stack {
         this.listEventsFunction = new lambda.Function(this, 'ListEvents', {
             description: 'Retrieves the list of OLAC events from the datastore',
             runtime: lambda.Runtime.NODEJS_22_X,
-            code: lambda.Code.fromAsset('./lambda/resource/event'),
+            code: lambda.Code.fromAsset('./dist/lambda/resource/event/get-events'),
             handler: 'get-events.handler',
             environment: {
                 TABLE_NAME: table.tableName
@@ -52,7 +52,7 @@ export class EventResourceStack extends cdk.Stack {
         this.saveEventFunction = new lambda.Function(this, 'SaveEvent', {
             description: 'Saves OLAC event information to the datastore',
             runtime: lambda.Runtime.NODEJS_22_X,
-            code: lambda.Code.fromAsset('./lambda/resource/event'),
+            code: lambda.Code.fromAsset('./dist/lambda/resource/event/save-event'),
             handler: 'save-event.handler',
             environment: {
                 TABLE_NAME: table.tableName
@@ -63,7 +63,7 @@ export class EventResourceStack extends cdk.Stack {
         this.deleteEventFunction = new lambda.Function(this, 'DeleteEvent', {
             description: 'Deletes OLAC event information from the datastore',
             runtime: lambda.Runtime.NODEJS_22_X,
-            code: lambda.Code.fromAsset('./lambda/resource/event'),
+            code: lambda.Code.fromAsset('./dist/lambda/resource/event/delete-event'),
             handler: 'delete-event.handler',
             environment: {
                 TABLE_NAME: table.tableName
@@ -101,7 +101,7 @@ export class EventResourceStack extends cdk.Stack {
         this.listReservationsFunction = new lambda.Function(this, 'ListEventReservations', {
             description: 'Retrieves the list of OLAC event reservations from the datastore',
             runtime: lambda.Runtime.NODEJS_22_X,
-            code: lambda.Code.fromAsset('./lambda/resource/event'),
+            code: lambda.Code.fromAsset('./dist/lambda/resource/event/get-event-reservations'),
             handler: 'get-event-reservations.handler',
             environment: {
                 TABLE_NAME: table.tableName
@@ -112,7 +112,7 @@ export class EventResourceStack extends cdk.Stack {
         this.listReservationsCsvFunction = new lambda.Function(this, 'ListEventReservationsCsv', {
             description: 'Retrieves the list of OLAC event reservations from the datastore in CSV format',
             runtime: lambda.Runtime.NODEJS_22_X,
-            code: lambda.Code.fromAsset('./lambda/resource/event'),
+            code: lambda.Code.fromAsset('./dist/lambda/resource/event/get-event-reservations-csv'),
             handler: 'get-event-reservations-csv.handler',
             environment: {
                 TABLE_NAME: table.tableName
@@ -123,7 +123,7 @@ export class EventResourceStack extends cdk.Stack {
         this.saveReservationFunction = new lambda.Function(this, 'SaveEventReservation', {
             description: 'Saves OLAC event reservation information to the datastore',
             runtime: lambda.Runtime.NODEJS_22_X,
-            code: lambda.Code.fromAsset('./lambda/resource/event'),
+            code: lambda.Code.fromAsset('./dist/lambda/resource/event/save-reservation'),
             handler: 'save-reservation.handler',
             environment: {
                 TABLE_NAME: table.tableName,
@@ -138,7 +138,7 @@ export class EventResourceStack extends cdk.Stack {
         this.deleteReservationFunction = new lambda.Function(this, 'DeleteReservation', {
             description: 'Deletes an OLAC event reservation from the datastore',
             runtime: lambda.Runtime.NODEJS_22_X,
-            code: lambda.Code.fromAsset('./lambda/resource/event'),
+            code: lambda.Code.fromAsset('./dist/lambda/resource/event/delete-reservation'),
             handler: 'delete-reservation.handler',
             environment: {
                 TABLE_NAME: table.tableName
@@ -149,7 +149,7 @@ export class EventResourceStack extends cdk.Stack {
         this.areTicketsAvailableFunction = new lambda.Function(this, 'AreTicketsAvailable', {
             description: 'Checks to see if the requested number of tickets are available for an event',
             runtime: lambda.Runtime.NODEJS_22_X,
-            code: lambda.Code.fromAsset('./lambda/resource/event'),
+            code: lambda.Code.fromAsset('./dist/lambda/resource/event/are-tickets-available'),
             handler: 'are-tickets-available.apiHandler',
             environment: {
                 EVENT_TABLE_NAME: this.eventsTable.tableName,

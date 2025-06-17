@@ -11,8 +11,6 @@ const pkg = JSON.parse(fs.readFileSync("./package.json", "utf-8"));
 
 try {
     entryPoints.forEach(async (entry) => {
-        console.log(`Bundling ${entry}...`);
-
         await esbuild.build({
             entryPoints: [`./lib/functions/${entry}`],
             bundle: true,

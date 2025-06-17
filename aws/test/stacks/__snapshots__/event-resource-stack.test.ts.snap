@@ -20,7 +20,7 @@ exports[`EventResourceStack Event resource stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+          "S3Key": "0eb6e8f26dc411082b4e928e15ab342daed16ee3c740e90b3d7bb0267a58a985.zip",
         },
         "Description": "Checks to see if the requested number of tickets are available for an event",
         "Environment": {
@@ -171,7 +171,7 @@ exports[`EventResourceStack Event resource stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+          "S3Key": "9f51ffc56407504981461db3fe39d5ba8f9d333ea24e7b20097b39fad66bba69.zip",
         },
         "Description": "Deletes OLAC event information from the datastore",
         "Environment": {
@@ -288,7 +288,7 @@ exports[`EventResourceStack Event resource stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+          "S3Key": "777e683c5fb93a86fed0eee0e755cce7e56473828f0a96c320fbea2daa014f5d.zip",
         },
         "Description": "Deletes an OLAC event reservation from the datastore",
         "Environment": {
@@ -451,7 +451,7 @@ exports[`EventResourceStack Event resource stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+          "S3Key": "8828c2fbbcb6aa85d62a140acadc0fee599896ee76fcb9509549c857a695cfc4.zip",
         },
         "Description": "Retrieves the list of OLAC event reservations from the datastore",
         "Environment": {
@@ -482,7 +482,7 @@ exports[`EventResourceStack Event resource stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+          "S3Key": "7008236aa19157188b86ade64ea954913b4866a088f9564e6c3dcc100f194d50.zip",
         },
         "Description": "Retrieves the list of OLAC event reservations from the datastore in CSV format",
         "Environment": {
@@ -677,7 +677,7 @@ exports[`EventResourceStack Event resource stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+          "S3Key": "185d7a99cba4416e36cdbc82e50c8ca5403d8e6390b8000fa8e14a93f0f4d124.zip",
         },
         "Description": "Retrieves the list of OLAC events from the datastore",
         "Environment": {
@@ -902,7 +902,7 @@ exports[`EventResourceStack Event resource stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+          "S3Key": "289304bcebcb5c1139909b526fabeee4e9660ebf318a9428588ccc4a33033335.zip",
         },
         "Description": "Saves OLAC event information to the datastore",
         "Environment": {
@@ -933,7 +933,7 @@ exports[`EventResourceStack Event resource stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "977c70296ea8cc8aee732b4f2f091af88ee3fd74ee266269cc82470ac8772f59.zip",
+          "S3Key": "85cb80f74ca4dba056a933b6323a5ac4100fac7aa8736748e14f08dca0b586b6.zip",
         },
         "Description": "Saves OLAC event reservation information to the datastore",
         "Environment": {
