@@ -25,7 +25,7 @@ export class ConfigUtilityStack extends cdk.Stack {
         this.getConfigLambda = new lambda.Function(this, 'GetConfiguration', {
             description: 'Returns the application configuration',
             runtime: lambda.Runtime.NODEJS_22_X,
-            code: lambda.Code.fromAsset('./lib/functions/utility/config'),
+            code: lambda.Code.fromAsset('./dist/lambda/utility/config/get'),
             handler: 'get.handler',
             environment: {
                 PAYPAL_API_BASE: props.payPal.apiBase,

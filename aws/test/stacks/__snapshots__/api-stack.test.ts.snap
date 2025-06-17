@@ -108,7 +108,7 @@ exports[`ApiStack API stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "331cb328c36f9bc34ea8a8ab69e21a3eee7e6744fa8bd6903a01c63ae5571792.zip",
+          "S3Key": "fb2e1d681a2e9ceec147869dc4e8950bfd43d4ef88e7d9df257b48e3d62cf34a.zip",
         },
         "Description": "API Gateway Admin Authorizer",
         "Environment": {
@@ -353,7 +353,7 @@ exports[`ApiStack API stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "331cb328c36f9bc34ea8a8ab69e21a3eee7e6744fa8bd6903a01c63ae5571792.zip",
+          "S3Key": "fb2e1d681a2e9ceec147869dc4e8950bfd43d4ef88e7d9df257b48e3d62cf34a.zip",
         },
         "Description": "API Gateway Event Coordinator Authorizer",
         "Environment": {

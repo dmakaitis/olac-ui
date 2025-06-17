@@ -5,7 +5,10 @@
     "olac": "bin/olac.js"
   },
   "scripts": {
-    "build": "tsc",
+    "lint": "eslint .",
+    "clean": "rimraf 'dist' 'cdk.out' '*([lib|bin|test])/**/*.js' '*([lib|bin|test])/**/*.d.ts'",
+    "compile": "tsc",
+    "bundle": "node build.config.mjs",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk"
@@ -25,6 +28,8 @@
     "aws-cdk-lib": "^2.201.0",
     "aws-jwt-verify": "^5.1.0",
     "constructs": "^10.0.0",
+    "esbuild": "^0.25.5",
+    "rimraf": "^6.0.1",
     "source-map-support": "^0.5.21"
   }
 }

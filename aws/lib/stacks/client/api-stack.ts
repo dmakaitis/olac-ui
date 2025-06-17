@@ -86,7 +86,7 @@ export class ApiStack extends cdk.Stack {
                     handler: new lambda.Function(this, 'EventCoordinatorAuthorizerFunction', {
                         description: 'API Gateway Event Coordinator Authorizer',
                         runtime: lambda.Runtime.NODEJS_22_X,
-                        code: lambda.Code.fromAsset('./lib/functions/utility/security'),
+                        code: lambda.Code.fromAsset('./dist/lambda/utility/security/authorize'),
                         handler: 'authorize.handler',
                         environment: {
                             USER_POOL_ID: props.cognitoUserPoolId,
@@ -108,7 +108,7 @@ export class ApiStack extends cdk.Stack {
                     handler: new lambda.Function(this, 'AdminAuthorizerFunction', {
                         description: 'API Gateway Admin Authorizer',
                         runtime: lambda.Runtime.NODEJS_22_X,
-                        code: lambda.Code.fromAsset('./lib/functions/utility/security'),
+                        code: lambda.Code.fromAsset('./dist/lambda/utility/security/authorize'),
                         handler: 'authorize.handler',
                         environment: {
                             USER_POOL_ID: props.cognitoUserPoolId,

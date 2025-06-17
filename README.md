@@ -29,7 +29,9 @@ In each of the ```lambda``` subdirectories under ```aws```, run ```npm install``
 run the following:
 
 * ```npm install``` to download all dependencies.
-* ```npm run build``` to build the CDK scripts.
+* ```npm run clean``` to delete any old files.
+* ```npm run compile``` to build the CDK scripts.
+* ```npm run bundle``` to bundle lambda functions.
 * ```yarn test``` to validate everything.
 * ```cdk deploy Env/*``` to deploy to one of the following environments: Dev, Test, or Prod.
 

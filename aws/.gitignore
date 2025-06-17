@@ -10,3 +10,5 @@ cdk.out
 # Project files
 .idea
 .vscode
+
+dist
