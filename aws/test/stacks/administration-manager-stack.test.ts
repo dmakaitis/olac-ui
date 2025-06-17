@@ -26,7 +26,7 @@ describe("AdministrationManagerStack", () => {
         configFunction = configStack.getConfigLambda
     })
 
-    test("Config utility stack creation", () => {
+    test("Administration manager stack creation", () => {
         const stack = new AdministrationManagerStack(app, "AdministrationManagerStack", {
             getConfigFunction: configFunction
         });

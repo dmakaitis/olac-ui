@@ -1,4 +1,4 @@
-import {handler} from "../../../../lambda/utility/security/whoami"
+import {handler} from "../../../../lib/functions/utility/security/whoami"
 import {Context} from "aws-lambda";
 
 const event = {} as any;

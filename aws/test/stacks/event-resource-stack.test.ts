@@ -9,7 +9,7 @@ describe("EventResourceStack", () => {
         app = new App();
     })
 
-    test("Config utility stack creation", () => {
+    test("Event resource stack creation", () => {
         const stack = new EventResourceStack(app, "EventResourceStack", {});
         const template = Template.fromStack(stack);
         expect(template.toJSON()).toMatchSnapshot()///

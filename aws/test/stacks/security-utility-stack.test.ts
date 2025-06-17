@@ -9,7 +9,7 @@ describe("SecurityUtilityStack", () => {
         app = new App();
     })
 
-    test("Config utility stack creation", () => {
+    test("Seurity utility stack creation", () => {
         const stack = new SecurityUtilityStack(app, "SecurityUtilityStack", {
             clientId: "client-id",
             environment: "test",

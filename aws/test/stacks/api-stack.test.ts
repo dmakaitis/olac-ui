@@ -53,7 +53,7 @@ describe("ApiStack", () => {
         });
     })
 
-    test("Config utility stack creation", () => {
+    test("API stack creation", () => {
         const stack = new ApiStack(app, "ApiStack", {
             apiRoleARN: "arn:aws:iam::543748744721:role/OlacDevApiRole",
             cognitoClientId: "client-id",

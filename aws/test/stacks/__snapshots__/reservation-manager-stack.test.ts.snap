@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ReservationManagerStack Config utility stack creation 1`] = `
+exports[`ReservationManagerStack Reservation manager stack creation 1`] = `
 {
   "Parameters": {
     "BootstrapVersion": {

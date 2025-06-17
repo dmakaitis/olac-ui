@@ -37,7 +37,7 @@ export class SecurityUtilityStack extends cdk.Stack {
         this.whoAmIFunction = new lambda.Function(this, 'WhoAmI', {
             description: 'Returns the identity of the caller',
             runtime: lambda.Runtime.NODEJS_22_X,
-            code: lambda.Code.fromAsset('./lambda/utility/security'),
+            code: lambda.Code.fromAsset('./lib/functions/utility/security'),
             handler: 'whoami.handler',
             environment: {
                 USER_POOL_ID: props.userPoolId,

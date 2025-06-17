@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ApiStack Config utility stack creation 1`] = `
+exports[`ApiStack API stack creation 1`] = `
 {
   "Outputs": {
     "OlacApiEndpoint77E8990B": {
@@ -108,7 +108,7 @@ exports[`ApiStack Config utility stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7896cd0e56c8376f77a75f6148894c8d41592656bc11ccacc70de7136b63e87f.zip",
+          "S3Key": "331cb328c36f9bc34ea8a8ab69e21a3eee7e6744fa8bd6903a01c63ae5571792.zip",
         },
         "Description": "API Gateway Admin Authorizer",
         "Environment": {
@@ -353,7 +353,7 @@ exports[`ApiStack Config utility stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7896cd0e56c8376f77a75f6148894c8d41592656bc11ccacc70de7136b63e87f.zip",
+          "S3Key": "331cb328c36f9bc34ea8a8ab69e21a3eee7e6744fa8bd6903a01c63ae5571792.zip",
         },
         "Description": "API Gateway Event Coordinator Authorizer",
         "Environment": {

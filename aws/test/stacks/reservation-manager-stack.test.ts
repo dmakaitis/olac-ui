@@ -15,7 +15,7 @@ describe("ReservationManagerStack", () => {
         saveReservationFunction = eventStack.saveReservationFunction
     })
 
-    test("Config utility stack creation", () => {
+    test("Reservation manager stack creation", () => {
         const stack = new ReservationManagerStack(app, "ReservationManagerStack", {
             payPal: {
                 apiBase: "https://test.paypal.com/api",

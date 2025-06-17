@@ -1,5 +1,6 @@
-import {APIGatewayRequestAuthorizerEvent, AuthResponse, Handler} from "aws-lambda";
+import {APIGatewayRequestAuthorizerEvent, AuthResponse} from "aws-lambda";
 import {CognitoJwtVerifier} from "aws-jwt-verify";
+import {StatementEffect} from "aws-lambda/trigger/api-gateway-authorizer";
 
 interface UserInfo {
     username: string,
@@ -7,7 +8,7 @@ interface UserInfo {
     groups: Array<string>
 }
 
-export const handler: Handler = async (event: APIGatewayRequestAuthorizerEvent): Promise<AuthResponse> => {
+export async function handler(event: APIGatewayRequestAuthorizerEvent, context: any): Promise<AuthResponse> {
     const verifier = CognitoJwtVerifier.create({
         userPoolId: process.env.USER_POOL_ID || 'us-east-2_LKok1DKIU',
         tokenUse: 'access',
@@ -18,7 +19,7 @@ export const handler: Handler = async (event: APIGatewayRequestAuthorizerEvent):
 
     var token = (event.headers || {}).Authorization;
     var userInfo: UserInfo;
-    var effect: string = 'Deny';
+    var effect: StatementEffect = 'Deny';
 
     try {
         const payload = await verifier.verify(token || '');
@@ -63,7 +64,7 @@ function getGrants(groups: string[]): string[] {
     return [];
 }
 
-function generatePolicy(userInfo: UserInfo, effect: string, resource: string): AuthResponse {
+function generatePolicy(userInfo: UserInfo, effect: StatementEffect, resource: string): AuthResponse {
     return {
         principalId: userInfo.username,
         policyDocument: {

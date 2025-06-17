@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`AdministrationManagerStack Config utility stack creation 1`] = `
+exports[`AdministrationManagerStack Administration manager stack creation 1`] = `
 {
   "Parameters": {
     "BootstrapVersion": {
