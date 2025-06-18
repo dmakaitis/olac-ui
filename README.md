@@ -41,7 +41,7 @@ The UI for the website is located in the ```quasar``` directory and must be buil
 To build the UI, run the following from the ```quasar``` directory:
 
 * ```yarn``` to download all dependencies.
-* ```quasar build``` to build the UI. The static files that need to be deployed to AWS will be placed into the
+* ```yarn build``` to build the UI. The static files that need to be deployed to AWS will be placed into the
   ```quasar/dist/spa``` directory.
 
 ### 2. Build and Deploy the AWS CDK Stack

@@ -14,6 +14,7 @@ interface EventData {
 const router = useRouter();
 const props = defineProps<{ future: boolean }>();
 const events = ref<EventData[]>([]);
+const loading = ref<boolean>(true);
 
 function onClickArticle(slug: string) {
   router.push(`/main/article/${slug}`);
@@ -27,17 +28,11 @@ function formatDate(eventDate: string) {
 }
 
 onMounted(() => {
-  console.log("Event list mounted...");
-
   var now = new Date().toISOString().substring(0, 10);
-
-  console.log(`Now is ${now}`);
 
   var filter = props.future ?
     `*[_type=='article' && eventdate >= "${now}"] | order(eventdate asc)` :
     `*[_type=='article' && eventdate < "${now}"] | order(eventdate desc)`;
-
-  console.log(`Using filter: ${filter}`);
 
   useSanityFetcher<EventData[]>(`
 ${filter}
@@ -49,16 +44,21 @@ ${filter}
 }
     `).fetch()
     .then(result => {
-      console.log(`Query results: ${JSON.stringify(result)}`);
       events.value = result || [];
-      console.log(`Received ${events.value.length} events`);
+      loading.value = false;
     })
 });
 
 </script>
 
 <template>
-  <div class="q-pa-md row items-start q-gutter-md justify-center">
+  <div v-if="loading" class="text-center">
+    <q-spinner size="lg"/>
+  </div>
+  <div v-if="!loading && events.length <= 0" class="text-center text-h5">
+    There are no {{ props.future ? "future" : "past" }} events scheduled at this time. Please check again later.
+  </div>
+  <div v-if="!loading && events.length > 0" class="q-pa-md row items-start q-gutter-md justify-center">
     <q-card class="my-card shadow-24" v-for="event in events" :key="event.slug">
       <div v-ripple @click="onClickArticle(event.slug)" class="cursor-pointer relative-position">
         <q-img :src="`${event.imageUrl}?w=300&h=200&fit=min`">
