@@ -8,6 +8,7 @@ import ArticleImage from "components/ArticleImage.vue";
 import FloatingImages from "components/FloatingImages.vue";
 import TicketSalesWidget from "components/TicketSalesWidget.vue";
 import PayPalDonation from "components/PayPalDonation.vue";
+import EventList from "components/EventList.vue";
 
 const props = defineProps({slug: String});
 
@@ -23,7 +24,8 @@ const serializers : Partial<Serializers> = {
     "image": ((ArticleImage as unknown) as BlockSerializer<BlockText>),
     "floatingimages": ((FloatingImages as unknown) as BlockSerializer<BlockText>),
     "ticketwidget": ((TicketSalesWidget as unknown) as BlockSerializer<BlockText>),
-    "paypaldonation": ((PayPalDonation as unknown) as BlockSerializer<BlockText>)
+    "paypaldonation": ((PayPalDonation as unknown) as BlockSerializer<BlockText>),
+    "eventlist": ((EventList as unknown) as BlockSerializer<BlockText>)
   }
 };
 
