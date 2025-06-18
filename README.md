@@ -22,7 +22,26 @@ if it isn't, use Yarn to install it globally:
 Note that the terminal may need to be restarted after installing a tool before it will appear on the PATH. Don't
 forget to use ```nvm``` to select the correct Node.js version after restarting the terminal.
 
-## Build Process
+## Build Process - Automatic
+
+From the root directory of the project, run the ```build.sh``` script. This will build all projects to prepare them
+for deployment.
+
+Once built, the code will still need to be manually deployed by running one or more of the following commands from the
+```aws``` directory:
+
+* ```yarn deploy-dev```
+* ```yarn deploy-test```
+* ```yarn deploy-prod```
+
+Optionally, if any changes have been made to the Sanity schemas, run the following command from the ```sanity``` directory:
+
+* ```sanity login``` (if needed - use the Google account)
+* ```yarn deploy```
+
+See below for additional details on what is actually being done.
+
+## Build Process - Manual
 
 ### 0. Build and Deploy the Sanity.IO Content Studio
 
