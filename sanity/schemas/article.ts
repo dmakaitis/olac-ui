@@ -17,6 +17,11 @@ export const article = defineType({
             title: 'Subtitle'
         }),
         defineField({
+            name: 'eventdate',
+            type: 'date',
+            title: 'The date of the event if this article is describing an event. Leave this blank if this article is not an event.'
+        }),
+        defineField({
             name: 'showtitle',
             type: 'boolean',
             title: 'Include title when viewing article',
@@ -55,7 +60,8 @@ export const article = defineType({
                 defineArrayMember({type: 'floatingimages'}),
                 defineArrayMember({type: 'collection'}),
                 defineArrayMember({type: 'ticketwidget'}),
-                defineArrayMember({type: 'paypaldonation'})
+                defineArrayMember({type: 'paypaldonation'}),
+                defineArrayMember({type: 'eventlist'})
             ]
         })
     ]

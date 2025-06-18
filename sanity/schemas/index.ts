@@ -7,5 +7,6 @@ import {ticketwidget} from "./ticketwidget";
 import {paypaldonation} from "./paypaldonation";
 import {routetarget} from "./routetarget";
 import {tabmenu} from "./tabmenu";
+import {eventlist} from "./eventlist"
 
-export const schemaTypes = [article, tabbar, event, floatingimages, collection, ticketwidget, paypaldonation, routetarget, tabmenu]
+export const schemaTypes = [article, tabbar, event, floatingimages, collection, ticketwidget, paypaldonation, routetarget, tabmenu, eventlist]
