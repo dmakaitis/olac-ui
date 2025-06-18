@@ -1,4 +1,4 @@
-import {defineType, defineField, defineArrayMember} from 'sanity'
+import {defineType, defineField} from 'sanity'
 
 export const ticketwidget = defineType({
   name: 'ticketwidget',
