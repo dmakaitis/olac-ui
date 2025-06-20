@@ -12,9 +12,6 @@ interface SaveReservationAdminRequest {
 export async function apiHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     const body: Reservation = JSON.parse(event.body || '{}');
 
-    let ticketCounts = body.ticketCounts || [];
-    let payments = body.payments || [];
-
     const request: SaveReservationAdminRequest = {
         reservation: body,
         username: event.requestContext.authorizer?.username || 'anonymous',
@@ -36,7 +33,7 @@ async function handler(event: SaveReservationAdminRequest): Promise<Reservation>
     return await saveReservationAdmin(event.reservation, event.username, event.grants);
 }
 
-async function saveReservationAdmin(reservation: Reservation, username: string, grants: string[]): Promise<Reservation> {
+async function saveReservationAdmin(reservation: Reservation, username: string, _grants: string[]): Promise<Reservation> {
     // TODO: Add validation of security access and limited functionality for event coordinators
     // if (securityUtility.isCurrentUserAdmin()) {
     //     return saveReservation(reservation, true);

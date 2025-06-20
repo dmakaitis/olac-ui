@@ -108,7 +108,7 @@ exports[`ApiStack API stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "fb2e1d681a2e9ceec147869dc4e8950bfd43d4ef88e7d9df257b48e3d62cf34a.zip",
+          "S3Key": "6569dacaef7b575b01d6c0799eea8d04f8d4c9039e24fe53da341d5a8f38d36e.zip",
         },
         "Description": "API Gateway Admin Authorizer",
         "Environment": {
@@ -353,7 +353,7 @@ exports[`ApiStack API stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "fb2e1d681a2e9ceec147869dc4e8950bfd43d4ef88e7d9df257b48e3d62cf34a.zip",
+          "S3Key": "6569dacaef7b575b01d6c0799eea8d04f8d4c9039e24fe53da341d5a8f38d36e.zip",
         },
         "Description": "API Gateway Event Coordinator Authorizer",
         "Environment": {
@@ -463,7 +463,7 @@ exports[`ApiStack API stack creation 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "OlacApiDeployment471BD4350e3bdaf766366fb4381e091144ceb6f5": {
+    "OlacApiDeployment471BD4353105a36202b4d719af74c52d77c8461c": {
       "DependsOn": [
         "OlacApiapiauthOPTIONS72CABD72",
         "OlacApiapiauthFC9FE756",
@@ -510,8 +510,6 @@ exports[`ApiStack API stack creation 1`] = `
         "OlacApiapipublicBFEC7C00",
         "OlacApiapi5A46DC5C",
         "OlacApiOPTIONSE209C28F",
-        "OlacApiEventE9E409F7",
-        "OlacApiGetEventsResponse4E6EF7E6",
       ],
       "Properties": {
         "Description": "API for the OLAC website back end functions",
@@ -536,7 +534,7 @@ exports[`ApiStack API stack creation 1`] = `
           "Format": "{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","user":"$context.identity.user","caller":"$context.identity.caller","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}",
         },
         "DeploymentId": {
-          "Ref": "OlacApiDeployment471BD4350e3bdaf766366fb4381e091144ceb6f5",
+          "Ref": "OlacApiDeployment471BD4353105a36202b4d719af74c52d77c8461c",
         },
         "MethodSettings": [
           {
@@ -552,101 +550,6 @@ exports[`ApiStack API stack creation 1`] = `
         "StageName": "prod",
       },
       "Type": "AWS::ApiGateway::Stage",
-    },
-    "OlacApiEventE9E409F7": {
-      "Properties": {
-        "ContentType": "application/json",
-        "Name": "Event",
-        "RestApiId": {
-          "Ref": "OlacApi471C2DF4",
-        },
-        "Schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
-          "properties": {
-            "eventDate": {
-              "description": "The date on which the event takes place.",
-              "type": "string",
-            },
-            "id": {
-              "description": "The unique identifier for this event.",
-              "type": "string",
-            },
-            "maxTickets": {
-              "description": "The maximum number of tickets to sell for this event, or blank for unlimited tickets.",
-              "minimum": 1,
-              "type": "integer",
-            },
-            "name": {
-              "description": "The name of the event",
-              "type": "string",
-            },
-            "ticketSaleEndDate": {
-              "description": "The last date for which tickets for this event should be sold, or blank if they should be sold up to the date of the event.",
-              "type": "string",
-            },
-            "ticketSaleStartDate": {
-              "description": "The fist date on which tickets for this event should go on sale, or blank if they should immediately go on sale.",
-              "type": "string",
-            },
-            "ticketTypes": {
-              "description": "The types of tickets available and their associated prices.",
-              "items": {
-                "properties": {
-                  "name": {
-                    "description": "The name of the ticket type",
-                    "type": "string",
-                  },
-                  "price": {
-                    "description": "The price for each ticket",
-                    "minimum": 0,
-                    "type": "number",
-                  },
-                },
-                "required": [
-                  "name",
-                  "price",
-                ],
-                "type": "object",
-              },
-              "type": "array",
-            },
-          },
-          "required": [
-            "id",
-            "name",
-          ],
-          "title": "event",
-          "type": "object",
-        },
-      },
-      "Type": "AWS::ApiGateway::Model",
-    },
-    "OlacApiGetEventsResponse4E6EF7E6": {
-      "Properties": {
-        "ContentType": "application/json",
-        "Name": "GetEventsResponse",
-        "RestApiId": {
-          "Ref": "OlacApi471C2DF4",
-        },
-        "Schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
-          "properties": {
-            "items": {
-              "items": {},
-              "type": "array",
-            },
-            "nextStartKey": {
-              "type": "string",
-            },
-          },
-          "required": [
-            "items",
-          ],
-          "title": "get-events-response",
-          "type": "object",
-        },
-      },
-      "Type": "AWS::ApiGateway::Model",
     },
     "OlacApiOPTIONSE209C28F": {
       "Properties": {

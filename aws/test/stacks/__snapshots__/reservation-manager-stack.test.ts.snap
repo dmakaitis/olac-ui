@@ -19,7 +19,7 @@ exports[`ReservationManagerStack Reservation manager stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "a3c316ebffefb3bd3aba96d56ff90f6f89b4bde1b5111b9f8775dca5124f0bb4.zip",
+          "S3Key": "b765ff84c8f0319a839b0b30cb60299c742aa955ce27fd606d99a69b6b36be29.zip",
         },
         "Description": "Generate a new reservation ID",
         "Handler": "new-reservation-id.handler",
@@ -74,7 +74,7 @@ exports[`ReservationManagerStack Reservation manager stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "d0f63f5c10b9cffd907b7dfdd03373d49b9ed528258bd727a332eb602e33225a.zip",
+          "S3Key": "35f31a71bacf11a6c25300928cfe4445976ee9f2ee93db64384ee082d1e4052f.zip",
         },
         "Description": "Saves a new reservation to the datastore (for event coordinator use)",
         "Environment": {
@@ -175,7 +175,7 @@ exports[`ReservationManagerStack Reservation manager stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "df9615fb1a70a0f4d33704c1ecf9bc0b9a3898ee304ec2674f825056ac23d29c.zip",
+          "S3Key": "fc384f201ef2ca24e34e05872550b8d6623c1e94d68d0a2169424f7c76fb41cf.zip",
         },
         "Description": "Saves a new reservation to the datastore (for public use)",
         "Environment": {

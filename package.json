@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "lint": "pnpm eslint ."
+  },
+  "engines": {
+    "node": ">=22.16.0",
+    "npm": ">=10.9.2"
+  }
+}

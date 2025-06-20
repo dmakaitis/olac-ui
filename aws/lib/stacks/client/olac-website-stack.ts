@@ -82,7 +82,7 @@ export class OlacWebsiteStack extends cdk.Stack {
             },
             priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
             domainNames: props.domainNames,
-            certificate: certificate,
+            certificate,
         });
     }
 }

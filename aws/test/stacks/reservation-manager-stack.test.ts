@@ -22,7 +22,7 @@ describe("ReservationManagerStack", () => {
                 clientId: "test-paypal-client-id",
                 secret: "my-paypal-secret"
             },
-            saveReservationFunction: saveReservationFunction
+            saveReservationFunction
         });
         const template = Template.fromStack(stack);
         expect(template.toJSON()).toMatchSnapshot()///

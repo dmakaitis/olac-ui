@@ -13,7 +13,7 @@ const client = new DynamoDBClient({});
 const docClient = DynamoDBDocument.from(client);
 
 export const handler: Handler = async (event) => {
-    let queryCommandInput: QueryCommandInput = {
+    const queryCommandInput: QueryCommandInput = {
         TableName: process.env.TABLE_NAME,
         IndexName: "GlobalEventIndex",
         ScanIndexForward: false,
@@ -25,13 +25,11 @@ export const handler: Handler = async (event) => {
 
     // Load all the reservations for the event into memory...
     let response = await docClient.query(queryCommandInput);
-    // @ts-ignore
-    let reservations: Reservation[] = response.Items || [];
+    let reservations: Reservation[] = response.Items as Reservation[] || [];
     while (response.LastEvaluatedKey) {
         queryCommandInput.ExclusiveStartKey = response.LastEvaluatedKey;
         response = await docClient.query(queryCommandInput);
-        // @ts-ignore
-        reservations = reservations.concat(response.Items || []);
+        reservations = reservations.concat(response.Items as Reservation[] || []);
     }
 
     // Get all sold ticket types for headers
@@ -67,7 +65,7 @@ export const handler: Handler = async (event) => {
 }
 
 function normalizeCsvRow(ticketTypes: TicketType[], r: Reservation, p: Payment | null): Record<string, any> {
-    let normalized: Record<string, any> = {
+    const normalized: Record<string, any> = {
         "Reservation Number": r.reservationId || 0,
         "Date/Time Reserved": r.reservationTimestamp || '',
         "First Name": r.firstName || '',

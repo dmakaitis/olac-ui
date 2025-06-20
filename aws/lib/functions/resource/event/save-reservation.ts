@@ -4,7 +4,7 @@ import {DynamoDBDocument} from "@aws-sdk/lib-dynamodb";
 
 import {Reservation} from "./reservation";
 
-import * as crypto from "crypto";
+import {randomUUID} from "crypto";
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocument.from(client);
@@ -27,14 +27,12 @@ export const apiHandler: Handler = async (event) => {
 
     const body: Reservation = JSON.parse(event.body);
 
-    let ticketCounts = body.ticketCounts || [];
-    let payments = body.payments || [];
+    const ticketCounts = body.ticketCounts || [];
+    const payments = body.payments || [];
 
     if (event.httpMethod === "PUT" || isValidEventReservation(body)) {
-        const crypto = require("crypto");
-
-        let newEventReservation = {
-            id: event.pathParameters?.reservationId || body.id || crypto.randomUUID(),
+        const newEventReservation = {
+            id: event.pathParameters?.reservationId || body.id || randomUUID(),
             eventId: event.pathParameters?.eventId || body.eventId,
             reservationId: body.reservationId || await getNewReservationId(),
             firstName: body.firstName || null,
@@ -121,7 +119,7 @@ export async function handler(request: SaveReservationRequest): Promise<Reservat
     return reservation;
 }
 
-function isValidEventReservation(reservation: Reservation) {
+function isValidEventReservation(_reservation: Reservation) {
     return true;
 }
 
@@ -151,12 +149,12 @@ function updateStatus(reservation: Reservation, username: string) {
 
     // Update status, if needed
     if (reservation.status === 'PENDING_PAYMENT' || reservation.status === 'RESERVED') {
-        let amountPaid = reservation.payments
+        const amountPaid = reservation.payments
             .filter(p => p.status === 'SUCCESSFUL')
             .map(p => p.amount)
             .reduce((a, b) => a + b, 0);
 
-        let amountDue = reservation.ticketCounts
+        const amountDue = reservation.ticketCounts
             .map(t => t.count * t.costPerTicket)
             .reduce((a, b) => a + b, 0);
 
@@ -219,10 +217,10 @@ async function logChangesToReservation(original: Reservation, updated: Reservati
 async function logReservationEvent(reservationId: string, note: string, username: string) {
     const auditLog: AuditEvent = {
         id: crypto.randomUUID().toString(),
-        reservationId: reservationId,
+        reservationId,
         timestamp: new Date().toJSON(),
         user: username,
-        note: note
+        note
     };
 
     await docClient.put({

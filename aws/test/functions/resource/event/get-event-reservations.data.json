@@ -1,0 +1,110 @@
+{
+  "queryResult": [
+    {
+      "payments": {
+        "L": [
+          {
+            "M": {
+              "amount": {
+                "N": "100"
+              },
+              "notes": {
+                "S": "PayPal Transaction ID: 42069110WM225583L"
+              },
+              "method": {
+                "S": "ONLINE"
+              },
+              "enteredBy": {
+                "S": "anonymous"
+              },
+              "status": {
+                "S": "SUCCESSFUL"
+              },
+              "createdTimestamp": {
+                "S": "2023-02-21 21:13:30.0"
+              }
+            }
+          }
+        ]
+      },
+      "ticketCounts": {
+        "L": [
+          {
+            "M": {
+              "typeName": {
+                "S": "Adult"
+              },
+              "count": {
+                "N": "2"
+              },
+              "costPerTicket": {
+                "N": "50"
+              }
+            }
+          }
+        ]
+      },
+      "eventId": {
+        "S": "7e3b92d2-0780-4883-9904-e606f73f1df9"
+      },
+      "lastName": {
+        "S": "Blo"
+      },
+      "status": {
+        "S": "RESERVED"
+      },
+      "reservationId": {
+        "N": "123"
+      },
+      "reservationTimestamp": {
+        "S": "2023-02-21 21:13:26.857"
+      },
+      "email": {
+        "S": "test@xxxxx.com"
+      },
+      "id": {
+        "S": "e4459e29-0c4b-43bb-863f-a9914a9dcf3d"
+      },
+      "phone": {
+        "S": "(123) 456-7890"
+      },
+      "amountDue": {
+        "N": "0"
+      },
+      "firstName": {
+        "S": "Joe"
+      }
+    }
+  ],
+  "expected": [
+    {
+      "payments": [
+        {
+          "amount": 100,
+          "notes": "PayPal Transaction ID: 42069110WM225583L",
+          "method": "ONLINE",
+          "enteredBy": "anonymous",
+          "status": "SUCCESSFUL",
+          "createdTimestamp": "2023-02-21 21:13:30.0"
+        }
+      ],
+      "ticketCounts": [
+        {
+          "typeName": "Adult",
+          "count": 2,
+          "costPerTicket": 50
+        }
+      ],
+      "eventId": "7e3b92d2-0780-4883-9904-e606f73f1df9",
+      "lastName": "Blo",
+      "status": "RESERVED",
+      "reservationId": 123,
+      "reservationTimestamp": "2023-02-21 21:13:26.857",
+      "email": "test@xxxxx.com",
+      "id": "e4459e29-0c4b-43bb-863f-a9914a9dcf3d",
+      "phone": "(123) 456-7890",
+      "amountDue": 0,
+      "firstName": "Joe"
+    }
+  ]
+}

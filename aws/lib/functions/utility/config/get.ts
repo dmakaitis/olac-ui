@@ -19,7 +19,7 @@ export type Config = {
     olac: OlacConfig;
 }
 
-export async function handler(event: any, context: any) : Promise<Config> {
+export async function handler(_event: any, _context: any) : Promise<Config> {
     return {
         "olac": {
             "paypal": {

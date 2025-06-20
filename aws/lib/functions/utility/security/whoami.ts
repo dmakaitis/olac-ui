@@ -1,6 +1,6 @@
 import {CognitoJwtVerifier} from "aws-jwt-verify";
 
-export async function handler(event: any, context: any): Promise<any> {
+export async function handler(event: any, _context: any): Promise<any> {
     const verifier = CognitoJwtVerifier.create({
         userPoolId: process.env.USER_POOL_ID || 'us-east-2_LKok1DKIU',
         tokenUse: 'access',
@@ -24,7 +24,7 @@ export async function handler(event: any, context: any): Promise<any> {
             statusCode: 200,
             body: JSON.stringify({
                 username: payload.username,
-                grants: grants
+                grants
             }),
             headers: {
                 "Set-Cookie": "ShowLoginButton=Y; Max-Age=15552000; Path=/"

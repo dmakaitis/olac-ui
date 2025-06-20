@@ -20,7 +20,7 @@ export const eventlist = defineType({
             const title = future ? "Future Events" : "Past Events";
 
             return {
-                title: title
+                title
             }
         }
     }

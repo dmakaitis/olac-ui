@@ -1,6 +1,7 @@
 import {Handler} from 'aws-lambda';
 import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 import {DynamoDBDocument} from "@aws-sdk/lib-dynamodb";
+import {randomUUID} from "crypto";
 
 import {Event} from "./event";
 
@@ -11,10 +12,8 @@ export const handler: Handler = async (event) => {
     const body: Event = JSON.parse(event.body);
 
     if (event.httpMethod === "PUT" || isValidEvent(body)) {
-        const crypto = require("crypto");
-
-        let newEvent = {
-            id: event.pathParameters?.eventId || body.id || crypto.randomUUID(),
+        const newEvent = {
+            id: event.pathParameters?.eventId || body.id || randomUUID(),
             index: 'EVENT',
             name: body.name,
             eventDate: body.eventDate,
@@ -27,11 +26,10 @@ export const handler: Handler = async (event) => {
                 .sort((a, b) => b.price - a.price)
         };
 
-        const response = await docClient.put({
+        await docClient.put({
             TableName: process.env.TABLE_NAME,
             Item: newEvent
         });
-
 
         const getResponse = await docClient.get({
             TableName: process.env.TABLE_NAME,

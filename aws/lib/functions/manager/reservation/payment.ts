@@ -39,7 +39,7 @@ function buildOnlinePayment(id: string, paymentProcessorTransactionId: string, r
 
     // Record the payment:
     const payment: Payment = {
-        amount: amount,
+        amount,
         status: 'SUCCESSFUL',
         method: "ONLINE",
         notes: `PayPal Transaction ID: ${paymentProcessorTransactionId}`,

@@ -1,34 +1,39 @@
-import {Handler} from 'aws-lambda';
-import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
-import {DynamoDBDocument, QueryCommandInput} from "@aws-sdk/lib-dynamodb";
+import {DynamoDBClient, QueryCommand} from "@aws-sdk/client-dynamodb";
+import {DynamoDBDocumentClient, QueryCommandInput} from "@aws-sdk/lib-dynamodb";
+import {APIGatewayEvent, ProxyResult} from "aws-lambda";
+import {unmarshall} from "@aws-sdk/util-dynamodb";
 
 interface ResponseBody {
-    items?: Record<string, any>[],
+    items: Record<string, any>[],
     nextStartKey?: string
 }
 
-const client = new DynamoDBClient({});
-const docClient = DynamoDBDocument.from(client);
+export async function handler(event: APIGatewayEvent): Promise<ProxyResult> {
+    const client = new DynamoDBClient({});
+    const docClient = DynamoDBDocumentClient.from(client);
 
-export const handler: Handler = async (event) => {
-    let queryCommandInput: QueryCommandInput = {
+    const queryCommandInput: QueryCommandInput = {
         TableName: process.env.TABLE_NAME,
         IndexName: "GlobalEventIndex",
         ScanIndexForward: false,
         KeyConditionExpression: "eventId = :idValue",
         ExpressionAttributeValues: {
-            ":idValue": event.pathParameters.eventId
+            ":idValue": {S: event.pathParameters?.eventId}
         }
     };
 
-    if (event.queryStringParameters && event.queryStringParameters.startKey) {
+    if (event.queryStringParameters?.startKey) {
         queryCommandInput.ExclusiveStartKey = JSON.parse(Buffer.from(event.queryStringParameters.startKey, "base64").toString('binary'));
     }
 
-    const response = await docClient.query(queryCommandInput);
+    const command = new QueryCommand(queryCommandInput);
+    const response = await docClient.send(command);
+    const items = response.Items || [];
 
-    let responseBody: ResponseBody = {
-        items: response.Items,
+    const responseBody: ResponseBody = {
+        items: items.map((item) => {
+            return unmarshall(item)
+        }),
     };
 
     if (response.LastEvaluatedKey) {
@@ -36,7 +41,7 @@ export const handler: Handler = async (event) => {
     }
 
     return {
-        statusCode: "200",
+        statusCode: 200,
         body: JSON.stringify(responseBody)
     };
-};
+}

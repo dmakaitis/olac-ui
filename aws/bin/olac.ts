@@ -3,8 +3,8 @@ import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import {Construct} from 'constructs'
 
-import {ConfigUtilityStack, ConfigUtilityStackProps} from "../lib/stacks/utility/config-utility-stack";
-import {SecurityUtilityStack, SecurityUtilityStackProps} from "../lib/stacks/utility/security-utility-stack";
+import {ConfigUtilityStack} from "../lib/stacks/utility/config-utility-stack";
+import {SecurityUtilityStack} from "../lib/stacks/utility/security-utility-stack";
 import {EventResourceStack} from "../lib/stacks/resource/event-resource-stack";
 import {AdministrationManagerStack} from "../lib/stacks/manager/administration-manager-stack";
 import {ReservationManagerStack} from "../lib/stacks/manager/reservation-manager-stack";

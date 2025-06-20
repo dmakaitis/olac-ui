@@ -1,6 +1,6 @@
 import {LambdaClient, InvokeCommand, LogType} from "@aws-sdk/client-lambda";
 
-export async function handler(event: any, context: any) : Promise<any> {
+export async function handler(event: any, _context: any) : Promise<any> {
     const client = new LambdaClient({region: "us-east-2"})
     const command = new InvokeCommand({
         FunctionName: process.env.GET_CONFIG_FUNCTION,
@@ -10,7 +10,7 @@ export async function handler(event: any, context: any) : Promise<any> {
 
     console.log(`Received event: ${JSON.stringify(event)}`);
 
-    const {Payload, LogResult} = await client.send(command);
+    const {Payload, } = await client.send(command);
     const config = JSON.parse(Buffer.from(Payload || "{}").toString());
 
     const showLogin = doesCookieExist(event.headers);
@@ -28,20 +28,15 @@ export async function handler(event: any, context: any) : Promise<any> {
                 "clientId": config.olac.cognito.clientId,
                 "redirectUri": config.olac.cognito.redirectUri
             },
-            "showLogin": showLogin
+            showLogin
         })
     }
 }
 
 function doesCookieExist(headers: any): boolean {
-    if (headers === null || headers === undefined || headers.Cookie === undefined) {
-        return false;
-    }
+    let cookieFound: boolean = false;
 
-    const rc: string = headers.Cookie;
-    var cookieFound: boolean = false;
-
-    rc && rc.split(';').forEach(function (cookie: string) {
+    headers?.Cookie?.split(';').forEach(function (cookie: string) {
         if (cookie === "ShowLoginButton=Y") {
             cookieFound = true;
         }

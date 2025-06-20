@@ -6,7 +6,7 @@ import {AxiosResponse} from "axios";
 
 // "async" is optional;
 // more info on params: https://v2.quasar.dev/quasar-cli/boot-files
-export default boot(async ({app, store}) => {
+export default boot(async ({store}) => {
     api.get('/api/public/client-config')
         .then((response: AxiosResponse<ClientConfig>) => {
             console.log(`Loaded client configuration: ${JSON.stringify(response.data)}`);

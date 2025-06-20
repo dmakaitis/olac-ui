@@ -77,8 +77,6 @@ export class ApiStack extends cdk.Stack {
 
         const api = this.restApi.root.addResource("api");
 
-        const models = this.defineModels();
-
         const authorizers: Authorizers = {
             eventCoordinator: {
                 authorizationType: apigateway.AuthorizationType.CUSTOM,
@@ -135,9 +133,9 @@ export class ApiStack extends cdk.Stack {
      *
      * @param props
      * @param api
-     * @param authorizers
+     * @param _authorizers
      */
-    apiVersion1(props: ApiStackProps, api: apigateway.Resource, authorizers: Authorizers) {
+    apiVersion1(props: ApiStackProps, api: apigateway.Resource, _authorizers: Authorizers) {
         // TODO: Replace this with a generated document stored in S3:
         const publicApi = api.addResource("public");
         const publicClientConfig = publicApi.addResource("client-config");
@@ -410,27 +408,6 @@ export class ApiStack extends cdk.Stack {
                             }
                         }
                     },
-                }
-            }
-        });
-
-        const getEventsResponse = this.restApi.addModel('GetEventsResponse', {
-            contentType: 'application/json',
-            modelName: 'GetEventsResponse',
-            schema: {
-                schema: apigateway.JsonSchemaVersion.DRAFT7,
-                title: 'get-events-response',
-                type: JsonSchemaType.OBJECT,
-                required: ['items'],
-                properties: {
-                    items: {
-                        type: JsonSchemaType.ARRAY,
-                        items: {}
-                    },
-                    nextStartKey: {
-                        type: JsonSchemaType.STRING,
-
-                    }
                 }
             }
         });

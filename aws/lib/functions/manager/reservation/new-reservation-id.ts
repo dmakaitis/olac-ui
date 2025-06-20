@@ -1,10 +1,8 @@
-import {Handler} from 'aws-lambda';
+import {randomUUID} from "crypto";
 
-export const handler: Handler = async (event, context) => {
-    const crypto = require("crypto");
-
+export async function handler(_event: any, _context: any): Promise<any> {
     return {
         statusCode: 200,
-        body: crypto.randomUUID()
+        body: randomUUID()
     };
 }

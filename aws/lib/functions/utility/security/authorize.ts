@@ -8,7 +8,7 @@ interface UserInfo {
     groups: Array<string>
 }
 
-export async function handler(event: APIGatewayRequestAuthorizerEvent, context: any): Promise<AuthResponse> {
+export async function handler(event: APIGatewayRequestAuthorizerEvent, _context: any): Promise<AuthResponse> {
     const verifier = CognitoJwtVerifier.create({
         userPoolId: process.env.USER_POOL_ID || 'us-east-2_LKok1DKIU',
         tokenUse: 'access',
@@ -17,9 +17,9 @@ export async function handler(event: APIGatewayRequestAuthorizerEvent, context: 
 
     const requiredGroups: Array<string> = (process.env.REQUIRED_GROUPS || '').split(" ");
 
-    var token = (event.headers || {}).Authorization;
-    var userInfo: UserInfo;
-    var effect: StatementEffect = 'Deny';
+    const token = event.headers?.Authorization;
+    let userInfo: UserInfo;
+    let effect: StatementEffect = 'Deny';
 
     try {
         const payload = await verifier.verify(token || '');
@@ -46,7 +46,7 @@ export async function handler(event: APIGatewayRequestAuthorizerEvent, context: 
         }
     }
 
-    let policy = generatePolicy(userInfo, effect, event.methodArn);
+    const policy = generatePolicy(userInfo, effect, event.methodArn);
 
     return policy;
 }

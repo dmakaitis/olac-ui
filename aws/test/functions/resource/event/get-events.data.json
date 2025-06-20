@@ -1,0 +1,124 @@
+{
+  "queryResult": [
+    {
+      "index": {
+        "S": "EVENT"
+      },
+      "ticketSaleEndDate": {
+        "NULL": true
+      },
+      "maxTickets": {
+        "N": "300"
+      },
+      "eventDate": {
+        "S": "2023/10/01"
+      },
+      "ticketSaleStartDate": {
+        "NULL": true
+      },
+      "ticketTypes": {
+        "L": [
+          {
+            "M": {
+              "name": {
+                "S": "Advance"
+              },
+              "price": {
+                "N": "18"
+              }
+            }
+          }
+        ]
+      },
+      "id": {
+        "S": "66019f39-c67a-487e-82c7-e236686a5d87"
+      },
+      "name": {
+        "S": "Traditional Lithuanian Dinner"
+      }
+    },
+    {
+      "index": {
+        "S": "EVENT"
+      },
+      "ticketSaleEndDate": {
+        "NULL": true
+      },
+      "maxTickets": {
+        "N": "100"
+      },
+      "eventDate": {
+        "S": "2023/04/22"
+      },
+      "ticketSaleStartDate": {
+        "NULL": true
+      },
+      "ticketTypes": {
+        "L": [
+          {
+            "M": {
+              "name": {
+                "S": "Adult"
+              },
+              "price": {
+                "N": "50"
+              }
+            }
+          },
+          {
+            "M": {
+              "name": {
+                "S": "Child"
+              },
+              "price": {
+                "N": "20"
+              }
+            }
+          }
+        ]
+      },
+      "id": {
+        "S": "7e3b92d2-0780-4883-9904-e606f73f1df9"
+      },
+      "name": {
+        "S": "70th Anniversary Gala"
+      }
+    }
+  ],
+  "expected": [
+    {
+      "index": "EVENT",
+      "ticketSaleEndDate": null,
+      "maxTickets": 300,
+      "eventDate": "2023/10/01",
+      "ticketSaleStartDate": null,
+      "ticketTypes": [
+        {
+          "name": "Advance",
+          "price": 18
+        }
+      ],
+      "id": "66019f39-c67a-487e-82c7-e236686a5d87",
+      "name": "Traditional Lithuanian Dinner"
+    },
+    {
+      "index": "EVENT",
+      "ticketSaleEndDate": null,
+      "maxTickets": 100,
+      "eventDate": "2023/04/22",
+      "ticketSaleStartDate": null,
+      "ticketTypes": [
+        {
+          "name": "Adult",
+          "price": 50
+        },
+        {
+          "name": "Child",
+          "price": 20
+        }
+      ],
+      "id": "7e3b92d2-0780-4883-9904-e606f73f1df9",
+      "name": "70th Anniversary Gala"
+    }
+  ]
+}

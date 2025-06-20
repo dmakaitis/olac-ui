@@ -61,8 +61,8 @@ export async function saveReservation(reservation: Reservation, sendNotification
     const command = new InvokeCommand({
         FunctionName: process.env.SAVE_RESERVATION_FUNCTION,
         Payload: JSON.stringify({
-            reservation: reservation,
-            username: username
+            reservation,
+            username
         }),
         LogType: LogType.Tail
     });
@@ -85,12 +85,12 @@ export function normalizePaymentsAndStatus(reservation: Reservation, username: s
 
     // Update status, if needed
     if (reservation.status === 'PENDING_PAYMENT' || reservation.status === 'RESERVED') {
-        let amountPaid = reservation.payments
+        const amountPaid = reservation.payments
             .filter(p => p.status === 'SUCCESSFUL')
             .map(p => p.amount)
             .reduce((a, b) => a + b, 0);
 
-        let amountDue = reservation.ticketCounts
+        const amountDue = reservation.ticketCounts
             .map(t => t.count * t.costPerTicket)
             .reduce((a, b) => a + b, 0);
 

@@ -19,7 +19,7 @@ exports[`ConfigUtilityStack Config utility stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "85009aa0e240c236f1b3d59cc01e53fc8bad7e95b8a2063b9e6eea5b8171ddf8.zip",
+          "S3Key": "c36cee8e55e7e9f8cfab0b304e81aa4b2d19261c1aa2b8f198be969cfef6afb2.zip",
         },
         "Description": "Returns the application configuration",
         "Environment": {

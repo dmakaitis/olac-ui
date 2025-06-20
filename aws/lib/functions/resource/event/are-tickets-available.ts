@@ -1,4 +1,4 @@
-import {APIGatewayProxyEvent, APIGatewayProxyResult, Handler} from 'aws-lambda';
+import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda';
 import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 import {DynamoDBDocument} from "@aws-sdk/lib-dynamodb";
 import {Reservation} from "./reservation";
@@ -9,11 +9,6 @@ const docClient = DynamoDBDocument.from(client);
 interface Request {
     eventId: string,
     requestedTicketCount: number
-}
-
-interface Response {
-    statusCode: number,
-    body: string
 }
 
 export async function apiHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
@@ -73,8 +68,7 @@ async function getTotalTicketsSold(eventId: string): Promise<number> {
         }
     });
 
-    // @ts-ignore
-    let items: Reservation[] = getReservationsResponse.Items || [];
+    let items: Reservation[] = getReservationsResponse.Items as Reservation[] || [];
     let totalTicketsSold = items.map(r => r.ticketCounts.reduce((a, b) => a + b.count, 0))
         .reduce((a, b) => a + b, 0);
 
@@ -89,8 +83,7 @@ async function getTotalTicketsSold(eventId: string): Promise<number> {
             ExclusiveStartKey: getReservationsResponse.LastEvaluatedKey
         });
 
-        // @ts-ignore
-        items = getReservationsResponse.Items || [];
+        items = getReservationsResponse.Items as Reservation[] || [];
         totalTicketsSold = items.map(r => r.ticketCounts.reduce((a, b) => a + b.count, 0))
             .reduce((a, b) => a + b, totalTicketsSold);
     }

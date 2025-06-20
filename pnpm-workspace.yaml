@@ -1,0 +1,10 @@
+packages:
+  - sanity
+  - quasar
+  - aws
+
+onlyBuiltDependencies:
+  - aws-sdk
+  - core-js
+  - esbuild
+  - vue-demi

@@ -39,7 +39,7 @@ export const floatingimages = defineType({
       return {
         title: hasMoreTitles ? `${title}...` : title,
         subtitle: left ? "Float on left side" : "Float on right side",
-        media: media
+        media
       }
     }
   }

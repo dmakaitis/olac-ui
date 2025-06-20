@@ -27,7 +27,7 @@ export default route(function ({store}) {
 
     const Router = createRouter({
         scrollBehavior: () => ({left: 0, top: 0}),
-        routes: routes,
+        routes,
 
         // Leave this as is and make changes in quasar.conf.js instead!
         // quasar.conf.js -> build -> vueRouterMode
@@ -36,7 +36,7 @@ export default route(function ({store}) {
     })
 
     Router.beforeEach((to, from, next) => {
-        var tokens = parseTokens(to);
+        const tokens = parseTokens(to);
         console.log(`OIDC Tokens: ${JSON.stringify(tokens)}`);
 
         if (tokens.access_token) {
@@ -77,7 +77,7 @@ export default route(function ({store}) {
         }
     })
 
-    Router.afterEach((to, from, next) => {
+    Router.afterEach((to, _from, _next) => {
         gtag('event', 'page_view', {
             page_title: to.name,
             page_location: to.fullPath
@@ -88,13 +88,13 @@ export default route(function ({store}) {
 })
 
 function parseTokens(to: RouteLocationNormalized): OIDCResponse {
-    var tokens: any = {};
+    const tokens: any = {};
 
-    var path = to.fullPath.slice(1);
+    const path = to.fullPath.slice(1);
 
-    var pathParts = path.split("&");
+    const pathParts = path.split("&");
     pathParts.forEach(part => {
-        var pieces = part.split("=");
+        const pieces = part.split("=");
         if (pieces.length == 2) {
             tokens[pieces[0]] = pieces[1];
         }
