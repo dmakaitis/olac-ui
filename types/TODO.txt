@@ -1,0 +1,2 @@
+This folder is where we'll start defining types that can be shared between the other modules (delete this file once
+we start doing this - this file is just a reminder for future me).
