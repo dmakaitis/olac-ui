@@ -1,7 +1,8 @@
 {
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "lint": "pnpm eslint ."
+    "lint": "pnpm eslint .",
+    "build": "pnpm -r build"
   },
   "engines": {
     "node": ">=22.16.0",

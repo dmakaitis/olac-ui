@@ -31,7 +31,7 @@
   ],
   "exclude": [
     "**/*.d.ts",
+    "**/*.js",
     "node_modules",
-    "cdk.out"
   ],
 }
