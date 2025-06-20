@@ -1,14 +1,10 @@
 import {DynamoDBClient, QueryCommand} from "@aws-sdk/client-dynamodb";
 import {DynamoDBDocumentClient, QueryCommandInput} from "@aws-sdk/lib-dynamodb";
-import {APIGatewayEvent, ProxyResult} from "aws-lambda";
+import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
 import {unmarshall} from "@aws-sdk/util-dynamodb";
+import {Event, QueryResults} from "@olac/types";
 
-interface ResponseBody {
-    items?: Record<string, any>[],
-    nextStartKey?: string
-}
-
-export async function handler(event: APIGatewayEvent):Promise<ProxyResult> {
+export async function handler(event: APIGatewayProxyEvent):Promise<APIGatewayProxyResult> {
     const client = new DynamoDBClient({});
     const docClient = DynamoDBDocumentClient.from(client);
 
@@ -33,9 +29,9 @@ export async function handler(event: APIGatewayEvent):Promise<ProxyResult> {
     const response = await docClient.send(command);
     const items = response.Items || [];
 
-    const responseBody: ResponseBody = {
-        items: items.map((item) => {
-            return unmarshall(item)
+    const responseBody: QueryResults<Event> = {
+        items: items.map((item): Event => {
+            return unmarshall(item) as Event
         }),
     };
 

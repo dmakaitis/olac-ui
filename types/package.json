@@ -1,0 +1,12 @@
+{
+  "name": "@olac/types",
+  "version": "1.0.0",
+  "description": "Common types for the OLAC website code",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

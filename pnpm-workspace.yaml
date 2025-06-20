@@ -1,4 +1,5 @@
 packages:
+  - types
   - sanity
   - quasar
   - aws
