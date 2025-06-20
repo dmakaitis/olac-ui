@@ -1,18 +1,3 @@
-export interface TicketType {
-    name: string,
-    price: number
-}
-
-export interface Event {
-    id?: string,
-    name: string,
-    eventDate?: string,
-    ticketSaleStartDate?: string,
-    ticketSaleEndDate?: string,
-    maxTickets?: number,
-    ticketTypes: TicketType[]
-}
-
 export interface TicketCount {
     typeName: string,
     costPerTicket: number,

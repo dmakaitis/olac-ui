@@ -2,21 +2,7 @@
 import {onMounted, ref} from "vue";
 import {api} from "boot/axios";
 import {copyToClipboard, QTableColumn} from "quasar";
-
-interface TicketTypes {
-  name: string,
-  price: number
-}
-
-interface Event {
-  id?: string,
-  eventDate: string,
-  name: string,
-  maxTickets?: number,
-  ticketSaleStartDate?: string,
-  ticketSaleEndDate?: string,
-  ticketTypes: TicketTypes[]
-}
+import {Event} from "@olac/types";
 
 const state = ref({
   rows: []

@@ -4,19 +4,7 @@ import {api} from "boot/axios";
 import {currency} from "boot/helper";
 import PayPalButton from "components/PayPalButton.vue";
 import {QField} from "quasar";
-
-interface Event {
-  id: string,
-  name: string,
-  eventDate: string,
-  ticketSaleStartDate?: string,
-  ticketSaleEndDate?: string,
-  maxTickets?: number,
-  ticketTypes?: {
-    name: string,
-    price: number
-  }[]
-}
+import {Event} from "@olac/types";
 
 interface TicketType {
   name: string,

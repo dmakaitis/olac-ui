@@ -1,15 +1,15 @@
-import {Handler} from 'aws-lambda';
+import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda';
 import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 import {DynamoDBDocument} from "@aws-sdk/lib-dynamodb";
 import {randomUUID} from "crypto";
 
-import {Event} from "./event";
+import {Event} from "@olac/types";
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocument.from(client);
 
-export const handler: Handler = async (event) => {
-    const body: Event = JSON.parse(event.body);
+export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+    const body: Event = JSON.parse(event.body || '{}');
 
     if (event.httpMethod === "PUT" || isValidEvent(body)) {
         const newEvent = {
@@ -39,13 +39,13 @@ export const handler: Handler = async (event) => {
         });
 
         return {
-            statusCode: "200",
+            statusCode: 200,
             body: JSON.stringify(getResponse.Item)
         };
     } else {
         throw("Failed to save event - invalid input");
     }
-};
+}
 
 function isUndefinedOrValidDate(eventDate: string | undefined) {
     if (!eventDate) {

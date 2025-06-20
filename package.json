@@ -1,11 +1,15 @@
 {
   "scripts": {
     "preinstall": "npx only-allow pnpm",
+    "clean": "pnpm -r clean",
     "lint": "pnpm eslint .",
     "build": "pnpm -r build"
   },
   "engines": {
     "node": ">=22.16.0",
     "npm": ">=10.9.2"
+  },
+  "devDependencies": {
+    "eslint": "^9.29.0"
   }
 }

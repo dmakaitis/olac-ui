@@ -138,6 +138,7 @@ export default tseslint.config(
             "**/dist",
             "**/bin/**/*.js",
             "**/lib/**/*.js",
+            "**/src/**/*.js",
             "**/test/**/*.js",
             "**/*.d.ts",
             "**/*.snap",

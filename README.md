@@ -25,7 +25,7 @@ forget to use ```nvm``` to select the correct Node.js version every time the ter
 
 ## Build Process - Automatic
 
-From the root directory of the project, run the ```pnpm -r build``` command. This will build all projects to prepare
+From the root directory of the project, run the ```pnpm build``` command. This will build all projects to prepare
 them for deployment.
 
 Once built, the code will still need to be manually deployed by running one or more of the following commands from the

@@ -1,10 +1,11 @@
 {
   "name": "@olac/types",
   "version": "1.0.0",
+  "private": true,
   "description": "Common types for the OLAC website code",
-  "main": "src/index.ts",
   "types": "src/index.d.ts",
   "scripts": {
+    "clean": "rimraf -g '*([src|test])/**/*.js' '*([src|test])/**/*.d.ts'",
     "build": "tsc"
   },
   "devDependencies": {
