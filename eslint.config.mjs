@@ -142,7 +142,7 @@ export default tseslint.config(
             "**/test/**/*.js",
             "**/*.d.ts",
             "**/*.snap",
-            "aws/cdk.out"
+            "**/cdk.out"
         ]
     }
 )

@@ -7,7 +7,8 @@ import {useStore} from "vuex";
 import ReservationDialog from "components/ReservationDialog.vue";
 import PaymentDialog from "components/PaymentDialog.vue";
 import ConfirmationDialog from "components/ConfirmationDialog.vue";
-import {Event, IndexedPayment, Payment, Reservation, TicketCount} from "src/types";
+import {Event, Payment, Reservation, TicketCount} from "@olac/types"
+import {IndexedPayment} from "src/types";
 
 const store = useStore();
 const splitterSize = ref(400);
@@ -96,7 +97,7 @@ function loadEvents(startKey: string | undefined = undefined) {
       .then(response => {
         // noinspection JSValidateTypes
         events.value = events.value.concat(response.data.items.map(e => {
-          return {id: e.id, name: e.name, date: e.eventDate, ticketTypes: e.ticketTypes}
+          return {id: e.id, name: e.name, eventDate: e.eventDate, ticketTypes: e.ticketTypes}
         }));
         if (response.data.nextStartKey) {
           loadEvents(response.data.nextStartKey);

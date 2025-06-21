@@ -4,7 +4,8 @@ import {currency} from "boot/helper";
 import {date, QTableColumn} from "quasar";
 import {api} from "boot/axios";
 import {useStore} from "vuex";
-import {IndexedPayment, Payment, Reservation, TicketCount} from "src/types";
+import {Payment, Reservation, TicketCount} from "@olac/types"
+import {IndexedPayment} from "src/types";
 
 interface AuditEntry {
   timestamp: string,

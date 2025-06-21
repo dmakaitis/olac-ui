@@ -190,7 +190,7 @@ function onReset() {
 
 function getInitialWidgetState(event: Event) {
   if (event.ticketTypes?.length) {
-    const today = new Date().toJSON().substring(0, 10).replaceAll('-', '/');
+    const today = new Date().toJSON().substring(0, 10).replace(/-/g, '/');
 
     console.log(`Today is ${today}`);
 

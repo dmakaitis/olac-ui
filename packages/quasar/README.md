@@ -5,9 +5,7 @@ A Quasar Project
 ## Install the dependencies
 
 ```bash
-yarn
-# or
-npm install
+pnpm install
 ```
 
 ### Start the app in development mode (hot-code reloading, error reporting, etc.)
@@ -19,17 +17,13 @@ quasar dev
 ### Lint the files
 
 ```bash
-yarn lint
-# or
-npm run lint
+pnpm lint
 ```
 
 ### Format the files
 
 ```bash
-yarn format
-# or
-npm run format
+pnpm format
 ```
 
 ### Build the app for production
