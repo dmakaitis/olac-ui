@@ -1,5 +1,5 @@
 {
-  "name": "olac",
+  "name": "@olac/aws",
   "version": "0.1.0",
   "bin": {
     "olac": "bin/olac.js"

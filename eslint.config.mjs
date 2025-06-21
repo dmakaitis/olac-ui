@@ -129,8 +129,8 @@ export default tseslint.config(
     },
     {
         ignores: [
-            "sanity/.sanity",
-            "quasar/.quasar",
+            "**/.sanity",
+            "**/.quasar",
             "**/.eslintrc.js",
             "**/*.config.js",
             "**/*.config.mjs",

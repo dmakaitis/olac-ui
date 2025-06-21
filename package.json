@@ -3,7 +3,11 @@
     "preinstall": "npx only-allow pnpm",
     "clean": "pnpm -r clean",
     "lint": "pnpm eslint .",
-    "build": "pnpm -r build"
+    "build": "pnpm -r build",
+    "deploy-sanity": "pnpm run --filter bisque-rat deploy",
+    "deploy-dev": "pnpm run --filter @olac/aws deploy-dev",
+    "deploy-test": "pnpm run --filter @olac/aws deploy-test",
+    "deploy-prod": "pnpm run --filter @olac/aws deploy-prod"
   },
   "engines": {
     "node": ">=22.16.0",

@@ -7,7 +7,7 @@ time a new shell is opened):
 
 ```nvm use 22```
 
-Next, ake sure pnpm is installed by entering ```pnpm --version```. If it is not, enter
+Next, make sure pnpm is installed by entering ```pnpm --version```. If it is not, enter
 ```npm install --global pnpm```.
 
 Once pnpm has been installed, make sure the following tools are installed by entering the listed command, and
@@ -23,54 +23,42 @@ if it isn't, use Yarn to install it globally:
 Note that the terminal may need to be restarted after installing a tool before it will appear on the PATH. Don't
 forget to use ```nvm``` to select the correct Node.js version every time the terminal is restarted.
 
-## Build Process - Automatic
+## Build Process
 
-From the root directory of the project, run the ```pnpm build``` command. This will build all projects to prepare
-them for deployment.
+From the root directory of the project, run the following commands:
 
-Once built, the code will still need to be manually deployed by running one or more of the following commands from the
-```aws``` directory:
+* ```pnpm install``` - Downloads and installs all dependencies for all packages.
+* ```pnpm lint``` - Runs the linter on TypeScript source files (optional, if source files have been updated)
+* ```pnpm build``` - Compiles all code and builds artifacts for deployment.
+* ```pnpm test``` - Runs any unit tests for all packages.
 
-* ```pnpm deploy-dev```
-* ```pnpm deploy-test```
-* ```pnpm deploy-prod```
+Once the above commands have been executed, the following commands will deploy the different modules:
 
-Optionally, if any changes have been made to the Sanity schemas, run the following command from the ```sanity```
-directory:
+* ```pnpm deploy-sanity``` - Deploys the Sanity Studio editor to enable editing of articles. The studio may be
+  launched from https://olac.sanity.studio/structure (use Google account to authenticate).
+* ```pnpm deploy-dev``` - Deploys the site to AWS in the "developer" environment. Once deployed, the site can be
+  launched from https://dev.omahalithuanians.org. This environment is intended for developer testing.
+* ```pnpm deploy-test``` - Deploys the site to AWS in the "test" environment. Once deployed, the site can be
+  launched from https://test.omahalithuanians.org. This environment is intended for UAT testing.
+* ```pnpm deploy-prod``` - Deploys the site to AWS in the "production" environment. Once deployed, the site can be
+  launched from https://omahalithuanians.org
 
-* ```sanity login``` (if needed - use the Google account)
-* ```pnpm deploy```
+Note that deployments will require authentication. For AWS deployments, log into the AWS console and follow the
+instructions there to utilize the Access Keys. For Sanity, run the ```sanity login``` command from the 
+```packages/sanity``` directory.
 
-See below for additional details on what is actually being done.
+The OLAC site also includes an admin interface. To access it, append "/#/login" to the end of the URL's above. Once
+you have authenticated once, a cookie will be stored that will enable a login/logout button on the right side of the
+banner at the top of the web site.
 
-## Build Process - Manual
+### Updating Dependencies
 
-### 0. Build and Deploy the Sanity.IO Content Studio
+To update dependencies for a package, run the following command from the directory containing that package:
 
-Technically, this is optional since it only is for deploying the content editors to Sanity.IO. To do this, from the
-```sanity``` directory, run the following:
+```pnpm update -i```
 
-* ```pnpm install``` to download all dependencies.
-* ```sanity login``` to log into Sanity IO (use Google account to authenticate).
-* ```pnpm deploy``` to deploy the studio files to Sanity.IO.
+To update to a new major version, use the following command:
 
-Once deployed, the editor can be accessed at [https://olac.sanity.studio](https://olac.sanity.studio).
+```pnpm update -i --latest```
 
-### 1. Build the Quasar UI
-
-The UI for the website is located in the ```quasar``` directory and must be built before it can be deployed to AWS.
-To build the UI, run the following from the ```quasar``` directory:
-
-* ```pnpm install``` to download all dependencies.
-* ```pnpm build``` to build the UI. The static files that need to be deployed to AWS will be placed into the
-  ```quasar/dist/spa``` directory.
-
-### 2. Build and Deploy the AWS CDK Stack
-
-In the ```aws``` directory, run the following:
-
-* ```pnpm install``` to download all dependencies.
-* ```pnpm build``` to compile all CDK scripts and lambdas.
-* ```pnpm test``` to validate everything. If snapshot validations fail, first verify there really isn't a problem,
-  then update the snapshots with ```pnpm test -u```.
-* ```pnpm deploy-env``` to deploy to one of the following environments: ```dev```, ```test```, or ```prod```.
+Test everything before committing changes, including testing in the developer environment.
