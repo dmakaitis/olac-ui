@@ -1,6 +1,6 @@
 import {DynamoDBClient, QueryCommand} from "@aws-sdk/client-dynamodb";
 import {DynamoDBDocumentClient, QueryCommandInput} from "@aws-sdk/lib-dynamodb";
-import {APIGatewayEvent, ProxyResult} from "aws-lambda";
+import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
 import {unmarshall} from "@aws-sdk/util-dynamodb";
 
 interface ResponseBody {
@@ -8,7 +8,7 @@ interface ResponseBody {
     nextStartKey?: string
 }
 
-export async function handler(event: APIGatewayEvent): Promise<ProxyResult> {
+export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     const client = new DynamoDBClient({});
     const docClient = DynamoDBDocumentClient.from(client);
 

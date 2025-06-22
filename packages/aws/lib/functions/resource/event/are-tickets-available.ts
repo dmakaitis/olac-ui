@@ -1,7 +1,7 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda';
 import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 import {DynamoDBDocument} from "@aws-sdk/lib-dynamodb";
-import {Reservation} from "./reservation";
+import {Reservation} from "@olac/types";
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocument.from(client);

@@ -1,5 +1,5 @@
 import axios from "axios";
-import {Payment, Reservation} from "./reservation";
+import {Payment, Reservation} from "@olac/types";
 
 export async function validateAndAddOnlinePayment(reservation: Reservation, paymentProcessorTransactionId: string, username: string): Promise<Reservation> {
     console.log(`validateAndAddOnlinePayment(${JSON.stringify(reservation)}, ${paymentProcessorTransactionId}, ${username})...`);

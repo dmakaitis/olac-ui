@@ -1,6 +1,6 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
 import {saveReservation} from "./save-reservation";
-import {Reservation} from "./reservation";
+import {Reservation} from "@olac/types";
 import {v4 as uuidv4} from "uuid";
 
 interface SaveReservationAdminRequest {

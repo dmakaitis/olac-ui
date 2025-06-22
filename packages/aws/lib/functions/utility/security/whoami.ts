@@ -1,6 +1,7 @@
 import {CognitoJwtVerifier} from "aws-jwt-verify";
+import {APIGatewayProxyEvent, APIGatewayProxyResult, Context} from "aws-lambda";
 
-export async function handler(event: any, _context: any): Promise<any> {
+export async function handler(event: APIGatewayProxyEvent, _context: Context): Promise<APIGatewayProxyResult> {
     const verifier = CognitoJwtVerifier.create({
         userPoolId: process.env.USER_POOL_ID || 'us-east-2_LKok1DKIU',
         tokenUse: 'access',
@@ -8,7 +9,7 @@ export async function handler(event: any, _context: any): Promise<any> {
     });
 
     try {
-        const payload = await verifier.verify(event.headers.Authorization);
+        const payload = await verifier.verify(event.headers.Authorization || "");
 
         const grants: string[] = [];
 

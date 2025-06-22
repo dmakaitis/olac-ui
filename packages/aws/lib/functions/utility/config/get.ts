@@ -1,25 +1,6 @@
-type PayPalConfig = {
-    "api-base": string | undefined;
-    client: string | undefined;
-    donationButtonId: string | undefined;
-}
+import {ConfigUtilityGetResult} from "@olac/types"
 
-type CognitoConfig = {
-    domain: string | undefined;
-    clientId: string | undefined;
-    redirectUri: string | undefined;
-}
-
-type OlacConfig = {
-    paypal: PayPalConfig;
-    cognito: CognitoConfig;
-}
-
-export type Config = {
-    olac: OlacConfig;
-}
-
-export async function handler(_event: any, _context: any) : Promise<Config> {
+export async function handler(_event: any, _context: any) : Promise<ConfigUtilityGetResult> {
     return {
         "olac": {
             "paypal": {

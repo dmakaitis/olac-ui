@@ -2,7 +2,7 @@ import {Handler} from 'aws-lambda';
 import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 import {DynamoDBDocument} from "@aws-sdk/lib-dynamodb";
 
-import {Reservation} from "./reservation";
+import {Reservation} from "@olac/types";
 
 import {randomUUID} from "crypto";
 
@@ -35,10 +35,10 @@ export const apiHandler: Handler = async (event) => {
             id: event.pathParameters?.reservationId || body.id || randomUUID(),
             eventId: event.pathParameters?.eventId || body.eventId,
             reservationId: body.reservationId || await getNewReservationId(),
-            firstName: body.firstName || null,
-            lastName: body.lastName || null,
-            email: body.email || null,
-            phone: body.phone || null,
+            firstName: body.firstName || "",
+            lastName: body.lastName || "",
+            email: body.email || "",
+            phone: body.phone,
             status: body.status || 'PENDING_PAYMENT',
             reservationTimestamp: body.reservationTimestamp || new Date().toJSON(),
             ticketCounts: ticketCounts
@@ -50,7 +50,7 @@ export const apiHandler: Handler = async (event) => {
 
         updateStatus(newEventReservation, event?.requestContext?.authorizer?.username || 'anonymous');
 
-        console.log(`Saving new reservation: ${JSON.stringify(newEventReservation, (k, v) => v === undefined ? "~~~UNDEFINED~~~" : v)}`);
+        console.log(`Saving new reservation: ${JSON.stringify(newEventReservation, (_k, v) => v === undefined ? "~~~UNDEFINED~~~" : v)}`);
 
         const response = await docClient.put({
             TableName: process.env.TABLE_NAME,
@@ -111,7 +111,7 @@ export async function handler(request: SaveReservationRequest): Promise<Reservat
         await logReservationEvent(reservation?.id || 'unknown', `Saving new reservation for ${reservation.firstName} ${reservation.lastName}`, request.username);
     }
 
-    docClient.put({
+    await docClient.put({
         TableName: process.env.TABLE_NAME,
         Item: reservation
     });

@@ -1,5 +1,5 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
-import {Reservation, TicketCount} from "./reservation";
+import {Reservation, TicketCount} from "@olac/types";
 import {InvokeCommand, LambdaClient, LogType} from "@aws-sdk/client-lambda";
 import {validateAndAddOnlinePayment} from "./payment";
 
@@ -16,7 +16,7 @@ export interface NewReservationRequest {
 }
 
 export async function apiHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-    const request = JSON.parse(event.body || "{}");
+    const request = JSON.parse(event.body || "{}") as NewReservationRequest;
     request.eventId = event.pathParameters?.eventId || '';
     request.username = event.requestContext.authorizer?.username || 'anonymous';
 

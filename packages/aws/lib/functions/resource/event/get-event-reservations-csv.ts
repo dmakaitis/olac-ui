@@ -1,7 +1,7 @@
-import {Handler} from 'aws-lambda';
+import {APIGatewayProxyEvent, APIGatewayProxyResult, Handler} from 'aws-lambda';
 import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 import {DynamoDBDocument, QueryCommandInput} from "@aws-sdk/lib-dynamodb";
-import {Reservation, Payment} from "./reservation";
+import {Reservation, Payment} from "@olac/types";
 import {json2csv} from "json-2-csv";
 
 interface TicketType {
@@ -12,14 +12,14 @@ interface TicketType {
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocument.from(client);
 
-export const handler: Handler = async (event) => {
+export const handler: Handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const queryCommandInput: QueryCommandInput = {
         TableName: process.env.TABLE_NAME,
         IndexName: "GlobalEventIndex",
         ScanIndexForward: false,
         KeyConditionExpression: "eventId = :idValue",
         ExpressionAttributeValues: {
-            ":idValue": event.pathParameters.eventId
+            ":idValue": event.pathParameters?.eventId
         }
     };
 
@@ -56,10 +56,10 @@ export const handler: Handler = async (event) => {
         }
     });
 
-    const responseBody = await json2csv(reservationValues);
+    const responseBody = json2csv(reservationValues);
 
     return {
-        statusCode: "200",
+        statusCode: 200,
         body: responseBody
     };
 }

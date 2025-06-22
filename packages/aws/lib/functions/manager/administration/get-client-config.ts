@@ -1,6 +1,8 @@
 import {LambdaClient, InvokeCommand, LogType} from "@aws-sdk/client-lambda";
+import {ConfigUtilityGetResult} from "@olac/types";
+import {APIGatewayProxyEvent, APIGatewayProxyResult, Context} from "aws-lambda";
 
-export async function handler(event: any, _context: any) : Promise<any> {
+export async function handler(event: APIGatewayProxyEvent, _context: Context) : Promise<APIGatewayProxyResult> {
     const client = new LambdaClient({region: "us-east-2"})
     const command = new InvokeCommand({
         FunctionName: process.env.GET_CONFIG_FUNCTION,
@@ -10,8 +12,8 @@ export async function handler(event: any, _context: any) : Promise<any> {
 
     console.log(`Received event: ${JSON.stringify(event)}`);
 
-    const {Payload, } = await client.send(command);
-    const config = JSON.parse(Buffer.from(Payload || "{}").toString());
+    const {Payload} = await client.send(command);
+    const config = JSON.parse(Buffer.from(Payload || "{}").toString()) as ConfigUtilityGetResult;
 
     const showLogin = doesCookieExist(event.headers);
 

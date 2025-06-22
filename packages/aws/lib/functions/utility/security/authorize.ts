@@ -1,4 +1,4 @@
-import {APIGatewayRequestAuthorizerEvent, AuthResponse} from "aws-lambda";
+import {APIGatewayRequestAuthorizerEvent, AuthResponse, Context} from "aws-lambda";
 import {CognitoJwtVerifier} from "aws-jwt-verify";
 import {StatementEffect} from "aws-lambda/trigger/api-gateway-authorizer";
 
@@ -8,7 +8,7 @@ interface UserInfo {
     groups: Array<string>
 }
 
-export async function handler(event: APIGatewayRequestAuthorizerEvent, _context: any): Promise<AuthResponse> {
+export async function handler(event: APIGatewayRequestAuthorizerEvent, _context: Context): Promise<AuthResponse> {
     const verifier = CognitoJwtVerifier.create({
         userPoolId: process.env.USER_POOL_ID || 'us-east-2_LKok1DKIU',
         tokenUse: 'access',

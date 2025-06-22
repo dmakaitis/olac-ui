@@ -1,3 +1,7 @@
+//**********************************
+// Event related types:
+//**********************************
+
 export interface TicketTypes {
     name: string,
     price: number
@@ -12,6 +16,10 @@ export interface Event {
     maxTickets?: number,
     ticketTypes: TicketTypes[]
 }
+
+//**********************************
+// Event reservation related types:
+//**********************************
 
 export interface TicketCount {
     typeName: string,
@@ -41,6 +49,35 @@ export interface Reservation {
     ticketCounts: TicketCount[],
     payments: Payment[]
 }
+
+//**********************************
+// Utility related types
+//**********************************
+
+type PayPalConfig = {
+    "api-base": string | undefined;
+    client: string | undefined;
+    donationButtonId: string | undefined;
+}
+
+type CognitoConfig = {
+    domain: string | undefined;
+    clientId: string | undefined;
+    redirectUri: string | undefined;
+}
+
+type OlacConfig = {
+    paypal: PayPalConfig;
+    cognito: CognitoConfig;
+}
+
+export type ConfigUtilityGetResult = {
+    olac: OlacConfig;
+}
+
+//**********************************
+// API related types
+//**********************************
 
 export interface QueryResults<T> {
     items: T[],
