@@ -20,7 +20,7 @@ exports[`ReservationManagerStack Reservation manager stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "e50f4c5527a9b3206af811ceb418a9f55555c25d6304b4940f95fa90b37a39fb.zip",
+          "S3Key": "09c1a960720b1f10f4092179bc78462bf9abaeff7d9b4eb8eba8bf189aa3d982.zip",
         },
         "Description": "Retrieves an event from the datastore",
         "Environment": {

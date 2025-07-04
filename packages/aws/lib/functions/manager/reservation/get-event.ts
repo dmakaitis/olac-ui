@@ -10,6 +10,9 @@ export async function handler(event: APIGatewayProxyEvent, _context: Context): P
         return {
             statusCode: 200,
             body: JSON.stringify(rVal),
+            headers: {
+                'Content-Type': 'application/json',
+            }
         }
     } else {
         console.log(`No event exists with id: ${eventId}`);

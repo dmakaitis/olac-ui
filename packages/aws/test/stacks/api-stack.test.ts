@@ -68,6 +68,7 @@ describe("ApiStack", () => {
             newReservationIdFunction: reservation.apiGetNewReservationIdFunction,
             postNewReservationFunction: reservation.apiSaveReservationFunction,
             reservationSaveFunction: reservation.apiSaveReservationAdminFunction,
+            getEventFunction: reservation.apiGetEventFunction,
 
             getClientConfigFunction: admin.getClientConfigFunction,
 

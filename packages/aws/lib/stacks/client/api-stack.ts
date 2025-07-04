@@ -17,6 +17,7 @@ interface ApiStackProps extends cdk.StackProps {
     newReservationIdFunction: Function,
     whoAmIFunction: Function,
 
+    getEventFunction: Function,
     eventListFunction: Function,
     eventSaveFunction: Function,
     eventDeleteFunction: Function,
@@ -208,51 +209,9 @@ export class ApiStack extends cdk.Stack {
         }), authorizers.admin);
 
         const eventsEventId = events.addResource("{eventId}");
-        eventsEventId.addMethod("GET", new AwsIntegration({
-            service: "dynamodb",
-            action: "GetItem",
-            options: {
-                credentialsRole: apiRole,
-                requestTemplates: {
-                    "application/json": `{
-                        "TableName": "${props.eventsTable.tableName}",
-                        "Key": {
-                            "id": {
-                                "S": "$method.request.path.eventId"
-                            }
-                        }
-                    }`
-                },
-                integrationResponses: [
-                    {
-                        statusCode: '200',
-                        responseTemplates: {
-                            "application/json": `
-                                #set($inputRoot = $input.path('$'))
-                                {
-                                    "id": "$inputRoot.Item.id.S",
-                                    "name": "$inputRoot.Item.name.S",
-                                    "eventDate": "$inputRoot.Item.eventDate.S",
-                                    #if($inputRoot.Item.ticketSaleStartDate.S != "") "ticketSaleStartDate": "$inputRoot.Item.ticketSaleStartDate.S",#end
-                                    #if($inputRoot.Item.ticketSaleEndDate.S != "") "ticketSaleEndDate": "$inputRoot.Item.ticketSaleEndDate.S",#end
-                                    #if($inputRoot.Item.maxTickets.N != "") "maxTickets": $inputRoot.Item.maxTickets.N,#end
-                                    "ticketTypes": [
-                                        #foreach($ticketType in $inputRoot.Item.ticketTypes.L)
-                                            {
-                                                "name": "$ticketType.M.name.S",
-                                                "price": $ticketType.M.price.N
-                                            }#if($foreach.hasNext),#end
-                                        #end
-                                    ]
-                                }`
-                        }
-                    },
-                    ...errorResponses
-                ]
-            }
-        }), {
-            methodResponses: [{statusCode: '200'}, {statusCode: '400'}, {statusCode: '500'}]
-        });
+        eventsEventId.addMethod("GET", new LambdaIntegration(props.getEventFunction, {
+            requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+        }));
         eventsEventId.addMethod("PUT", new LambdaIntegration(props.eventSaveFunction, {
             requestTemplates: {"application/json": '{ "statusCode": "200" }'}
         }), authorizers.admin);
