@@ -45,7 +45,8 @@ describe("ApiStack", () => {
                 clientId: "test-paypal-client-id",
                 secret: "my-paypal-secret"
             },
-            saveReservationFunction: event.saveReservationFunction
+            saveReservationFunction: event.saveReservationFunction,
+            eventsTable: event.eventsTable
         });
 
         admin = new AdministrationManagerStack(app, "AdministrationManagerStack", {

@@ -1,12 +1,13 @@
 import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import {Construct} from 'constructs';
-import {Function} from 'aws-cdk-lib/aws-lambda';
+import {Code, Function, Runtime} from 'aws-cdk-lib/aws-lambda';
 import {Duration} from "aws-cdk-lib";
 
 export interface ReservationManagerStackProps extends cdk.StackProps {
 
-    saveReservationFunction: Function;
+    saveReservationFunction: Function,
+    eventsTable: cdk.aws_dynamodb.Table,
 
     payPal: {
         apiBase: string,
@@ -21,6 +22,7 @@ export class ReservationManagerStack extends cdk.Stack {
     readonly apiGetNewReservationIdFunction: Function;
     readonly apiSaveReservationFunction: Function;
     readonly apiSaveReservationAdminFunction: Function;
+    readonly apiGetEventFunction: Function;
 
     constructor(scope: Construct, id: string, props: ReservationManagerStackProps) {
         super(scope, id, props);
@@ -60,5 +62,16 @@ export class ReservationManagerStack extends cdk.Stack {
             }
         });
         props.saveReservationFunction.grantInvoke(this.apiSaveReservationAdminFunction);
+
+        this.apiGetEventFunction = new Function(this, 'GetEventApi', {
+            description: 'Retrieves an event from the datastore',
+            runtime: Runtime.NODEJS_22_X,
+            code: Code.fromAsset('./dist/lambda/manager/reservation/get-event'),
+            handler: 'get-event.handler',
+            environment: {
+                EVENT_TABLE_NAME: props.eventsTable.tableName
+            }
+        });
+        props.eventsTable.grantReadData(this.apiGetEventFunction);
     }
 }

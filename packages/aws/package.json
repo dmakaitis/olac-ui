@@ -21,6 +21,7 @@
     "@aws-sdk/client-dynamodb": "^3.830.0",
     "@aws-sdk/client-lambda": "^3.830.0",
     "@aws-sdk/lib-dynamodb": "^3.830.0",
+    "@olac/reservation-manager": "workspace:*",
     "@olac/types": "workspace:*",
     "@types/aws-lambda": "^8.10.150",
     "aws-cdk-lib": "^2.201.0",

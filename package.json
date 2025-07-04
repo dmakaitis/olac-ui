@@ -3,6 +3,7 @@
     "preinstall": "npx only-allow pnpm",
     "clean": "pnpm -r clean",
     "lint": "pnpm eslint .",
+    "test": "pnpm -r test",
     "build": "pnpm -r build",
     "deploy-sanity": "pnpm run --filter bisque-rat deploy",
     "deploy-dev": "pnpm run --filter @olac/aws deploy-dev",
@@ -14,6 +15,7 @@
     "npm": ">=10.9.2"
   },
   "devDependencies": {
-    "eslint": "^9.29.0"
+    "eslint": "^9.29.0",
+    "typescript-eslint": "^8.34.1"
   }
 }

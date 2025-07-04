@@ -63,6 +63,7 @@ class OlacConstruct extends Construct {
         });
         const reservationStack = new ReservationManagerStack(this, 'ReservationManager', {
             saveReservationFunction: eventStack.saveReservationFunction,
+            eventsTable: eventStack.eventsTable,
             payPal: props.payPal
         });
 

@@ -1,0 +1,21 @@
+{
+  "name": "@olac/event-access",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Event access service for OLAC website",
+  "types": "./src/index.d.ts",
+  "exports": "./src/index.js",
+  "scripts": {
+    "clean": "rimraf -g '*([src|test])/**/*.js' '*([src|test])/**/*.d.ts'",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.830.0",
+    "@aws-sdk/lib-dynamodb": "^3.830.0",
+    "@olac/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.1",
+    "typescript": "^5.8.3"
+  }
+}

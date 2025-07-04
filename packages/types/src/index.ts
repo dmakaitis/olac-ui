@@ -2,7 +2,7 @@
 // Event related types:
 //**********************************
 
-export interface TicketTypes {
+export interface TicketType {
     name: string,
     price: number
 }
@@ -14,7 +14,7 @@ export interface Event {
     ticketSaleStartDate?: string,
     ticketSaleEndDate?: string,
     maxTickets?: number,
-    ticketTypes: TicketTypes[]
+    ticketTypes: TicketType[]
 }
 
 //**********************************

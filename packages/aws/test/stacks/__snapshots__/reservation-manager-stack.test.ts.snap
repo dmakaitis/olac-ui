@@ -10,6 +10,113 @@ exports[`ReservationManagerStack Reservation manager stack creation 1`] = `
     },
   },
   "Resources": {
+    "GetEventApiAEF6D347": {
+      "DependsOn": [
+        "GetEventApiServiceRoleDefaultPolicy3C01EA52",
+        "GetEventApiServiceRole0E7593BB",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "e50f4c5527a9b3206af811ceb418a9f55555c25d6304b4940f95fa90b37a39fb.zip",
+        },
+        "Description": "Retrieves an event from the datastore",
+        "Environment": {
+          "Variables": {
+            "EVENT_TABLE_NAME": {
+              "Fn::ImportValue": "EventResourceStack:ExportsOutputRefEventTable3F3CD4B25C10E802",
+            },
+          },
+        },
+        "Handler": "get-event.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "GetEventApiServiceRole0E7593BB",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "GetEventApiServiceRole0E7593BB": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "GetEventApiServiceRoleDefaultPolicy3C01EA52": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttEventTable3F3CD4B2Arn3B7AEA50",
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "EventResourceStack:ExportsOutputFnGetAttEventTable3F3CD4B2Arn3B7AEA50",
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "GetEventApiServiceRoleDefaultPolicy3C01EA52",
+        "Roles": [
+          {
+            "Ref": "GetEventApiServiceRole0E7593BB",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
     "GetNewReservationIdDDB46ED0": {
       "DependsOn": [
         "GetNewReservationIdServiceRole6EE55A20",
@@ -74,7 +181,7 @@ exports[`ReservationManagerStack Reservation manager stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "35f31a71bacf11a6c25300928cfe4445976ee9f2ee93db64384ee082d1e4052f.zip",
+          "S3Key": "6c75b9e90328da90e289d105e9f9b3fec425cd4e6db7030ffa69951036ce8ffe.zip",
         },
         "Description": "Saves a new reservation to the datastore (for event coordinator use)",
         "Environment": {
@@ -175,7 +282,7 @@ exports[`ReservationManagerStack Reservation manager stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "fc384f201ef2ca24e34e05872550b8d6623c1e94d68d0a2169424f7c76fb41cf.zip",
+          "S3Key": "c8a0359a1261f84f81c4a8958797de504558dac59f78997c1c79f0843fd3aa4f.zip",
         },
         "Description": "Saves a new reservation to the datastore (for public use)",
         "Environment": {

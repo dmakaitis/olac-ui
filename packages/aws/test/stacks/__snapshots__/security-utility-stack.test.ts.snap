@@ -35,7 +35,7 @@ exports[`SecurityUtilityStack Seurity utility stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "70ec1ee8cc67ada579be199da93f09fb7d6efe33a4f0cb2c96fa2c98a39d5224.zip",
+          "S3Key": "856b684adbd0bcb61aa92d57946ff058c7ea27f1cb2c82dc69e21531780f7609.zip",
         },
         "Description": "Returns the identity of the caller",
         "Environment": {

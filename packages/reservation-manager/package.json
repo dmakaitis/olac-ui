@@ -1,0 +1,22 @@
+{
+  "name": "@olac/reservation-manager",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reservation manager for OLAC website",
+  "types": "src/index.d.ts",
+  "exports": "./src/index.js",
+  "scripts": {
+    "clean": "rimraf -g '*([src|test])/**/*.js' '*([src|test])/**/*.d.ts'",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.830.0",
+    "@aws-sdk/lib-dynamodb": "^3.830.0",
+    "@olac/event-access": "workspace:*",
+    "@olac/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.10",
+    "typescript": "^5.8.3"
+  }
+}
