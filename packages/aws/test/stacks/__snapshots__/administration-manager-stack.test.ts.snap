@@ -20,7 +20,7 @@ exports[`AdministrationManagerStack Administration manager stack creation 1`] = 
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "82ed860cff20c460849ff906b689089f6309a6baa530b217b4aec0050e3d276a.zip",
+          "S3Key": "7984f1e9743b9d33b7c1f3434ac62cf769264ad272e90350eb244680cea73b2b.zip",
         },
         "Description": "Retrieve the client configuration for the UI",
         "Environment": {

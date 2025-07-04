@@ -10,8 +10,8 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.830.0",
-    "@aws-sdk/lib-dynamodb": "^3.830.0",
+    "@aws-sdk/client-dynamodb": "^3.840.0",
+    "@aws-sdk/lib-dynamodb": "^3.840.0",
     "@olac/event-access": "workspace:*",
     "@olac/types": "workspace:*"
   },

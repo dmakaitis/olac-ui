@@ -511,6 +511,9 @@ exports[`ApiStack API stack creation 1`] = `
         "OlacApiapi5A46DC5C",
         "OlacApiOPTIONSE209C28F",
       ],
+      "Metadata": {
+        "aws:cdk:do-not-refactor": true,
+      },
       "Properties": {
         "Description": "API for the OLAC website back end functions",
         "RestApiId": {
