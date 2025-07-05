@@ -2,11 +2,7 @@ import {Event} from "@olac/types";
 import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 import {DynamoDBDocumentClient, GetCommand} from "@aws-sdk/lib-dynamodb";
 
-export interface EventAccess {
-    getEvent(eventId: string): Promise<Event | undefined>;                                                               // GET /api/events/${props.eventId}
-}
-
-async function getEvent(eventId: string): Promise<Event | undefined> {
+export async function getEvent(eventId: string): Promise<Event | undefined> {
     const client = new DynamoDBClient({});
     const docClient = DynamoDBDocumentClient.from(client);
 
@@ -33,13 +29,5 @@ async function getEvent(eventId: string): Promise<Event | undefined> {
         }
     } else {
         return undefined;
-    }
-}
-
-export function getEventAccess() : EventAccess {
-    return {
-        async getEvent(eventId: string): Promise<Event | undefined> {
-            return getEvent(eventId);
-        }
     }
 }

@@ -1,3 +1,4 @@
-import {EventAccess, getEventAccess} from "./impl";
+import {EventAccess} from "./interface";
+import {getEventAccess} from "./factory";
 
 export {EventAccess, getEventAccess};
