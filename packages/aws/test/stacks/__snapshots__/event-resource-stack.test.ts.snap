@@ -20,7 +20,7 @@ exports[`EventResourceStack Event resource stack creation 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "53e2b6295991abb463914780bd7221c4a2500e6099dd65baa74c3b66ab585887.zip",
+          "S3Key": "2dc73c6dbf99fcc63a48a49f9628daabf2ab3ddee496cfd833730b34a8ba5f9d.zip",
         },
         "Description": "Checks to see if the requested number of tickets are available for an event",
         "Environment": {

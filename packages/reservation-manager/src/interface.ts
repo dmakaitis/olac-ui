@@ -13,11 +13,18 @@ export interface ReservationManager {
     /**
      * Returns a new and unique reservation ID for the given event.
      *
-     * @param eventId the event ID for which to create the reservation ID.
+     * @param {string} eventId the event ID for which to create the reservation ID.
      */
     getNewReservationId(eventId: string): string;                                                   // GET /api/events/${props.eventId}/reservations/_new-id
 
-    // areTicketsAvailable(eventId: string, requestedTicketCount: number): boolean;                    // GET /api/events/${props.eventId}/_available?ticketCount=${total}
+    /**
+     * Returns 'true' is the requested number of tickets are still available for the given
+     * event.
+     *
+     * @param {string} eventId the event ID.
+     * @param {number} requestedTicketCount the number of requested tickets.
+     */
+    areTicketsAvailable(eventId: string, requestedTicketCount: number): Promise<boolean>;           // GET /api/events/${props.eventId}/_available?ticketCount=${total}
 
     // saveReservation(reservation: NewReservationRequest, sendNotification: boolean): Reservation;     // POST /api/events/${props.eventId}/_newReservation
 
