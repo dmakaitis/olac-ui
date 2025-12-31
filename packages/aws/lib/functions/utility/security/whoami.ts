@@ -1,5 +1,9 @@
 import {CognitoJwtVerifier} from "aws-jwt-verify";
 import {APIGatewayProxyEvent, APIGatewayProxyResult, Context} from "aws-lambda";
+import {getSecurityUtility} from "@olac/security-utility";
+import {UserData} from "@olac/types";
+
+const securityUtility = getSecurityUtility();
 
 export async function handler(event: APIGatewayProxyEvent, _context: Context): Promise<APIGatewayProxyResult> {
     const verifier = CognitoJwtVerifier.create({
@@ -8,36 +12,20 @@ export async function handler(event: APIGatewayProxyEvent, _context: Context): P
         clientId: process.env.CLIENT_ID || '5nnetbctluvi4q512nlt51hkcl',
     });
 
+    let userData: UserData = {
+        username: 'anonymous',
+        grants: []
+    }
+
     try {
         const payload = await verifier.verify(event.headers.Authorization || "");
-
-        const grants: string[] = [];
-
-        if (payload["cognito:groups"]?.includes(process.env.ADMIN_GROUP_NAME || '__NOTHING__')) {
-            grants.push("ROLE_ADMIN");
-            grants.push("ROLE_EVENT_COORDINATOR");
-        } else if (payload["cognito:groups"]?.includes(process.env.EVENT_COORDINATOR_GROUP_NAME || '__NOTHING__')) {
-            grants.push("ROLE_EVENT_COORDINATOR");
-        }
-
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                username: payload.username,
-                grants
-            }),
-            headers: {
-                "Set-Cookie": "ShowLoginButton=Y; Max-Age=15552000; Path=/"
-            }
-        }
+        userData = securityUtility.getCurrentUser(payload);
     } catch {
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                username: 'anonymous',
-                grants: []
-            })
-        };
+        // Ignore any errors
     }
+
+    return {
+        statusCode: 200,
+        body: JSON.stringify(userData)
+    };
 }

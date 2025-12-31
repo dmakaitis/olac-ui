@@ -75,6 +75,30 @@ export type ConfigUtilityGetResult = {
     olac: OlacConfig;
 }
 
+export type GrantCollection = ('ROLE_ADMIN' | 'ROLE_EVENT_COORDINATOR')[];
+
+export type UserData = {
+    username: string;
+    grants: GrantCollection;
+}
+
+export type JwtToken = {
+    token_use: string;
+    'cognito:groups'?: string[];
+    sub: string;
+    iss: string;
+    exp: number;
+    iat: number;
+    auth_time: number;
+    jti: string;
+    origin_jti?: string;
+
+    client_id: string;
+    version: number;
+    username: string;
+    scope: string;
+}
+
 //**********************************
 // API related types
 //**********************************
